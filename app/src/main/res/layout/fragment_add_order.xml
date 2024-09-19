@@ -1,0 +1,671 @@
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="TextSizeCheck,TextContrastCheck,TouchTargetSizeCheck">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.ssspvtltd.quick.widgets.AppToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:navigationType="back"
+            app:title="Check In-Out" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="16dp"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilMarketerCode"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="4dp"
+                android:enabled="false"
+                android:hint="@string/marketer_code"
+                app:layout_constraintEnd_toStartOf="@id/tilSerialNo"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etMarketerCode"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSerialNo"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:hint="@string/serial_no"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/tilMarketerCode"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etSerialNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSaletParty"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/sale_party"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilMarketerCode">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etSalePartyName"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
+                    android:imeOptions="actionNext"
+                    android:inputType="textFilter"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAvailableLimit"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:enabled="false"
+                android:hint="@string/avail_limit"
+                app:layout_constraintEnd_toStartOf="@id/tilAverageDays"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilSaletParty">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etAvailableLimit"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilAverageDays"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:hint="@string/avg_days"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/tilAvailableLimit"
+                app:layout_constraintTop_toBottomOf="@id/tilSaletParty">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etAverageDays"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/tilRadioSubParty"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/layout_outline"
+                android:enabled="false"
+                android:hint="@string/avail_limit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilAvailableLimit">
+
+                <RadioGroup
+                    android:id="@+id/rg_subparty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_subparty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="@string/sub_party"
+                        android:textColor="@color/black"
+                        android:textSize="16dp" />
+
+                    <RadioButton
+                        android:id="@+id/radio_subparty_remark"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="0.8"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="@string/sub_party_as_remark"
+                        android:textColor="@color/black"
+                        android:textSize="16dp" />
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSubParty"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/sub_party"
+                android:visibility="visible"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilRadioSubParty">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etSubParty"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilSubPartyRemak"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/remark"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilRadioSubParty">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etSubPartyRemark"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrierChips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="tilSubParty, tilSubPartyRemak" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilTransport"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                app:endIconMode="clear_text"
+                android:hint="@string/transport"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/barrierChips">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etTransport"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilStation"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/station"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilTransport">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etStation"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilScheme"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/scheme"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilStation">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etScheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/llPurchasePatyType"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/layout_outline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilScheme">
+
+                <RadioGroup
+                    android:id="@+id/rgPurchaseParty"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radioByNickName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="@string/nick_name"
+                        android:textColor="@color/black"
+                        android:textSize="16dp" />
+
+                    <RadioButton
+                        android:id="@+id/radioBySupplierName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="false"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="@string/supplier"
+                        android:textColor="@color/black"
+                        android:textSize="16dp" />
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPurchaseParty"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:endIconMode="clear_text"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/purchase_party"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/llPurchasePatyType">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/etPurchaseParty"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/tilRadioStar"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/layout_outline"
+                android:enabled="false"
+                android:hint="@string/avail_limit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilPurchaseParty">
+
+                <RadioGroup
+                    android:id="@+id/rgStartype"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/star1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="*"
+                        android:textColor="@color/black"
+                        android:textSize="16dp">
+
+                    </RadioButton>
+
+                    <RadioButton
+                        android:id="@+id/star2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="false"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="* *"
+                        android:textColor="@color/black"
+                        android:textSize="16dp" />
+
+                    <RadioButton
+                        android:id="@+id/star3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_weight="1"
+                        android:checked="false"
+                        android:fontFamily="@font/roboto_light"
+                        android:gravity="start|center"
+                        android:singleLine="true"
+                        android:text="* * *"
+                        android:textColor="@color/black"
+                        android:textSize="16dp">
+
+                    </RadioButton>
+
+                </RadioGroup>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilDiscription"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/discription"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilRadioStar">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etDiscription"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:maxLength="300"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDispatchDate"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:gravity="start|center"
+                android:hint="@string/from_date"
+                android:text="@string/dispatch_date"
+                android:textColor="@color/black"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tilDiscription" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDispatchFromDate"
+                style="@style/Rounded"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/layout_outline"
+                android:drawableEnd="@drawable/baseline_calendar_month_24"
+                android:gravity="start|center"
+                android:hint="@string/from_date"
+                android:paddingHorizontal="10dp"
+                app:layout_constraintEnd_toStartOf="@id/tvDispatchToDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDispatchDate" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDispatchToDate"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/layout_outline"
+                android:drawableEnd="@drawable/baseline_calendar_month_24"
+                android:gravity="center|start"
+                android:hint="@string/to_date"
+                android:paddingHorizontal="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvDispatchFromDate"
+                app:layout_constraintTop_toBottomOf="@id/tvDispatchDate" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAddItem"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/gray_300_bg"
+                android:drawableEnd="@drawable/baseline_assignment_add_24"
+                android:fontFamily="@font/helvetica_regular"
+                android:gravity="center"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="7dp"
+                android:text="Add Item"
+                app:layout_constraintEnd_toStartOf="@id/tvAddItemDetails"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAddItemDetails"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/gray_300_bg"
+                android:drawableEnd="@drawable/baseline_assignment_add_24"
+                android:fontFamily="@font/helvetica_regular"
+                android:gravity="center"
+                android:visibility="gone"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="7dp"
+                android:text="Add Detail"
+                app:layout_constraintEnd_toStartOf="@+id/tvItemImage"
+                app:layout_constraintStart_toEndOf="@id/tvAddItem"
+                app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvItemImage"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/gray_300_bg"
+                android:drawableEnd="@drawable/baseline_add_a_photo_24"
+                android:fontFamily="@font/helvetica_regular"
+                android:gravity="center"
+                android:paddingHorizontal="5dp"
+                android:paddingVertical="7dp"
+                android:text="Add Image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tvAddItemDetails"
+                app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewAddItem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAddItem"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_pack_type_header" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/placeOrder"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_centerInParent="true"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom  ="30dp"
+                android:background="@drawable/bg_btn_effect_red"
+                android:gravity="center"
+                android:text="@string/Submit"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recyclerViewAddItem"
+                app:layout_goneMarginTop="20dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

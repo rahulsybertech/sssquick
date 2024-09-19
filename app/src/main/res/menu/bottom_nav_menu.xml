@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/dashboardFragment"
+        android:icon="@drawable/dashboard"
+        android:title="@string/dashboard" />
+    <item
+        android:id="@+id/addOrderFragment"
+        android:icon="@drawable/add_order"
+        android:title="@string/add_order" />
+    <item
+        android:id="@+id/pendingorderFragment"
+        android:icon="@drawable/pending_lr"
+        android:title="@string/pending_order" />
+    <item
+        android:id="@+id/holdorderFragment"
+        android:icon="@drawable/hold_order"
+        android:title="@string/hold_order" />
+<!--    <item-->
+<!--        android:id="@+id/cart_nav_graph"-->
+<!--        android:icon="@drawable/pending_lr"-->
+<!--        android:title="@string/pending_order" />-->
+
+
+
+</menu>

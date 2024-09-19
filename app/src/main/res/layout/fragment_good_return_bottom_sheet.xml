@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:background="#11000000">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btnCloseDialog"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:gravity="center"
+        android:padding="10dp"
+        android:rotation="45"
+        android:src="@drawable/ic_baseline_plus_24"
+        android:tint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_white_top_corner_24"
+        android:clipToPadding="false"
+        android:paddingVertical="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnCloseDialog">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="16dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="16dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlSaleParty"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Sale Party  : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvSaleParty"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            tools:text="OMM HOSIERY : MUZAFFARPUR"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlSupplier"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Supplier      : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlSaleParty" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvSupplier"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            tools:text="OMM HOSIERY : MUZAFFARPUR"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/tvSaleParty" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Item             : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlSupplier" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvItem"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            tools:text="OMM HOSIERY : MUZAFFARPUR"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/tvSupplier" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Status         : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlItem" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            tools:text="Pending"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/tvItem" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/lvlBarrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:barrierMargin="10dp"
+            app:constraint_referenced_ids="lvlSaleParty,lvlSupplier,lvlItem,lvlStatus" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cardBackgroundColor="@color/color_fafafa"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="1dp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/lvlStatus">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="16dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlSaleBillNo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Sale Bill No"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@+id/lvlSaleBillDate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlSaleBillDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Sale Bill Date"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@+id/lvlAmount"
+                    app:layout_constraintStart_toEndOf="@+id/lvlSaleBillNo"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Amount"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/lvlSaleBillDate"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvSaleBillNo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="DLHDHB-3876834-DVGHJ"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constrainedHeight="true"
+                    app:layout_constraintEnd_toStartOf="@+id/tvSaleBillDate"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/lvlSaleBillNo" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvSaleBillDate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="10/12/2023"
+                    android:textSize="12sp"
+                    android:layout_marginHorizontal="4dp"
+                    android:textColor="@color/black"
+                    app:layout_constrainedHeight="true"
+                    app:layout_constraintEnd_toStartOf="@+id/tvAmount"
+                    app:layout_constraintStart_toEndOf="@+id/tvSaleBillNo"
+                    app:layout_constraintTop_toBottomOf="@id/lvlSaleBillDate" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="150000"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    app:layout_constrainedHeight="true"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvSaleBillDate"
+                    app:layout_constraintTop_toBottomOf="@id/lvlAmount" />
+
+                <androidx.constraintlayout.widget.Barrier
+                    android:id="@+id/cardBarrier"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:barrierDirection="bottom"
+                    app:barrierMargin="16dp"
+                    app:constraint_referenced_ids="tvSaleBillNo,tvSaleBillDate,tvAmount" />
+
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlPcs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Pcs"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@+id/lvlPcsChange"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/cardBarrier" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlPcsChange"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Pcs Change"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@+id/lvlPcsNoChange"
+                    app:layout_constraintStart_toEndOf="@+id/lvlPcs"
+                    app:layout_constraintTop_toBottomOf="@+id/cardBarrier" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/lvlPcsNoChange"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    android:text="Pcs No Change"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/lvlPcsChange"
+                    app:layout_constraintTop_toBottomOf="@+id/cardBarrier" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPcs"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="23"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    app:layout_constraintEnd_toStartOf="@+id/tvPcsChange"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/lvlPcs" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPcsChange"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="0"
+                    android:textSize="12sp"
+                    android:textColor="@color/black"
+                    app:layout_constraintEnd_toStartOf="@+id/tvPcsNoChange"
+                    app:layout_constraintStart_toEndOf="@+id/tvPcs"
+                    app:layout_constraintTop_toBottomOf="@id/lvlPcsChange" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tvPcsNoChange"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/noto_sans_light"
+                    tools:text="0"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/tvPcsChange"
+                    app:layout_constraintTop_toBottomOf="@id/lvlPcsNoChange" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlRemark"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Remark      :"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/cardView" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvRemark"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            tools:text="THis is remark text"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/lvlRemark" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

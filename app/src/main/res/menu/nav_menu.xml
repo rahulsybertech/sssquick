@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/dashboardFragment"
+        android:icon="@drawable/dashboard"
+        android:title="@string/dashboard" />
+    <item
+        android:id="@+id/nav_checkinout"
+        android:icon="@drawable/dashboard"
+        android:title="Check In &amp; Out" />
+    <item
+        android:id="@+id/addOrderFragment"
+        android:icon="@drawable/add_order"
+        android:title="@string/add_order" />
+    <item
+        android:id="@+id/pendingorderFragment"
+        android:icon="@drawable/pending_lr"
+        android:title="@string/pending_order" />
+    <item
+        android:id="@+id/nav_stockin_office"
+        android:icon="@drawable/stock_in_office"
+        android:title="@string/stock_in_office" />
+    <item
+        android:id="@+id/holdorderFragment"
+        android:icon="@drawable/hold_order"
+        android:title="@string/hold_order" />
+    <item
+        android:id="@+id/nav_goods_return"
+        android:icon="@drawable/good_return"
+        android:title="@string/goods_return" />
+
+    <item
+        android:id="@+id/nav_pending_lr"
+        android:icon="@drawable/pending_lr"
+        android:title="@string/pending_lr" />
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/heroicons_outline_logout"
+        android:title="@string/logout" />
+
+</menu>
