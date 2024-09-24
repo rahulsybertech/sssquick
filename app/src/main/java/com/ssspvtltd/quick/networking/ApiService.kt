@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.networking
 
+import com.ssspvtltd.quick.model.HoldOrderRequest
 import com.ssspvtltd.quick.model.auth.AutoLogout
 import com.ssspvtltd.quick.model.auth.LoginData
 import com.ssspvtltd.quick.model.auth.VerifyOtpData
@@ -14,7 +15,6 @@ import com.ssspvtltd.quick.model.order.add.VoucherData
 import com.ssspvtltd.quick.model.order.add.editorder.EditOrderData
 import com.ssspvtltd.quick.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick.model.order.add.salepartydetails.Data
-import com.ssspvtltd.quick.model.order.add.salepartydetails.Station
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.model.order.hold.HoldOrderData
 import com.ssspvtltd.quick.model.order.pending.FilterRequest
@@ -24,8 +24,6 @@ import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
@@ -122,8 +120,10 @@ interface ApiService {
         @Body filterRequest: FilterRequest?
     ): ApiResponse<List<PendingOrderData>>
 
+
     @POST("api/Report/GetHoldOrderDetails")
     suspend fun holdOrder(
+       @Body holdOrderRequest: HoldOrderRequest?
     ): ApiResponse<List<HoldOrderData>>
 
 

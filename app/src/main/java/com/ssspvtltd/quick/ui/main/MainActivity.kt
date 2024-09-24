@@ -26,11 +26,9 @@ import com.ssspvtltd.quick.ui.auth.viewmodel.LoginViewModel
 import com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
 import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
-import com.ssspvtltd.quick.ui.order.pendinglr.fragment.PendingLrFragment
 import com.ssspvtltd.quick.ui.order.stockinoffice.activity.StockInOfficeActivity
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.observe
-import com.ssspvtltd.quick.utils.showErrorDialog
 import com.ssspvtltd.quick.utils.showWarningDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -59,8 +57,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
             "getCheckinStatus",
             (runBlocking { viewModel.prefHelper.getCheckinStatus() }).toString()
         )
-        Log.e("getAccessToken",
-            runBlocking { PrefHelperEntryPoint.prefHelper.getAccessToken() } ?: "")
+        Log.e("getAccessToken", runBlocking { PrefHelperEntryPoint.prefHelper.getAccessToken() } ?: "")
+
         viewModel.prefHelper.getUserNameAsFlow().observe(this) {
             Log.e("getUserNameAsFlow", it.orEmpty())
         }
@@ -70,6 +68,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(binding.navHostFragment.id) as NavHostFragment
         navController = navHostFragment.navController
+
         navController.setGraph(R.navigation.main_nav_graph)
         setupWithNavController(binding.bottomNavView, navController)
         // binding.bottomNavView.setupWithNavController(cnavController)
@@ -197,7 +196,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
     ) {
         navigationBarView.setOnItemSelectedListener { item ->
             if (item.itemId != R.id.addOrderFragment || runBlocking { viewModel.prefHelper.getCheckinStatus() } == true) {
-                NavigationUI.onNavDestinationSelected(item, navController)
+                NavigationUI.onNavDestinationSelected(item, navController, false)
             } else {
                 viewModel.showMsgAlert(message = "Checkin First")
                 false

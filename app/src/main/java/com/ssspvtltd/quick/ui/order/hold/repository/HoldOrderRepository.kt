@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.ui.order.hold.repository
 
+import com.ssspvtltd.quick.model.HoldOrderRequest
 import com.ssspvtltd.quick.model.order.hold.HoldOrderData
 import com.ssspvtltd.quick.networking.ApiRequestCode
 import com.ssspvtltd.quick.networking.ApiResponse
@@ -11,9 +12,9 @@ import javax.inject.Inject
 
 class HoldOrderRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun holdOrderList(): ResultWrapper<ApiResponse<*>, ApiResponse<List<HoldOrderData>>> {
+    suspend fun holdOrderList(holdOrderRequest: HoldOrderRequest): ResultWrapper<ApiResponse<*>, ApiResponse<List<HoldOrderData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.HOLD_ORDER.ordinal) {
-            apiService.holdOrder()
+            apiService.holdOrder(holdOrderRequest = holdOrderRequest)
         }
     }
 }

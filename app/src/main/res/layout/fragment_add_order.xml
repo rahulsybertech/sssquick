@@ -545,7 +545,7 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvDispatchFromDate"
-                style="@style/Rounded"
+                style="@style/Theme.Widget.TextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="45dp"
                 android:layout_marginStart="16dp"

@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick.model.HoldOrderRequest
 import com.ssspvtltd.quick.model.order.hold.HoldOrderData
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ResultWrapper
@@ -26,7 +27,9 @@ class HoldOrderViewModel @Inject constructor(
     var searchValue = ""
     fun getHoldOrder() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        when (val response = repository.holdOrderList()) {
+
+        val req = HoldOrderRequest(null,null,null,null, null)
+        when (val response = repository.holdOrderList(req)) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> {
                 holdOrderList = response.value.data.orEmpty()

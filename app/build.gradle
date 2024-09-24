@@ -22,6 +22,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            def date = new Date().format("dd-MMM-yy")
+
+            // Use rootProject.name to get the project name
+            def projectName = rootProject.name
+            def variantName = variant.name
+
+            def newApkName = "${projectName}_NEW-${variantName}-${date}.apk"
+            outputFileName = newApkName
+        }
+    }
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')

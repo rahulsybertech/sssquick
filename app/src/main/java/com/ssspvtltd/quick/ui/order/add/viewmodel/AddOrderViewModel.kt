@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.ARG_PENDING_ORDER_ID
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
@@ -66,6 +67,9 @@ class AddOrderViewModel @Inject constructor(
 
     private val _isOrderPlaced = MutableLiveData<Boolean>()
     val isOrderPlaced: LiveData<Boolean> get() = _isOrderPlaced
+
+    private val _isOrderPlacedLimitError = MutableLiveData<String>()
+    val isOrderPlacedLimitError: LiveData<String> get() = _isOrderPlacedLimitError
 
     private val _editOrderData = MutableLiveData<EditOrderData?>()
     val editOrderData: LiveData<EditOrderData?> get() = _editOrderData
@@ -224,7 +228,15 @@ class AddOrderViewModel @Inject constructor(
             }
         }
         when (val response = repository.placeOrder(params, documents)) {
-            is ResultWrapper.Failure -> apiErrorData(response.error)
+            is ResultWrapper.Failure -> {
+                Log.i("TaG","getting error ===> ${response.error}")
+                if (response.error.responseCode?.toInt() == 209) {
+                    hideProgressBar()
+                    _isOrderPlacedLimitError.postValue(response.error.message ?: getString(R.string.something_went_wrong))
+                } else {
+                    apiErrorData(response.error)
+                }
+            }
             is ResultWrapper.Success -> {
                 _isOrderPlaced.postValue(true)
                 hideProgressBar()

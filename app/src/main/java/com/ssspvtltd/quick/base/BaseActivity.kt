@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick.base
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -114,6 +115,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
     }
 
     private fun handleApiErrorResponse(errorResponse: ApiResponse<*>) {
+        Log.i("TaG","1212121212121221")
         SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).apply {
             titleText = "Sorry!"
             contentText = errorResponse.message ?: getString(R.string.something_went_wrong)
@@ -121,6 +123,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
             confirmText = getString(R.string.ok)
             confirmButtonBackgroundColor = getColor(R.color.error_text)
         }.show()
+
         // when (errorResponse.apiRequestCode) {
         //     ApiRequestCode.LOGIN.ordinal -> {
         //         SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).apply {

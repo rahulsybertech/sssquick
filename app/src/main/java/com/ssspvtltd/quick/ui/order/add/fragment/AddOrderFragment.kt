@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.order.add.fragment
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -34,12 +35,14 @@ import com.ssspvtltd.quick.ui.order.add.viewmodel.AddOrderViewModel
 import com.ssspvtltd.quick.utils.extension.getParcelableArrayListExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
+import com.ssspvtltd.quick.utils.showWarningDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 
@@ -50,13 +53,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     override fun initViewModel(): AddOrderViewModel = getViewModel()
 
     private val addItemViewModel by viewModels<AddItemViewModel>()
-    var salePartyId: String = ""
-    var subPartyId: String = "SELF"
-    var purchasePartyId: String = ""
-    var pvtMarka: String = "*"
-    var bookingStationId: String = ""
-    var transportId: String = ""
-    var schemeId: String = ""
+
+    var salePartyId: String         = ""
+    var subPartyId: String          = "SELF"
+    var purchasePartyId: String     = ""
+    var pvtMarka: String            = "*"
+    var bookingStationId: String    = ""
+    var transportId: String         = ""
+    var schemeId: String            = ""
+    private val calendar    = Calendar.getInstance()
+    private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
 
     private val addItemAdapter by lazy { PackDataAdapter() }
@@ -80,17 +86,27 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         registerObserver()
+
+        val dateFormat          = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val todayDate           = dateFormat.format(Calendar.getInstance().time)
+        val threeDaysLaterDate  = dateFormat.format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 3) }.time)
+
+        binding.tvDispatchFromDate.text = todayDate
+        binding.tvDispatchToDate.text   = threeDaysLaterDate
+
         binding.toolbar.apply {
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
             setTitle("Add Order")
         }
         binding.tvDispatchFromDate.setOnClickListener {
             // openSpinnerBirthdayDialog(true, false)
-            fromDatePicker()
+            // fromDatePicker()
+            showFromDatePicker()
         }
 
         binding.tvDispatchToDate.setOnClickListener {
-            toDatePicker()
+            //toDatePicker()
+            showToDatePicker()
         }
 
         binding.etSalePartyName.doAfterTextChanged {
@@ -143,7 +159,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             //     }
             // }
         }
-
         binding.placeOrder.setOnClickListener {
             if (validate()) binding.apply {
                 val hashMap: HashMap<String, RequestBody?> = HashMap()
@@ -161,6 +176,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["TotalQty"] = "0".toRequestBody()
                 hashMap["TotalAmt"] = "0".toRequestBody()
                 hashMap["OrderTypeName"] = "TRADING".toRequestBody()
+                // hashMap["OrderStatus"] = "PENDING".toRequestBody()
                 Log.e(
                     "hashMap",
                     tvDispatchFromDate.text.toString() + tvDispatchToDate.text.toString()
@@ -188,23 +204,19 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 viewModel.placeOrder(hashMap)
             }
         }
-
         binding.tvAddItem.setOnClickListener { openAddBottomSheet() }
-
         binding.tvItemImage.setOnClickListener {
             addImageResultLauncher.launch(
                 AddImageActivity.newStartIntent(requireContext(), viewModel.addImageDataList)
             )
         }
-
         binding.rgStartype.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.star1 -> pvtMarka = "*"
                 R.id.star2 -> pvtMarka = "**"
-                R.id.star3 -> pvtMarka = "**"
+                R.id.star3 -> pvtMarka = "***"
             }
         }
-
         binding.rgSubparty.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_subparty -> {
@@ -255,10 +267,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 }
             }
         }
-
         binding.recyclerViewAddItem.adapter = addItemAdapter
-        addItemAdapter.onEditClick =
-            { openAddBottomSheet(addItemViewModel.packTypeDataList.indexOf(it)) }
+        addItemAdapter.onEditClick = { openAddBottomSheet(addItemViewModel.packTypeDataList.indexOf(it)) }
         addItemAdapter.onDeleteClick = { addItemViewModel.deletePackTypeData(it) }
     }
 
@@ -287,6 +297,39 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 viewModel.addImageDataList.clear()
                 salePartyId = ""
                 viewModel.getVoucher()
+            }
+        }
+        viewModel.isOrderPlacedLimitError.observe(viewLifecycleOwner) { errorMsg ->
+            requireContext().showWarningDialog(
+                getString(R.string.logout_title),
+                errorMsg,
+                confirmText = getString(R.string.ok),
+                cancelText = getString(cn.pedant.SweetAlert.R.string.dialog_cancel)
+            ) { dialog ->
+
+                if (validate()) binding.apply {
+                    val hashMap: HashMap<String, RequestBody?> = HashMap()
+
+                    hashMap["SalePartyId"]          = salePartyId.toRequestBody()
+                    hashMap["SubPartyId"]           = subPartyId.toRequestBody()
+                    hashMap["SubPartyasRemark"]     = etSubPartyRemark.text.toString().toRequestBody()
+                    hashMap["PurchasePartyId"]      = purchasePartyId.toRequestBody()
+                    hashMap["TransportId"]          = transportId.toRequestBody()
+                    hashMap["BstationId"]           = bookingStationId.toRequestBody()
+                    hashMap["SchemeId"]             = schemeId.toRequestBody()
+                    hashMap["PvtMarka"]             = pvtMarka.toRequestBody()
+                    hashMap["DeliveryDateFrom"]     = tvDispatchFromDate.text.toString().toRequestBody()
+                    hashMap["DeliveryDateTo"]       = tvDispatchToDate.text.toString().toRequestBody()
+                    hashMap["Remark"]               = etDiscription.text.toString().toRequestBody()
+                    hashMap["TotalQty"]             = "0".toRequestBody()
+                    hashMap["TotalAmt"]             = "0".toRequestBody()
+                    hashMap["OrderTypeName"]        = "TRADING".toRequestBody()
+                    hashMap["OrderStatus"]          = "HOLD".toRequestBody()
+
+                    viewModel.placeOrder(hashMap)
+
+                }
+                dialog.dismissWithAnimation()
             }
         }
         viewModel.editOrderData.observe(viewLifecycleOwner) {
@@ -357,15 +400,14 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 } else binding.tilTransport.setErrorEnabled(true)
             }
 
-            // binding.etAvailableLimit.setText(it?.avlLimit.toString())
-            // binding.etAverageDays.setText(it?.avgDays.toString())
-            // binding.etAverageDays.setText(it?.avgDays.toString())
-            // binding.etSubParty.setText(it?.defSubPartyName.orEmpty())
-            // binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
-            // bookingStationId =
-            //     it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
-            // binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
-            // transportId = (it?.defTransport?.get(0)?.transportId.toString())
+            binding.etAvailableLimit.setText(it?.avlLimit.toString())
+            binding.etAverageDays.setText(it?.avgDays.toString())
+            binding.etAverageDays.setText(it?.avgDays.toString())
+            binding.etSubParty.setText(it?.defSubPartyName.orEmpty())
+            binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
+            bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
+            binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
+            transportId = (it?.defTransport?.get(0)?.transportId.toString())
         }
         viewModel.station.observe(viewLifecycleOwner) {
             val stationAdapter = StationAdapter(
@@ -471,12 +513,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             tilPurchaseParty.isErrorEnabled = true
             tilPurchaseParty.setError("You need to select purchase party")
             return false
-        } else if (etDiscription.text.isNullOrBlank()) {
-            etDiscription.requestFocus()
-            tilDiscription.isErrorEnabled = true
-            tilDiscription.setError("Please enter description")
-            return false
-        } else if (tvDispatchFromDate.text.isBlank()) {
+        }else if (tvDispatchFromDate.text.isBlank()) {
             tvDispatchFromDate.requestFocus()
             tvDispatchFromDate.setBackgroundResource(R.drawable.red_outline)
             tvDispatchFromDate.error = "Please enter from date"
@@ -508,6 +545,66 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             viewModel.addImageDataList = list ?: arrayListOf()
         }
     }
+
+    private fun showFromDatePicker() {
+        val fromDate = Calendar.getInstance()
+
+        // Create the DatePickerDialog and its listener
+        val fromDateListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            fromDate.set(Calendar.YEAR, year)
+            fromDate.set(Calendar.MONTH, monthOfYear)
+            fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            Log.i("TaG","Selected from date =====> ${dateFormat.format(fromDate.time)}")
+            binding.tvDispatchFromDate.text = dateFormat.format(fromDate.time)
+            // Check if ToDate needs to be updated based on the selected FromDate
+            val currentToDate = Calendar.getInstance().apply {
+                time = dateFormat.parse(binding.tvDispatchToDate.text.toString())!!
+            }
+            if (currentToDate.before(fromDate)) {
+                val updatedToDate = fromDate.clone() as Calendar
+                updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
+                binding.tvDispatchToDate.text = dateFormat.format(updatedToDate.time)
+            }
+        }
+
+        // Initialize DatePickerDialog for 'From Date'
+        val datePickerDialog = DatePickerDialog(
+            requireContext(), fromDateListener, fromDate.get(Calendar.YEAR), fromDate.get(Calendar.MONTH), fromDate.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.datePicker.minDate = calendar.timeInMillis  // restrict to today's date or future
+        datePickerDialog.show()
+    }
+
+    private fun showToDatePicker() {
+        val toDate = Calendar.getInstance()
+
+        // Create the DatePickerDialog and its listener
+        val toDateListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            toDate.set(Calendar.YEAR, year)
+            toDate.set(Calendar.MONTH, monthOfYear)
+            toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            binding.tvDispatchToDate.text = dateFormat.format(toDate.time)
+        }
+
+        // Initialize DatePickerDialog for 'To Date'
+        val fromDate = Calendar.getInstance().apply {
+            time = dateFormat.parse(binding.tvDispatchFromDate.text.toString())!!
+        }
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(), toDateListener, toDate.get(Calendar.YEAR), toDate.get(Calendar.MONTH), toDate.get(Calendar.DAY_OF_MONTH)
+        )
+
+        // Restrict the ToDate to be at least 3 days after fromDate, and at most 3 months from today's date
+        datePickerDialog.datePicker.minDate = fromDate.timeInMillis + (1 * 24 * 60 * 60 * 1000)  // +3 days from fromDate
+        val maxDate = Calendar.getInstance().apply { add(Calendar.MONTH, 3) }.timeInMillis
+        datePickerDialog.datePicker.maxDate = maxDate
+
+        datePickerDialog.show()
+    }
+
+
+    ///////////////////////////////////////////////////  OLD Methods ///////////////////////////////////////////
 
     private fun fromDatePicker() {
         DatePickerPopup.Builder().from(requireContext()).offset(3).darkModeEnabled(true)
