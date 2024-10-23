@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.dashboard.DashboardFragment">
 
-      <com.ssspvtltd.quick.widgets.AppToolbar
+      <com.ssspvtltd.quick_new.widgets.AppToolbar
           android:id="@+id/toolbar"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
@@ -56,6 +56,7 @@
                       android:textColor="@color/black" />
 
                   <TextView
+                      android:id="@+id/tvTodaysorders"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_below="@+id/txt_todays_order"
@@ -100,6 +101,7 @@
                       android:textColor="@color/black" />
 
                   <TextView
+                      android:id="@+id/tvHoldOrders"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_below="@+id/txt_hold_order"
@@ -152,6 +154,7 @@
                       android:textColor="@color/black" />
 
                   <TextView
+                      android:id="@+id/tvPendingOrders"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_below="@+id/txt_pending_order"
@@ -199,6 +202,7 @@
                       android:textColor="@color/black" />
 
                   <TextView
+                      android:id="@+id/tvPendingGR"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:layout_below="@+id/txt_pending_gr"
@@ -254,6 +258,7 @@
                       android:textColor="@color/black" />
 
                   <TextView
+                      android:id="@+id/tvTotalSale"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_below="@+id/txt_total_sale"
@@ -272,7 +277,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="5dp"
-                            android:layout_toStartOf="@+id/icon_total_sale_filter"
+                            android:layout_toStartOf="@+id/ivDateFilter"
                             android:fontFamily="@font/helvetica_regular"
                             android:text="10/12/2024"
                             android:textColor="@color/black" />
@@ -283,7 +288,7 @@
                             android:layout_marginTop="10dp"
                             android:layout_marginEnd="30dp"
                             android:layout_below="@+id/txt_total_sale_from_date"
-                            android:layout_toStartOf="@+id/icon_total_sale_filter"
+                            android:layout_toStartOf="@+id/ivDateFilter"
                             android:fontFamily="@font/helvetica_bold"
                             android:text="TO"
                             android:layout_centerInParent="true"
@@ -293,7 +298,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="5dp"
-                            android:layout_toStartOf="@+id/icon_total_sale_filter"
+                            android:layout_toStartOf="@+id/ivDateFilter"
                             android:fontFamily="@font/helvetica_regular"
                             android:text="10/12/2024"
                             android:layout_marginTop="-6dp"
@@ -301,7 +306,7 @@
                             android:textColor="@color/black" />
 
                         <ImageView
-                            android:id="@+id/icon_total_sale_filter"
+                            android:id="@+id/ivDateFilter"
                             android:layout_width="38dp"
                             android:layout_height="38dp"
                             android:layout_alignParentEnd="true"

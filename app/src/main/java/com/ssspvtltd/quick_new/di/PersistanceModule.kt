@@ -1,0 +1,28 @@
+package com.ssspvtltd.quick_new.di
+
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.ssspvtltd.quick_new.persistance.PrefHelper
+import com.ssspvtltd.quick_new.persistance.PrefStore
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object PersistanceModule {
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder().serializeNulls().create()
+    }
+
+    @Provides
+    @Singleton
+    fun providePrefHelper(prefStore: PrefStore): PrefHelper {
+        return PrefHelper(prefStore)
+    }
+}

@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.ssspvtltd.quick.widgets.AppToolbar
+        <com.ssspvtltd.quick_new.widgets.AppToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

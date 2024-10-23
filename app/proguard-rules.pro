@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 #Model classes
--keep class com.ssspvtltd.quick.model.** {*; }
+-keep class com.ssspvtltd.quick_new.model.** {*; }
 
 #SweetAlertDialog
 -keep class cn.pedant.SweetAlert.Rotate3dAnimation {

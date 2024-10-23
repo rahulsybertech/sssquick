@@ -25,7 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.ssspvtltd.quick.widgets.spinner.MaterialSpinner
+            <com.ssspvtltd.quick_new.widgets.spinner.MaterialSpinner
                 android:id="@+id/spinnerType"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"

@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/noto_sans_medium"
-        android:text="@string/sale_bill_no_format"
+        android:text="@string/order_no_format"
         android:textColor="@color/black"
         android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@id/imgGo"

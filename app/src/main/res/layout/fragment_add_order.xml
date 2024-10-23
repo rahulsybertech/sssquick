@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.ssspvtltd.quick.widgets.AppToolbar
+        <com.ssspvtltd.quick_new.widgets.AppToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/sale_party"
+                android:hint="@string/sale_party_with_ast"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -127,7 +127,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="4dp"
                 android:enabled="false"
-                android:hint="@string/avail_limit"
+                android:hint="@string/avail_limit_ats"
                 app:layout_constraintEnd_toStartOf="@id/tilAverageDays"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +153,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:enabled="false"
-                android:hint="@string/avg_days"
+                android:hint="@string/avg_days_ats"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/tilAvailableLimit"
@@ -228,7 +228,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/sub_party"
+                android:hint="@string/sub_party_ats"
                 android:visibility="visible"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -239,8 +239,9 @@
                     android:id="@+id/etSubParty"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
                     android:imeOptions="actionNext"
-                    android:inputType="text|textCapSentences"
+                    android:inputType="textFilter"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
@@ -272,6 +273,7 @@
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
+
             <androidx.constraintlayout.widget.Barrier
                 android:id="@+id/barrierChips"
                 android:layout_width="wrap_content"
@@ -287,7 +289,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 app:endIconMode="clear_text"
-                android:hint="@string/transport"
+                android:hint="@string/transport_ats"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/barrierChips">
@@ -311,7 +313,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/station"
+                android:hint="@string/station_ats"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -321,8 +323,9 @@
                     android:id="@+id/etStation"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
                     android:imeOptions="actionNext"
-                    android:inputType="text|textCapSentences"
+                    android:inputType="textFilter"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
@@ -352,6 +355,7 @@
                     android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -409,10 +413,10 @@
                 style="@style/Theme.Widget.TextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:endIconMode="clear_text"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/purchase_party"
+                android:hint="@string/purchase_party_ats"
+                app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/llPurchasePatyType">
@@ -421,12 +425,14 @@
                     android:id="@+id/etPurchaseParty"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
+                    android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890"
                     android:imeOptions="actionNext"
-                    android:inputType="text|textCapSentences"
+                    android:inputType="textFilter"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -440,7 +446,7 @@
                 android:hint="@string/avail_limit"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tilPurchaseParty">
+                app:layout_constraintTop_toBottomOf="@id/tilStatus">
 
                 <RadioGroup
                     android:id="@+id/rgStartype"
@@ -507,7 +513,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:hint="@string/discription"
+                android:hint="@string/discription_ats"
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -519,7 +525,7 @@
                     android:layout_height="45dp"
                     android:imeOptions="actionNext"
                     android:inputType="text|textCapSentences"
-                    android:maxLength="300"
+                    android:maxLength="200"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
@@ -535,7 +541,7 @@
                 android:layout_marginTop="16dp"
                 android:gravity="start|center"
                 android:hint="@string/from_date"
-                android:text="@string/dispatch_date"
+                android:text="@string/dispatch_date_ats"
                 android:textColor="@color/black"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -591,7 +597,7 @@
                 android:gravity="center"
                 android:paddingHorizontal="5dp"
                 android:paddingVertical="7dp"
-                android:text="Add Item"
+                android:text="Add Item*"
                 app:layout_constraintEnd_toStartOf="@id/tvAddItemDetails"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
@@ -615,6 +621,7 @@
                 app:layout_constraintStart_toEndOf="@id/tvAddItem"
                 app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
 
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvItemImage"
                 style="@style/Theme.Widget.TextInputLayout"
@@ -633,6 +640,30 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/tvAddItemDetails"
                 app:layout_constraintTop_toBottomOf="@id/tvDispatchFromDate" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/llImageCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="172dp"
+                android:layout_marginBottom="28dp"
+                android:background="@drawable/red_circle_bg"
+                android:gravity="center"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/tvItemImage"
+                app:layout_constraintStart_toStartOf="@+id/tvItemImage">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvImageCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="05"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="9sp" />
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewAddItem"
@@ -666,6 +697,31 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/recyclerViewAddItem"
                 app:layout_goneMarginTop="20dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilStatus"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginHorizontal="17dp"
+                android:hint="@string/status"
+                app:hintTextAppearance="@style/TextAppearance.App.Hint"
+                app:endIconMode="dropdown_menu"
+                app:layout_constraintTop_toBottomOf="@+id/tilPurchaseParty"
+                app:layout_constraintBottom_toTopOf="@+id/tilRadioStar">
+
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:paddingStart="10dp"
+                    android:focusable="false"
+                    android:background="@null" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
