@@ -47,8 +47,8 @@ class DashBoardViewmodel @Inject constructor(
         when( val response = repository.callGetDashBoardDetails(prefHelper.getAccountId() ?: "")) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                val dashBoardData: DashBoardDataResponse.Data? = response.value.data?.data
-                Log.i(TAG, "getDashBoardDetails: $response")
+                val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
+                Log.i(TAG, "getDashBoardDetails: $dashBoardData")
                 withContext(Dispatchers.Main) {
                     _dashBoardDetailsLiveData.postValue(dashBoardData)
                 }
@@ -64,10 +64,10 @@ class DashBoardViewmodel @Inject constructor(
         when( val response = repository.callGetDashBoardSaleCountDetails(prefHelper.getAccountId() ?: "", fromDate, toDate)) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                val dashBoardData: DashBoardDataResponse.Data? = response.value.data?.data
+                val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
                 Log.i(TAG, "getDashBoardSaleCountDetails: $dashBoardData")
                 withContext(Dispatchers.Main) {
-                    _dashBoardDetailsLiveData.postValue(dashBoardData)
+                    _dashBoardSaleCountDetailsLiveData.postValue(dashBoardData)
                 }
 
             }

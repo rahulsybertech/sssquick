@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick_new.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick_new.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick_new.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick_new.model.progress.ProgressConfig
 import com.ssspvtltd.quick_new.networking.ResultWrapper
@@ -22,10 +23,24 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
     var searchValue = ""
     fun getStockInOffice() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        when (val response = repository.stockInOffice()) {
-            is ResultWrapper.Failure -> apiErrorData(response.error)
+        when (val response = repository.stockInOffice(
+            GetStockInOfficeOrderDetailsRequest(
+                buyerIDs = listOf(),
+                fromDate = null,
+                isSupplier = true,
+                supplierIDs = listOf(),
+                toDate = null
+        )
+        )) {
+            is ResultWrapper.Failure -> {
+
+                hideProgressBar()
+                apiErrorData(response.error)
+            }
             is ResultWrapper.Success -> {
                 stockInOfficeList = response.value.data.orEmpty()
+
+                hideProgressBar()
                 prepareFilteredList()
             }
         }
@@ -52,7 +67,7 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
         addItemToWidgetList(list)
         withContext(Dispatchers.Main) {
             listDataChanged()
-            hideProgressBar()
+            //hideProgressBar()
         }
     }
 }

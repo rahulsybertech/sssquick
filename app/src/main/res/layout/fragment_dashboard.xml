@@ -22,6 +22,8 @@
           android:id="@+id/ll_1"
           android:layout_marginTop="10dp">
 
+
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -267,57 +269,80 @@
                       android:text="06"
                       android:textColor="@color/black"
                       android:textSize="25dp" />
-                  <RelativeLayout
-                      android:layout_width="match_parent"
-                      android:layout_toEndOf="@+id/txt_total_sale"
+
+                  <androidx.appcompat.widget.LinearLayoutCompat
+                      android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_centerInParent="true">
-                        <TextView
-                            android:id="@+id/txt_total_sale_from_date"
+                      android:layout_alignParentEnd="true"
+                      android:layout_marginEnd="4dp"
+                      android:orientation="vertical">
+
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:id="@+id/llFromDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
-                            android:layout_toStartOf="@+id/ivDateFilter"
-                            android:fontFamily="@font/helvetica_regular"
-                            android:text="10/12/2024"
-                            android:textColor="@color/black" />
+                            android:orientation="horizontal">
+
+                              <TextView
+                                  android:id="@+id/txt_total_sale_from_date"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:layout_marginEnd="5dp"
+                                  android:layout_toStartOf="@+id/ivDateFilter"
+                                  android:fontFamily="@font/helvetica_regular"
+                                  android:layout_gravity="center"
+                                  android:gravity="center"
+                                  android:text="10/12/2024"
+                                  android:textColor="@color/black" />
+
+                              <androidx.appcompat.widget.AppCompatImageView
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:src="@drawable/ic_date"/>
+
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+
                         <TextView
                             android:id="@+id/txt_to"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:layout_marginEnd="30dp"
-                            android:layout_below="@+id/txt_total_sale_from_date"
-                            android:layout_toStartOf="@+id/ivDateFilter"
+                            android:layout_gravity="center_horizontal"
                             android:fontFamily="@font/helvetica_bold"
+                            android:textAlignment="center"
                             android:text="TO"
-                            android:layout_centerInParent="true"
-                            android:textColor="@color/black" />
-                        <TextView
-                            android:id="@+id/txt_total_sale_to_date"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="5dp"
-                            android:layout_toStartOf="@+id/ivDateFilter"
-                            android:fontFamily="@font/helvetica_regular"
-                            android:text="10/12/2024"
-                            android:layout_marginTop="-6dp"
-                            android:layout_below="@+id/txt_to"
                             android:textColor="@color/black" />
 
-                        <ImageView
-                            android:id="@+id/ivDateFilter"
-                            android:layout_width="38dp"
-                            android:layout_height="38dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerInParent="true"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginEnd="10dp"
-                            android:background="@drawable/red_outline"
-                            android:padding="5dp"
-                            android:src="@drawable/filter"
-                            app:tint="@color/error_text" />
-                  </RelativeLayout>
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:id="@+id/llToDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                              <TextView
+                                  android:id="@+id/txt_total_sale_to_date"
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:layout_below="@+id/txt_to"
+                                  android:layout_marginTop="-6dp"
+                                  android:layout_marginEnd="5dp"
+                                  android:layout_toStartOf="@+id/ivDateFilter"
+                                  android:textAlignment="center"
+                                  android:fontFamily="@font/helvetica_regular"
+                                  android:text="10/12/2024"
+                                  android:textColor="@color/black" />
+
+                              <androidx.appcompat.widget.AppCompatImageView
+                                  android:layout_width="wrap_content"
+                                  android:layout_height="wrap_content"
+                                  android:src="@drawable/ic_date"/>
+
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+
+                  </androidx.appcompat.widget.LinearLayoutCompat>
             </RelativeLayout>
 
       </LinearLayout>

@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_new.ui.order.stockinoffice.repository
 
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick_new.networking.ApiRequestCode
 import com.ssspvtltd.quick_new.networking.ApiResponse
@@ -11,9 +12,9 @@ import javax.inject.Inject
 
 class StockInOfficeRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun stockInOffice(): ResultWrapper<ApiResponse<*>, ApiResponse<List<StockInOfficeData>>> {
+    suspend fun stockInOffice(getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest): ResultWrapper<ApiResponse<*>, ApiResponse<List<StockInOfficeData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.STOCK_IN_OFFICE.ordinal) {
-            apiService.stockInOffice()
+            apiService.stockInOffice(getStockInOfficeOrderDetailsRequest)
         }
     }
 }

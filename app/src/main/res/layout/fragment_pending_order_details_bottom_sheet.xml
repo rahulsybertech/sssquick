@@ -51,7 +51,7 @@
             android:background="@color/black"
             android:text="Edit"
             android:textColor="@color/white"
-            android:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -149,6 +149,63 @@
             app:layout_constraintTop_toBottomOf="@id/tvSubParty"
             tools:text="Pending" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlDoc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Doc        : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlStatus" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/llDoc"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/tvStatus">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPdfDoc"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Images        : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlDoc" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/llImg"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/llDoc">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvImg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/lvlBarrier"
             android:layout_width="wrap_content"
@@ -167,7 +224,7 @@
             app:cardElevation="1dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/lvlStatus">
+            app:layout_constraintTop_toBottomOf="@id/lvlImage">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"

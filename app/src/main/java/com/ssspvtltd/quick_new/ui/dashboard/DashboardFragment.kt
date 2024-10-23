@@ -1,7 +1,7 @@
 package com.ssspvtltd.quick_new.ui.dashboard
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +13,17 @@ import com.ssspvtltd.quick_new.model.DashBoardDataResponse
 import com.ssspvtltd.quick_new.ui.main.MainActivity
 import com.ssspvtltd.quick_new.ui.order.add.viewmodel.DashBoardViewmodel
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Locale
 
 @AndroidEntryPoint
 class DashboardFragment : Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
     private val viewModel : DashBoardViewmodel by viewModels()
-
+    private val dateFormat  = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
 
     companion object{
@@ -40,9 +44,8 @@ class DashboardFragment : Fragment() {
 
         setViewModelObservers()
         setClickListeners()
-
-        viewModel.getDashBoardDetails()
-        viewModel.getDashBoardSaleCountDetails("01/03/2024","01/03/2025")
+        setMyView()
+        callApis()
 
     }
 
@@ -50,7 +53,26 @@ class DashboardFragment : Fragment() {
         viewModel.dashBoardDetailsLiveData.observe(viewLifecycleOwner, dashBoardObserver)
         viewModel.dashBoardSaleCountDetailsLiveData.observe(viewLifecycleOwner, dashBoardObserver2)
 
+    }
 
+    private fun callApis() {
+        viewModel.getDashBoardDetails()
+        viewModel.getDashBoardSaleCountDetails(binding.txtTotalSaleFromDate.text.toString(),binding.txtTotalSaleToDate.text.toString())// one week from current
+
+    }
+
+    private fun setMyView() {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+        val currentDate = LocalDate.now()
+
+        val oneWeekBeforeDate = currentDate.minusWeeks(1L)
+
+        val currentDateString       = currentDate.format(formatter)
+        val oneWeekBeforeDateString = oneWeekBeforeDate.format(formatter)
+
+        binding.txtTotalSaleFromDate.text   = oneWeekBeforeDate.format(formatter)
+        binding.txtTotalSaleToDate.text     = currentDate.format(formatter)
 
     }
 
@@ -64,64 +86,109 @@ class DashboardFragment : Fragment() {
             setTitle("Dashboard")
         }
 
-        binding.ivDateFilter.setOnClickListener {
-            showDateRangePicker()
+        binding.llFromDate.setOnClickListener {
+            showFromDatePicker()
+        }
 
+        binding.llToDate.setOnClickListener {
+            showToDatePicker()
         }
 
     }
 
 
     private val dashBoardObserver = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
-        Log.i(TAG, "observer 1 -=-=-= :$dashBoardData ")
+
         with(binding){
             tvTodaysorders.text     = (dashBoardData?.todayOrderCount ?: 0).toString()
             tvHoldOrders.text       = (dashBoardData?.totalHoldOrderCount ?: 0).toString()
             tvPendingOrders.text    = (dashBoardData?.totalPendingOrderCount ?: 0).toString()
             tvPendingGR.text        = (dashBoardData?.totalGRCount ?: 0).toString()
-            tvTotalSale.text        = (dashBoardData?.totalSaleCount ?: 0).toString()
         }
 
     }
     private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
-        Log.i(TAG,"observer 2 response -=-=-=-=-===-=> ${dashBoardData}")
-        /*with(binding){
-            tvTodaysorders.text     = (dashBoardData?.todayOrderCount ?: 0).toString()
-            tvHoldOrders.text       = (dashBoardData?.totalHoldOrderCount ?: 0).toString()
-            tvPendingOrders.text    = (dashBoardData?.totalPendingOrderCount ?: 0).toString()
-            tvPendingGR.text        = (dashBoardData?.totalGRCount ?: 0).toString()
-            tvTotalSale.text        = (dashBoardData?.totalSaleCount ?: 0).toString()
-        }*/
+        with(binding){
+            tvTotalSale.text  = (dashBoardData?.totalSaleCount ?: 0).toString()
+        }
 
     }
 
+    private fun showFromDatePicker() {
+        val fromDate = Calendar.getInstance()
 
-    private fun showDateRangePicker() {
+        // Check if there's already a selected "From Date"
+        if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
+            fromDate.time = dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
+        }
 
-       /* val constraintsBuilder = CalendarConstraints.Builder().setValidator(DateValidatorPointForward.now())
+        val fromDateListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            fromDate.set(Calendar.YEAR, year)
+            fromDate.set(Calendar.MONTH, monthOfYear)
+            fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            binding.txtTotalSaleFromDate.text = dateFormat.format(fromDate.time)
 
+            // Check if ToDate needs to be updated based on the selected FromDate
+            val currentToDate = Calendar.getInstance().apply {
+                time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
+            }
+            if (currentToDate.before(fromDate)) {
+                val updatedToDate = fromDate.clone() as Calendar
+                updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
+                binding.txtTotalSaleToDate.text = dateFormat.format(updatedToDate.time)
+            }
+        }
 
-        val dateRangePicker = MaterialDatePicker.Builder.dateRangePicker()
-                                .setTitleText("Select Date Range")
-                                .setCalendarConstraints(constraintsBuilder.build())
-                                .build()
+        val datePickerDialog = DatePickerDialog(
+            requireContext(), fromDateListener, fromDate.get(Calendar.YEAR), fromDate.get(Calendar.MONTH), fromDate.get(Calendar.DAY_OF_MONTH)
+        )
 
+        // Restrict the "From Date" to today or earlier
+        val today = Calendar.getInstance()
+        datePickerDialog.datePicker.maxDate = today.timeInMillis
 
-        dateRangePicker.show(parentFragmentManager, "date_range_picker")
-
-
-        dateRangePicker.addOnPositiveButtonClickListener { selection ->
-            val startDate = selection?.first ?: 0L
-            val endDate = selection?.second ?: 0L
-
-            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-            val formattedStartDate = dateFormat.format(Date(startDate))
-            val formattedEndDate = dateFormat.format(Date(endDate))
-
-            binding.txtTotalSaleFromDate.text   = formattedStartDate
-            binding.txtTotalSaleToDate.text     = formattedEndDate
-        }*/
+        datePickerDialog.show()
     }
+
+
+
+    private fun showToDatePicker() {
+        val toDate = Calendar.getInstance()
+
+        if (!binding.txtTotalSaleToDate.text.isNullOrEmpty()) {
+            toDate.time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
+        }
+
+        val toDateListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            toDate.set(Calendar.YEAR, year)
+            toDate.set(Calendar.MONTH, monthOfYear)
+            toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            binding.txtTotalSaleToDate.text = dateFormat.format(toDate.time)
+        }
+
+        // Retrieve the selected "From Date" or use today's date if not selected
+        val fromDate = Calendar.getInstance().apply {
+            time = if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
+                dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
+            } else {
+                Calendar.getInstance().time
+            }
+        }
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(), toDateListener, toDate.get(Calendar.YEAR), toDate.get(Calendar.MONTH), toDate.get(Calendar.DAY_OF_MONTH)
+        )
+
+        // Restrict the "To Date" to be no earlier than the "From Date" and no later than today
+        datePickerDialog.datePicker.minDate = fromDate.timeInMillis
+        val today = Calendar.getInstance()
+        datePickerDialog.datePicker.maxDate = today.timeInMillis
+
+        datePickerDialog.show()
+    }
+
+
+
 
 
 }

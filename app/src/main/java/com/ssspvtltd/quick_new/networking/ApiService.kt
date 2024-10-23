@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick_new.networking
 
 import com.ssspvtltd.quick_new.model.DashBoardDataResponse
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.HoldOrderRequest
 import com.ssspvtltd.quick_new.model.auth.AutoLogout
 import com.ssspvtltd.quick_new.model.auth.LoginData
@@ -25,6 +26,7 @@ import com.ssspvtltd.quick_new.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick_new.model.order.stockinoffice.StockInOfficeData
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Multipart
 import retrofit2.http.POST
@@ -139,6 +141,7 @@ interface ApiService {
 
     @POST("api/Report/GetStockInOfficeOrderDetails")
     suspend fun stockInOffice(
+       @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<StockInOfficeData>>
 
     @Multipart
@@ -156,12 +159,12 @@ interface ApiService {
     @POST("api/OrderBook/GetDashboardData")
     suspend fun getDashBoardData(
         @Query("marketerId") marketerId: String
-    ): ApiResponse<DashBoardDataResponse>
+    ): Response<DashBoardDataResponse>
 
     @POST("api/OrderBook/GetDashboardSaleCountData")
     suspend fun getDashBoardSaleCountData(
         @Query("marketerId") marketerId: String,
         @Query("fromDate") fromDate : String,
         @Query("toDate") toDate: String
-    ): ApiResponse<DashBoardDataResponse>
+    ): Response<DashBoardDataResponse>
 }

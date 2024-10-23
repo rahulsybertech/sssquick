@@ -24,5 +24,6 @@ enum class ApiRequestCode {
     STOCK_IN_OFFICE,
     SAVE_ORDER,
     EDIT_ORDER,
-    DASHBOARD_DATA
+    DASHBOARD_DATA,
+    DASHBOARD_SALE_DATA
 }

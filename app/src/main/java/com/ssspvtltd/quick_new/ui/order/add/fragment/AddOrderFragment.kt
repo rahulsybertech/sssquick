@@ -13,6 +13,8 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.manager.SupportRequestManagerFragment
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.ssspvtltd.quick_new.R
 import com.ssspvtltd.quick_new.base.BaseFragment
 import com.ssspvtltd.quick_new.base.InflateF
@@ -62,6 +64,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var transportId: String         = ""
     private var schemeId: String            = ""
     private var selectedStatus: String      = "PENDING"
+
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
 
@@ -97,7 +100,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.tvDispatchFromDate.text = todayDate
         binding.tvDispatchToDate.text   = threeDaysLaterDate
 
-        val statusOptions = listOf("HOLD", "PENDING")
+        val statusOptions = listOf("PENDING","HOLD")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, statusOptions)
         binding.autoCompleteStatus.setAdapter(adapter)
 
@@ -105,6 +108,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             selectedStatus = parent.getItemAtPosition(position).toString()
            Log.i("TaG","Selected Status -=-=--=-=-> $selectedStatus")
         }
+        binding.autoCompleteStatus.setText("PENDING", false)
 
         binding.toolbar.apply {
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
@@ -391,7 +395,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["TotalQty"]             = "0".toRequestBody()
                     hashMap["TotalAmt"]             = "0".toRequestBody()
                     hashMap["OrderTypeName"]        = "TRADING".toRequestBody()
-                    hashMap["OrderStatus"]          = selectedStatus.toRequestBody()
+                    hashMap["OrderStatus"]          = "HOLD".toRequestBody()
 
                     viewModel.placeOrder(hashMap)
 
