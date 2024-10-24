@@ -12,6 +12,7 @@ import com.ssspvtltd.quick_new.ui.order.add.adapter.PackDataInputAdapter
 import com.ssspvtltd.quick_new.ui.order.add.adapter.PackTypeAdapter
 import com.ssspvtltd.quick_new.ui.order.add.viewmodel.AddItemViewModel
 import com.ssspvtltd.quick_new.utils.extension.getParentFragmentViewModel
+import com.ssspvtltd.quick_new.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -67,37 +68,44 @@ class AddItemBottomSheetFragment :
     private fun registerListeners() = with(binding) {
         closeDialog.setOnClickListener { dismiss() }
         addItem.setOnClickListener {
-            viewModel.bottomSheetPackData = viewModel.packTypeSuggestions.value?.find {
-                it.value?.equals(spinnerType.text?.toString()) == true
-            }
 
-            viewModel.bottomSheetPackQuantity   = etQuantity.text?.toString()
-            viewModel.bottomSheetPackAmount     = etAmount.text?.toString()
-
-
-            Log.i("TaG","0000000000000000000  ${mAdapter.getList()}")
-            if (mAdapter.getList().size > 1) {
-                val packTypeItems = mAdapter.getList().filter {
-                    !it.itemID.isNullOrBlank() && !it.itemName.isNullOrBlank()
+            if(validate()) {
+                viewModel.bottomSheetPackData = viewModel.packTypeSuggestions.value?.find {
+                    it.value?.equals(spinnerType.text?.toString()) == true
                 }
 
-                if (packTypeItems.isNotEmpty()) {
-                    viewModel.submitData(packTypeItems)
+                viewModel.bottomSheetPackQuantity   = etQuantity.text?.toString()
+                viewModel.bottomSheetPackAmount     = etAmount.text?.toString()
+
+
+                Log.i("TaG","0000000000000000000  ${mAdapter.getList()}")
+                if (mAdapter.getList().size > 1) {
+                    val packTypeItems = mAdapter.getList().filter {
+                        !it.itemID.isNullOrBlank() && !it.itemName.isNullOrBlank()
+                    }
+
+                    if (packTypeItems.isNotEmpty()) {
+                        viewModel.submitData(packTypeItems)
+                    } else {
+                        showToast("Please input all fields")
+                    }
+
                 } else {
-                    showToast("Please input all fields")
-                }
 
+                    if (mAdapter.getList().any { item ->
+                            item.itemName.isNullOrBlank() || item.itemID.isNullOrBlank() || (item.itemQuantity ?: "0").trim().toDouble() <= 0
+                        }) {
+
+
+                        showToast("Please input all fields")
+                    } else {
+                        viewModel.submitData(mAdapter.getList())
+                    }
+                }
             } else {
-                if (mAdapter.getList().any { item ->
-                        item.itemName.isNullOrBlank() || item.itemID.isNullOrBlank() || (item.itemQuantity ?: "0").trim().toDouble() <= 0
-                    }) {
-
-
-                    showToast("Please input all fields")
-                } else {
-                    viewModel.submitData(mAdapter.getList())
-                }
+                showToast("Please input all fields")
             }
+
 
 
         }
@@ -113,6 +121,17 @@ class AddItemBottomSheetFragment :
             viewModel.bottomSheetPackAmount = text?.toString()
         }
 
+
+    }
+
+    private fun validate(): Boolean {
+        return if (mAdapter.getList().isNotEmpty()) {
+            ( mAdapter.getList().any { item ->
+                item.itemName.isNullOrBlank() || item.itemID.isNullOrBlank() || item.itemQuantity.isNotNullOrBlank()
+            } )
+        } else {
+            false
+        }
 
     }
 

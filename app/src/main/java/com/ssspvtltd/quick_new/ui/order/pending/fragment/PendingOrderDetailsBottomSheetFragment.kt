@@ -1,19 +1,15 @@
 package com.ssspvtltd.quick_new.ui.order.pending.fragment
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.ImageView
-import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -122,44 +118,18 @@ class PendingOrderDetailsBottomSheetFragment :
 
     @SuppressLint("MissingInflatedId")
     private fun showPdfPreviewDialog(url: String) {
-/*
+        dismiss()
         val intent = Intent(Intent.ACTION_VIEW)
         intent.setDataAndType(Uri.parse(url), "application/pdf")
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION) // Open in a new task
+        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_CLEAR_TOP
 
-        startActivity(intent)*/
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_pdf_preview, null)
-
-        val webView: WebView = dialogView.findViewById(R.id.webView)
-        val progressBar: ProgressBar = dialogView.findViewById(R.id.progressBar)
-
-        webView.settings.javaScriptEnabled = true
-        webView.webViewClient = WebViewClient()
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                progressBar.visibility = View.VISIBLE
-                webView.visibility = View.GONE
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                progressBar.visibility = View.GONE
-                webView.visibility = View.VISIBLE
-            }
+        val chooser = Intent.createChooser(intent, "Open PDF")
+        try {
+            requireActivity().startActivity(chooser)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(requireContext(), "No PDF viewer found", Toast.LENGTH_SHORT).show()
         }
 
-        val googleDocsUrl = "https://docs.google.com/gview?embedded=true&url=$url"
-        webView.loadUrl(googleDocsUrl)
-
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setNegativeButton("Close") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-
-        dialog.show()
     }
 
     companion object {

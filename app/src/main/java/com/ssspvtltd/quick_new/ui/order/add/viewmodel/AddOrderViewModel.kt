@@ -15,7 +15,6 @@ import com.ssspvtltd.quick_new.model.order.add.SchemeData
 import com.ssspvtltd.quick_new.model.order.add.VoucherData
 import com.ssspvtltd.quick_new.model.order.add.addImage.ImageModel
 import com.ssspvtltd.quick_new.model.order.add.additem.PackType
-import com.ssspvtltd.quick_new.model.order.add.editorder.EditOrderData
 import com.ssspvtltd.quick_new.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick_new.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick_new.model.order.add.salepartydetails.Data
@@ -224,7 +223,7 @@ class AddOrderViewModel @Inject constructor(
             val file = imageModel.filePath?.let { File(it) }
             if (file?.exists() == true) {
                 MultipartBody.Part.createFormData(
-                    "documents[]", file.getName(),
+                    "documents", file.getName(),
                     file.asRequestBody("image/*".toMediaTypeOrNull())
                 ).let { documents.add(it) }
             }
@@ -235,7 +234,7 @@ class AddOrderViewModel @Inject constructor(
                     hideProgressBar()
                     _isOrderPlacedLimitError.postValue(response.error.message!!)
                 } else {
-                    apiErrorData(response.error,getString(R.string.order_cancel))
+                    apiErrorData(response.error,getString((R.string.error)))
                 }
             }
             is ResultWrapper.Success -> {

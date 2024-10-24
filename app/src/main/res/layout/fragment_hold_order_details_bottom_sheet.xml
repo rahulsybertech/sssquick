@@ -168,8 +168,6 @@
         </androidx.appcompat.widget.LinearLayoutCompat>
 
 
-
-
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/lvlBarrier"
             android:layout_width="wrap_content"

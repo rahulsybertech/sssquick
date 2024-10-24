@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import com.ssspvtltd.quick_new.R
 import com.ssspvtltd.quick_new.databinding.FragmentDashboardBinding
 import com.ssspvtltd.quick_new.model.DashBoardDataResponse
 import com.ssspvtltd.quick_new.ui.main.MainActivity
@@ -23,7 +24,7 @@ class DashboardFragment : Fragment() {
 
     private lateinit var binding: FragmentDashboardBinding
     private val viewModel : DashBoardViewmodel by viewModels()
-    private val dateFormat  = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private val dateFormat  = java.text.SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
 
 
     companion object{
@@ -62,14 +63,9 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setMyView() {
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
+        val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
         val currentDate = LocalDate.now()
-
         val oneWeekBeforeDate = currentDate.minusWeeks(1L)
-
-        val currentDateString       = currentDate.format(formatter)
-        val oneWeekBeforeDateString = oneWeekBeforeDate.format(formatter)
 
         binding.txtTotalSaleFromDate.text   = oneWeekBeforeDate.format(formatter)
         binding.txtTotalSaleToDate.text     = currentDate.format(formatter)
@@ -92,6 +88,13 @@ class DashboardFragment : Fragment() {
 
         binding.llToDate.setOnClickListener {
             showToDatePicker()
+        }
+
+        binding.swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            callApis()
+            binding.swipeRefreshLayout.isRefreshing = false
+
         }
 
     }
@@ -137,6 +140,8 @@ class DashboardFragment : Fragment() {
                 updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
                 binding.txtTotalSaleToDate.text = dateFormat.format(updatedToDate.time)
             }
+            viewModel.getDashBoardSaleCountDetails(binding.txtTotalSaleFromDate.text.toString(),binding.txtTotalSaleToDate.text.toString()) // Refresh sale count details
+
         }
 
         val datePickerDialog = DatePickerDialog(
@@ -150,11 +155,10 @@ class DashboardFragment : Fragment() {
         datePickerDialog.show()
     }
 
-
-
     private fun showToDatePicker() {
         val toDate = Calendar.getInstance()
 
+        // Check if there's already a selected "To Date"
         if (!binding.txtTotalSaleToDate.text.isNullOrEmpty()) {
             toDate.time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
         }
@@ -164,6 +168,7 @@ class DashboardFragment : Fragment() {
             toDate.set(Calendar.MONTH, monthOfYear)
             toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             binding.txtTotalSaleToDate.text = dateFormat.format(toDate.time)
+            viewModel.getDashBoardSaleCountDetails(binding.txtTotalSaleFromDate.text.toString(),binding.txtTotalSaleToDate.text.toString()) // Refresh sale count details
         }
 
         // Retrieve the selected "From Date" or use today's date if not selected
@@ -186,6 +191,7 @@ class DashboardFragment : Fragment() {
 
         datePickerDialog.show()
     }
+
 
 
 

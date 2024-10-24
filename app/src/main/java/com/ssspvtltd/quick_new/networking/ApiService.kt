@@ -14,7 +14,6 @@ import com.ssspvtltd.quick_new.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick_new.model.order.add.SalepartyData
 import com.ssspvtltd.quick_new.model.order.add.SchemeData
 import com.ssspvtltd.quick_new.model.order.add.VoucherData
-import com.ssspvtltd.quick_new.model.order.add.editorder.EditOrderData
 import com.ssspvtltd.quick_new.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick_new.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick_new.model.order.add.salepartydetails.Data
@@ -133,10 +132,12 @@ interface ApiService {
 
     @POST("api/Report/GetGrReturnOrderDetails")
     suspend fun goodsReturn(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<GoodsReturnData>>
 
     @POST("api/Report/GetPendingLROrderDetails")
     suspend fun pendingLr(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<PendingLrData>>
 
     @POST("api/Report/GetStockInOfficeOrderDetails")

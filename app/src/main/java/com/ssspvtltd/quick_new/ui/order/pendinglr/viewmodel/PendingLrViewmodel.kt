@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick_new.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick_new.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick_new.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick_new.model.progress.ProgressConfig
 import com.ssspvtltd.quick_new.networking.ResultWrapper
@@ -23,7 +24,15 @@ class PendingLrViewmodel @Inject constructor(
     var searchValue = ""
     fun getPendingLr() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        when (val response = repository.pendingLrList()) {
+        when (val response = repository.pendingLrList(
+            GetStockInOfficeOrderDetailsRequest(
+                buyerIDs = listOf(),
+                fromDate = null,
+                isSupplier = true,
+                supplierIDs = listOf(),
+                toDate = null
+            )
+        )) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> {
                 pendingLrList = response.value.data.orEmpty()

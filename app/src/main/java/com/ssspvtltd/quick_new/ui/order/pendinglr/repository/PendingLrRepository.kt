@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_new.ui.order.pendinglr.repository
 
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick_new.networking.ApiRequestCode
 import com.ssspvtltd.quick_new.networking.ApiResponse
@@ -11,9 +12,9 @@ import javax.inject.Inject
 
 class PendingLrRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun pendingLrList(): ResultWrapper<ApiResponse<*>, ApiResponse<List<PendingLrData>>> {
+    suspend fun pendingLrList(getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest): ResultWrapper<ApiResponse<*>, ApiResponse<List<PendingLrData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.PENDING_LR.ordinal) {
-            apiService.pendingLr()
+            apiService.pendingLr(getStockInOfficeOrderDetailsRequest)
         }
     }
 }

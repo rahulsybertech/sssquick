@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick_new.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick_new.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick_new.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick_new.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick_new.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick_new.model.progress.ProgressConfig
 import com.ssspvtltd.quick_new.networking.ResultWrapper
@@ -22,7 +23,15 @@ class GoodsReturnViewModel @Inject constructor(
     var searchValue = ""
     fun getGoodsReturn() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        when (val response = repository.getGoodsReturn()) {
+        when (val response = repository.getGoodsReturn(
+            GetStockInOfficeOrderDetailsRequest(
+            buyerIDs = listOf(),
+            fromDate = null,
+            isSupplier = true,
+            supplierIDs = listOf(),
+            toDate = null
+        )
+        )) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> {
                 goodsReturnList = response.value.data.orEmpty()
