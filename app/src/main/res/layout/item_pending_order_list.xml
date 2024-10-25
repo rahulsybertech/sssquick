@@ -29,6 +29,7 @@
         android:fontFamily="@font/noto_sans_light"
         android:text="@string/amount"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toStartOf="@+id/lvlQuantity"
         app:layout_constraintStart_toEndOf="@+id/lvlItemName"
         app:layout_constraintTop_toTopOf="parent" />
@@ -41,6 +42,7 @@
         android:fontFamily="@font/noto_sans_light"
         android:text="@string/quantity"
         android:textSize="12sp"
+        android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/lvlAmount"
         app:layout_constraintTop_toTopOf="parent" />
@@ -70,6 +72,7 @@
         tools:text="150000"
         android:textColor="@color/black"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toStartOf="@id/tvQuantity"
         app:layout_constraintStart_toEndOf="@+id/tvItemName"
@@ -85,6 +88,7 @@
         tools:text="10"
         android:textColor="@color/black"
         android:textSize="12sp"
+        android:textAlignment="textEnd"
         app:layout_constrainedHeight="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tvAmount"

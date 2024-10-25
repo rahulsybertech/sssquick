@@ -15,6 +15,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.navigation.NavigationBarView
 import com.ssspvtltd.quick_new.R
 import com.ssspvtltd.quick_new.base.BaseActivity
@@ -198,7 +199,20 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
             if (item.itemId != R.id.addOrderFragment || runBlocking { viewModel.prefHelper.getCheckinStatus() } == true) {
                 NavigationUI.onNavDestinationSelected(item, navController, false)
             } else {
-                viewModel.showMsgAlert(message = "Checkin First")
+                val intent = Intent(this, CheckInCheckOutActivity::class.java)
+                SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE).apply {
+                    titleText = ""
+                    contentText = "You need to checkIn First."
+                    setCancelable(false)
+                    confirmText = "OK"
+                    cancelText =  "Cancel"
+                    confirmButtonBackgroundColor = getColor( R.color.error_text)
+                    this.setConfirmClickListener {
+                        dismiss()
+                        startActivity(intent)
+                    }
+                }.show()
+                //viewModel.showMsgAlert(message = "Checkin First")
                 false
             }
         }

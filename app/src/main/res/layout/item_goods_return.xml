@@ -71,6 +71,7 @@
         android:paddingVertical="2dp"
         android:textAllCaps="true"
         android:textSize="10sp"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSupplier"
         tools:text="Jeans" />

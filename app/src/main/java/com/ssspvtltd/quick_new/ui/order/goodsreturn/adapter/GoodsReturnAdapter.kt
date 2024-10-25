@@ -73,9 +73,10 @@ class GoodsReturnViewHolder(private val binding: ItemGoodsReturnBinding) :
         tvSaleBillNo.text = getString(R.string.sale_bill_no_format, item.saleBillNo)
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
-        tvSubParty.text = item.subPartyName?:"Self"
-        tvItemName.text = "Jeans"
-        tvOrderStatus.text = "Pending"
+        // tvSubParty.text = item.subPartyName?:"Self"
+        tvSubParty.text ="Qty: ${(item.qty ?: " - ")}"
+        // tvItemName.text = "Jeans"
+        tvOrderStatus.text = item.status
         tvOrderAmount.text = getString(R.string.amount_format,item.amount)
     }
 }

@@ -73,8 +73,8 @@ class HoldOrderViewHolder(private val binding: ItemHoldOrderBinding) :
         tvSaleBillNo.text = getString(R.string.sale_bill_no_format, item.orderNo)
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
-        tvSubParty.text = item.subPartyName?:"Self"
-        tvItemName.text = "Jeans"
+        tvSubParty.text = "Qty: " + (item.qty ?: "").toString()
+        tvItemName.text = item.type ?: "--"
         tvOrderStatus.text = item.status ?: "--"
         tvOrderAmount.text = getString(R.string.amount_format,item.amount)
     }

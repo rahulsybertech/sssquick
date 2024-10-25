@@ -75,9 +75,9 @@ class PendingOrderViewHolder(private val binding: ItemPendingOrderBinding) :
         tvSaleBillNo.text = getString(R.string.order_no_format, item.orderNo)
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
-        tvSubParty.text = item.subPartyName?:"Self"
-        tvItemName.text = "Jeans"
-        tvOrderStatus.text = item.status ?: "--"
+        tvSubParty.text = """Qty: ${(item.qty ?: "--")}"""
+        tvItemName.text = item.type ?: ""
+        tvOrderStatus.text = (item.qty ?: "--").toString()
         tvOrderAmount.text = getString(R.string.amount_format,item.amount)
     }
 }

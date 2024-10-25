@@ -97,8 +97,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         val todayDate           = dateFormat.format(Calendar.getInstance().time)
         val threeDaysLaterDate  = dateFormat.format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 3) }.time)
 
-        binding.tvDispatchFromDate.text = todayDate
-        binding.tvDispatchToDate.text   = threeDaysLaterDate
+       /* binding.tvDispatchFromDate.text = todayDate
+        binding.tvDispatchToDate.text   = threeDaysLaterDate*/
 
         val statusOptions = listOf("PENDING","HOLD")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, statusOptions)
@@ -602,7 +602,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }else if (tvDispatchFromDate.text.isBlank()) {
             tvDispatchFromDate.requestFocus()
             tvDispatchFromDate.setBackgroundResource(R.drawable.red_outline)
-            tvDispatchFromDate.error = "Please enter from date"
+            tvDispatchFromDate.error = "Please enter From date"
             return false
         } else if (tvDispatchToDate.text.isBlank()) {
             tvDispatchToDate.requestFocus()
@@ -659,14 +659,18 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             binding.tvDispatchFromDate.text = dateFormat.format(fromDate.time)
             // Check if ToDate needs to be updated based on the selected FromDate
-            val currentToDate = Calendar.getInstance().apply {
-                time = dateFormat.parse(binding.tvDispatchToDate.text.toString())!!
+            if(!binding.tvDispatchToDate.text.isNullOrEmpty()) {
+                val currentToDate = Calendar.getInstance().apply {
+                    time = dateFormat.parse(binding.tvDispatchToDate.text.toString())!!
+                }
+                if (currentToDate.before(fromDate)) {
+                    val updatedToDate = fromDate.clone() as Calendar
+                    updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
+                    binding.tvDispatchToDate.text = dateFormat.format(updatedToDate.time)
+                }
             }
-            if (currentToDate.before(fromDate)) {
-                val updatedToDate = fromDate.clone() as Calendar
-                updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
-                binding.tvDispatchToDate.text = dateFormat.format(updatedToDate.time)
-            }
+
+
         }
 
         val datePickerDialog = DatePickerDialog(
@@ -699,18 +703,22 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.tvDispatchToDate.text = dateFormat.format(toDate.time)
         }
 
-        val fromDate = Calendar.getInstance().apply {
-            time = dateFormat.parse(binding.tvDispatchFromDate.text.toString())!!
-        }
-
         val datePickerDialog = DatePickerDialog(
             requireContext(), toDateListener, toDate.get(Calendar.YEAR), toDate.get(Calendar.MONTH), toDate.get(Calendar.DAY_OF_MONTH)
         )
 
+        if (!binding.tvDispatchFromDate.text.isNullOrEmpty()) {
+            val fromDate = Calendar.getInstance().apply {
+                time = dateFormat.parse(binding.tvDispatchFromDate.text.toString())!!
+            }
+            datePickerDialog.datePicker.minDate = fromDate.timeInMillis + (1 * 24 * 60 * 60 * 1000)  // +3 days from fromDate
+
+        }
+
         // Restrict the ToDate to be at least 3 days after fromDate, and at most 3 months from today's date
-        datePickerDialog.datePicker.minDate = fromDate.timeInMillis + (1 * 24 * 60 * 60 * 1000)  // +3 days from fromDate
         val maxDate = Calendar.getInstance().apply { add(Calendar.MONTH, 3) }.timeInMillis
         datePickerDialog.datePicker.maxDate = maxDate
+
 
         datePickerDialog.show()
     }

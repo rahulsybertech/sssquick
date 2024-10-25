@@ -3,19 +3,21 @@ package com.ssspvtltd.quick_new.ui.order.stockinoffice.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.ImageView
-import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.ssspvtltd.quick_new.R
 import com.ssspvtltd.quick_new.base.BaseBottomDialog
 import com.ssspvtltd.quick_new.base.BaseViewModel
@@ -62,11 +64,14 @@ class StockInOfficeBottomSheetFragment :
         //  tvSaleBillDate.text=pendingLrItem? // pass through apapter constructor
 
         if (stockInOfficeItem?.imagePaths.isNotNullOrBlank()) {
+            Log.i("TaG","-=-=-=-=-=-=-=->${stockInOfficeItem?.imagePaths}")
             if ((stockInOfficeItem?.imagePaths ?: "").contains(".pdf")) {
                 ivDoc.setImageResource(R.drawable.ic_pdf)
             } else {
                 ivDoc.setImageResource(R.drawable.ic_image)
             }
+        } else {
+            llDoc.visibility = View.GONE
         }
 
         llDoc.setOnClickListener {
@@ -83,19 +88,51 @@ class StockInOfficeBottomSheetFragment :
 
         val imageView = ImageView(context)
 
-        Glide.with(context)
-            .load(imageUrl)
-            .into(imageView)
+        imageView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        imageView.adjustViewBounds = true
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
 
         val builder = AlertDialog.Builder(context)
         builder.setView(imageView)
-        builder.setCancelable(true)
+        builder.setCancelable(false)
         builder.setPositiveButton("Close") { dialog, _ ->
             dialog.dismiss()
         }
 
         val dialog = builder.create()
         dialog.show()
+
+        Glide.with(context)
+            .load(imageUrl)
+            .placeholder(R.drawable.ic_image)
+            .listener(object : RequestListener<Drawable> {
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: com.bumptech.glide.request.target.Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    Log.d("TaG", "Image loaded successfully")
+                    return false
+                }
+
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    dialog.dismiss()
+                    Toast.makeText(context, "Image load failed", Toast.LENGTH_SHORT).show()
+                    return false
+                }
+            })
+            .into(imageView)
+
     }
 
     @SuppressLint("MissingInflatedId")
