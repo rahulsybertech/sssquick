@@ -167,6 +167,11 @@ class AddOrderViewModel @Inject constructor(
             hideProgressBar()
         }
     }
+    fun getInitialPurchaseParty() = viewModelScope.launch(Dispatchers.Default) {
+        val purchasePartyDeferred = async { getPurchasePartySuspend(null) }
+        val purchasePartyResponse = purchasePartyDeferred.await()
+        _purchaseParty.postValue(purchasePartyResponse)
+    }
 
     private suspend fun getPurchasePartySuspend(schemeId: String? = null): List<PurchasePartyData> {
         return withContext(Dispatchers.Default) {

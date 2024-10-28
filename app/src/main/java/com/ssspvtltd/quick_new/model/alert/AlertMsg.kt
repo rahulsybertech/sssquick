@@ -11,7 +11,8 @@ data class AlertMsg(
     val cancelable: Boolean = false,
     val okButtonText: String? = "OK",
     @ColorRes val barColor: Int = R.color.color_A5DC86,
-    @ColorRes var btnBgColor : Int = R.color.error_text
+    @ColorRes var btnBgColor : Int = R.color.error_text,
+    val isOkCallBack: (() -> Unit)? = null,
 )
 
 

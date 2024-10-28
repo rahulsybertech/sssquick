@@ -116,13 +116,17 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
         }
     }
 
-    private fun showAlertMsg(config: AlertMsg? = AlertMsg()) {
+   private fun showAlertMsg(config: AlertMsg? = AlertMsg()) {
         SweetAlertDialog(this, config?.type!!).apply {
             titleText = config.title
             contentText = config.message
             setCancelable(false)
             confirmText = config.okButtonText
             confirmButtonBackgroundColor = getColor(config.btnBgColor)
+            setConfirmClickListener {
+                dismiss()
+                config.isOkCallBack?.let { it1 -> it1() }
+            }
         }.show()
     }
 

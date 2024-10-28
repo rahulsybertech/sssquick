@@ -117,6 +117,11 @@ class CheckInCheckOutFragment :
         // }
     }
 
+    private fun navToHome() {
+        if (requireActivity() is MainActivity) findNavController().navigateUp()
+        else requireActivity().onBackPressed()
+    }
+
     @OptIn(FlowPreview::class)
     private fun registerListeners() = with(binding) {
         orderInOffice.setOnClickListener { viewModel.setTabSelection(CheckInType.ORDER_IN_OFFICE) }
@@ -125,8 +130,8 @@ class CheckInCheckOutFragment :
         }
         withCustomer.setOnClickListener { viewModel.setTabSelection(CheckInType.WITH_MARKETER) }
         other.setOnClickListener { viewModel.setTabSelection(CheckInType.OTHER) }
-        checkIn.setOnClickListener { viewModel.addUpdateCustomer() }
-        update.setOnClickListener { viewModel.addUpdateCustomer() }
+        checkIn.setOnClickListener { viewModel.addUpdateCustomer(::navToHome) }
+        update.setOnClickListener { viewModel.addUpdateCustomer(::navToHome) }
         checkOut.setOnClickListener { viewModel.checkOutCustomer() }
         mAdapter.onItemClick = { viewModel.checkUncheckItem(it) }
         etRemark.doOnTextChanged { text, _, _, _ ->

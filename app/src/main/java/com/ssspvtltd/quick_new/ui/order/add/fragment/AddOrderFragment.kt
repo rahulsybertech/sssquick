@@ -4,26 +4,30 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.bumptech.glide.manager.SupportRequestManagerFragment
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.ssspvtltd.quick_new.R
 import com.ssspvtltd.quick_new.base.BaseFragment
 import com.ssspvtltd.quick_new.base.InflateF
 import com.ssspvtltd.quick_new.databinding.FragmentAddOrderBinding
 import com.ssspvtltd.quick_new.model.ARG_ADD_IMAGE_LIST
 import com.ssspvtltd.quick_new.model.ARG_ADD_ITEM_LIST
+import com.ssspvtltd.quick_new.model.order.add.PurchasePartyData
+import com.ssspvtltd.quick_new.model.order.add.SalepartyData
+import com.ssspvtltd.quick_new.model.order.add.SchemeData
 import com.ssspvtltd.quick_new.model.order.add.addImage.ImageModel
 import com.ssspvtltd.quick_new.model.order.add.additem.PackType
 import com.ssspvtltd.quick_new.model.order.add.additem.PackTypeItem
+import com.ssspvtltd.quick_new.model.order.add.salepartydetails.AllStation
+import com.ssspvtltd.quick_new.model.order.add.salepartydetails.SubParty
 import com.ssspvtltd.quick_new.ui.order.add.activity.AddImageActivity
 import com.ssspvtltd.quick_new.ui.order.add.adapter.DefaultTransportAdapter
 import com.ssspvtltd.quick_new.ui.order.add.adapter.PackDataAdapter
@@ -64,6 +68,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var transportId: String         = ""
     private var schemeId: String            = ""
     private var selectedStatus: String      = "PENDING"
+    private var purchasePartyData : List<PurchasePartyData>? = emptyList()
+    private var salePartyData :  List<SalepartyData>? = emptyList()
+    private var subPartyData :  List<SubParty>? = emptyList()
+    private var stationData :  List<AllStation>? = emptyList()
+    private var schemeData :  List<SchemeData>? = emptyList()
 
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -138,6 +147,24 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.etTransport.doAfterTextChanged {
             transportId = ""
         }
+
+        binding.etScheme.addTextChangedListener ( object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                Log.i("TaG","1111111111111111111111111")
+                if(s.isNullOrBlank()) {
+                    viewModel.getInitialPurchaseParty()
+                }
+            }
+
+        } )
         binding.etScheme.doAfterTextChanged {
             schemeId = ""
             binding.etPurchaseParty.text.clear()
@@ -247,6 +274,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 R.id.radioByNickName -> {
                     binding.etPurchaseParty.text.clear()
                     viewModel.purchaseParty.observe(viewLifecycleOwner) {
+                        purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
                         val purchasePartyAdapter = PurchasePartyAdapter(
                             true,
                             requireContext(),
@@ -265,6 +293,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         val purchasePartyAdapter = PurchasePartyAdapter(
                             false, requireContext(), R.layout.item_saleparty, it.orEmpty()
                         )
+                        purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
                         binding.etPurchaseParty.setThreshold(1)
                         binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
                     }
@@ -276,6 +305,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         addItemAdapter.onDeleteClick = { addItemViewModel.deletePackTypeData(it) }
 
         binding.etSalePartyName.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus) {
+                if(salePartyData?.any { it -> it.accountName == binding.etSalePartyName.text.toString() } == false) {
+                    binding.etSalePartyName.text.clear()
+                }
+            }
             if (!binding.etSalePartyName.isPopupShowing) {
                 binding.etSalePartyName.showDropDown()
             }
@@ -288,6 +322,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
 
         binding.etSubParty.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus) {
+                if(subPartyData?.any { it-> it.subPartyName == binding.etSubParty.text.toString() } == false) {
+                    binding.etSubParty.text.clear()
+                }
+            }
             if (!binding.etSubParty.isPopupShowing) {
                 binding.etSubParty.showDropDown()
             }
@@ -310,6 +349,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etStation.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus){
+                if(stationData?.any { it -> it.stationName == binding.etStation.text.toString() } == false) {
+                    binding.etStation.text.clear()
+                }
+            }
             if (!binding.etStation.isPopupShowing) {
                 binding.etStation.showDropDown()
             }
@@ -321,10 +365,18 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etPurchaseParty.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus  ) {
+               if( purchasePartyData?.any{ it -> it.nickName == binding.etPurchaseParty.text.toString()} == false) {
+                    binding.etPurchaseParty.text.clear()
+                }
+            }
+
             if (!binding.etPurchaseParty.isPopupShowing) {
                 binding.etPurchaseParty.showDropDown()
             }
         }
+
+
         binding.etPurchaseParty.setOnClickListener {
             if (!binding.etPurchaseParty.isPopupShowing) {
                 binding.etPurchaseParty.showDropDown()
@@ -332,6 +384,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etScheme.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus) {
+                if(schemeData?.any { it -> it.schemeName == binding.etScheme.text.toString() } == false) {
+                    binding.etScheme.text.clear()
+                }
+            }
             if (!binding.etScheme.isPopupShowing) {
                 binding.etScheme.showDropDown()
             }
@@ -407,8 +464,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etSerialNo.setText(it?.orderNo)
             binding.etMarketerCode.setText(it?.marketerCode)
             binding.etSalePartyName.setText(it?.salePartyName)
-            binding.etAvailableLimit.setText("1000")
-            binding.etAverageDays.setText("10")
+            /*binding.etAvailableLimit.setText("1000")
+            binding.etAverageDays.setText("10")*/
             binding.etSubParty.setText(it?.subPartyName)
             binding.etTransport.setText(it?.transportName)
             binding.etStation.setText(it?.bstationName)
@@ -452,9 +509,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         viewModel.voucherData.observe(viewLifecycleOwner) {
             binding.etMarketerCode.setText(it?.voucherCode)
             binding.etSerialNo.setText(it?.voucherNO)
+            if (it?.isVisible == false) {
+                binding.tilRadioStar.visibility = View.GONE
+            } else {
+                binding.tilRadioStar.visibility = View.VISIBLE
+            }
         }
 
         viewModel.saleParty.observe(viewLifecycleOwner) {
+            salePartyData = it
             val salePartyAdapter = SalePartyAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
             binding.etSalePartyName.setThreshold(1)
             binding.etSalePartyName.setAdapter(salePartyAdapter)
@@ -472,6 +535,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             val subPartyAdapter = SubPartyAdapter(
                 requireContext(), R.layout.item_saleparty, it?.subPartyList ?: emptyList()
             )
+            subPartyData = it?.subPartyList
             binding.etSubParty.setThreshold(1)
             binding.etSubParty.setAdapter(subPartyAdapter)
             binding.etSubParty.setOnItemClickListener { parent, _, position, _ ->
@@ -491,8 +555,14 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 transportId = tId?.transportId.toString()
                 binding.tilTransport.isErrorEnabled = !(tId?.transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
             }
+            var avlLimit = "0"
+            if (it?.avlLimit != null  && (it.avlLimit ?: "0").toDouble() != 0.toDouble() ) {
+               avlLimit =  it.avlLimit.toString()
+            } else {
+                binding.autoCompleteStatus.setText("PENDING", false)
+            }
 
-            binding.etAvailableLimit.setText(it?.avlLimit.toString())
+            binding.etAvailableLimit.setText("${avlLimit}")
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etSubParty.setText(it?.defSubPartyName.orEmpty())
@@ -505,6 +575,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             val stationAdapter = StationAdapter(
                 requireContext(), R.layout.item_saleparty, it.orEmpty()
             )
+            stationData = it
             binding.etStation.setThreshold(1)
             binding.etStation.setAdapter(stationAdapter)
             binding.etStation.setOnItemClickListener { parent, _, position, _ ->
@@ -533,8 +604,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.scheme.observe(viewLifecycleOwner) {
-            val schemeAdapter =
-                SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
+            val schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
+            schemeData = it
             binding.etScheme.setThreshold(1)
             binding.etScheme.setAdapter(schemeAdapter)
             binding.etScheme.setOnItemClickListener { parent, _, position, _ ->
@@ -658,6 +729,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             fromDate.set(Calendar.MONTH, monthOfYear)
             fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             binding.tvDispatchFromDate.text = dateFormat.format(fromDate.time)
+            binding.tvDispatchFromDate.setBackgroundResource(R.drawable.layout_outline)
+            binding.tvDispatchFromDate.error = null
             // Check if ToDate needs to be updated based on the selected FromDate
             if(!binding.tvDispatchToDate.text.isNullOrEmpty()) {
                 val currentToDate = Calendar.getInstance().apply {
@@ -701,6 +774,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             toDate.set(Calendar.MONTH, monthOfYear)
             toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
             binding.tvDispatchToDate.text = dateFormat.format(toDate.time)
+            binding.tvDispatchToDate.setBackgroundResource(R.drawable.layout_outline)
+            binding.tvDispatchToDate.error = null
         }
 
         val datePickerDialog = DatePickerDialog(

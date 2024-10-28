@@ -123,10 +123,10 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         cancelable: Boolean = false,
         okButtonText: String = "OK",
         @ColorRes barColor: Int = R.color.color_A5DC86,
-        @ColorRes btnBgColor: Int = R.color.error_text
+        @ColorRes btnBgColor: Int = R.color.error_text,
+        callback: (() -> Unit)? = null
     ) {
-        alertMsgLiveData.postValue(
-            AlertMsg(title, message, type, cancelable, okButtonText, barColor, btnBgColor)
+        alertMsgLiveData.postValue(AlertMsg(title, message, type, cancelable, okButtonText, barColor, btnBgColor, callback)
         )
     }
 

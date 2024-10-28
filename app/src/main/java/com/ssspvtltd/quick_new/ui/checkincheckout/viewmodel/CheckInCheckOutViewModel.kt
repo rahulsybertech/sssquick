@@ -180,7 +180,7 @@ class CheckInCheckOutViewModel @Inject constructor(
         withContext(Dispatchers.Main) { listDataChanged() }
     }
 
-    fun addUpdateCustomer() = viewModelScope.launch(Dispatchers.Default) {
+    fun addUpdateCustomer(callBack: (() -> Unit)? = null) = viewModelScope.launch(Dispatchers.Default) {
         val selectedCustomers = mainList.filter { it.chkStatus == true }
 
         // if (selectedCustomers.isEmpty() && activeTab.value.equals(CheckInType.ORDER_IN_OFFICE.value) ) {
@@ -226,7 +226,8 @@ class CheckInCheckOutViewModel @Inject constructor(
                     "Success!",
                     response.value.message,
                     SweetAlertDialog.SUCCESS_TYPE,
-                    btnBgColor = R.color.green_light
+                    btnBgColor = R.color.green_light,
+                    callback = callBack
                 )
             }
         }
