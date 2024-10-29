@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace 'com.ssspvtltd.quick_new'
+    namespace 'com.ssspvtltd.quick_app'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.ssspvtltd.quick_new"
+        applicationId "com.ssspvtltd.quick_app"
         minSdk 26
         targetSdk 34
         versionCode 1

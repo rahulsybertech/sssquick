@@ -1,0 +1,80 @@
+package com.ssspvtltd.quick_app.ui.main.adapter
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.view.setPadding
+import androidx.recyclerview.widget.RecyclerView
+import com.ssspvtltd.quick_app.R
+import com.ssspvtltd.quick_app.base.recycler.adapter.BaseViewHolder
+import com.ssspvtltd.quick_app.base.recycler.adapter.MultiViewAdapter
+import com.ssspvtltd.quick_app.databinding.ItemDrawerBinding
+import com.ssspvtltd.quick_app.databinding.RowCommonShimmerBinding
+import com.ssspvtltd.quick_app.model.DrawerViewType
+import com.ssspvtltd.quick_app.model.drawer.DrawerItem
+import com.ssspvtltd.quick_app.utils.extension.dp
+
+class  MainDrawerAdapter() : MultiViewAdapter() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        when (viewType) {
+            DrawerViewType.VIEW_TYPE_DRAWER_HEADER.id -> {
+                val imageView = ImageView(parent.context).apply {
+                    layoutParams = RecyclerView.LayoutParams(
+                          RecyclerView.LayoutParams.MATCH_PARENT, 100.dp
+                    )
+                    setBackgroundColor(this.context.getColor(R.color.deep_orange_800))
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    adjustViewBounds  = true
+                    setPadding(20.dp)
+                }
+                return DrawerHeaderVH(imageView)
+            }
+
+            DrawerViewType.VIEW_TYPE_DRAWER_ITEM.id -> {
+                val binding = ItemDrawerBinding.inflate(inflater, parent, false)
+                val holder = DrawerItemVH(binding)
+                return holder
+            }
+
+            DrawerViewType.VIEW_TYPE_SMALL_DIVIDER.id -> {
+                val view = View(parent.context).apply {
+                    layoutParams = RecyclerView.LayoutParams(
+                        RecyclerView.LayoutParams.MATCH_PARENT, 1.dp
+                    )
+                    setBackgroundResource(R.color.grey_200)
+                }
+                return DrawerDividerVH(view)
+            }
+
+            DrawerViewType.VIEW_TYPE_LARGE_DIVIDER.id -> {
+                val view = View(parent.context).apply {
+                    layoutParams = RecyclerView.LayoutParams(
+                        RecyclerView.LayoutParams.MATCH_PARENT, 5.dp
+                    )
+                    setBackgroundResource(R.color.grey_200)
+                }
+                return DrawerDividerVH(view)
+            }
+
+            else -> {
+                val binding = RowCommonShimmerBinding.inflate(inflater, parent, false)
+                return ShimmerVH(binding)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
+        when (holder) {
+            is DrawerHeaderVH -> {
+                getItemOrNull<DrawerItem>(position)?.icon?.let(holder::bind)
+            }
+
+            is DrawerItemVH -> {
+                getItemOrNull<DrawerItem>(position)?.let(holder::bind)
+            }
+        }
+    }
+}

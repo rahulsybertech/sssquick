@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.ssspvtltd.quick_new">
+    package="com.ssspvtltd.quick_app">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:name=".application.MainApplication"
+        android:name="com.ssspvtltd.quick_app.application.MainApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -24,33 +24,33 @@
         android:theme="@style/Theme.SSSQUICK"
         tools:targetApi="31">
         <activity
-            android:name=".ui.order.stockinoffice.activity.StockInOfficeActivity"
+            android:name="com.ssspvtltd.quick_app.ui.order.stockinoffice.activity.StockInOfficeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.order.add.activity.AddImageActivity"
+            android:name="com.ssspvtltd.quick_app.ui.order.add.activity.AddImageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.order.add.activity.AddItemActivity"
+            android:name="com.ssspvtltd.quick_app.ui.order.add.activity.AddItemActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.order.pendinglr.activity.PendingLrActivity"
+            android:name="com.ssspvtltd.quick_app.ui.order.pendinglr.activity.PendingLrActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.order.goodsreturn.activity.GoodsReturnActivity"
+            android:name="com.ssspvtltd.quick_app.ui.order.goodsreturn.activity.GoodsReturnActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.checkincheckout.activity.CheckInCheckOutActivity"
+            android:name="com.ssspvtltd.quick_app.ui.checkincheckout.activity.CheckInCheckOutActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
         <activity
-            android:name=".ui.auth.activity.LoginActivity"
+            android:name="com.ssspvtltd.quick_app.ui.auth.activity.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name="com.ssspvtltd.quick_app.ui.main.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.splash.SplashActivity"
+            android:name="com.ssspvtltd.quick_app.ui.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.dashboard.DashboardFragment">
 
-      <com.ssspvtltd.quick_new.widgets.AppToolbar
+      <com.ssspvtltd.quick_app.widgets.AppToolbar
           android:id="@+id/toolbar"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"

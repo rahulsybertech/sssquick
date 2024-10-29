@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-        <com.ssspvtltd.quick_new.widgets.AppToolbar
+        <com.ssspvtltd.quick_app.widgets.AppToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
