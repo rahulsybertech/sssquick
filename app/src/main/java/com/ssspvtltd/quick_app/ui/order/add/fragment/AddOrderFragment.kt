@@ -10,16 +10,19 @@ import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick_app.R
 import com.ssspvtltd.quick_app.base.BaseFragment
 import com.ssspvtltd.quick_app.base.InflateF
 import com.ssspvtltd.quick_app.databinding.FragmentAddOrderBinding
 import com.ssspvtltd.quick_app.model.ARG_ADD_IMAGE_LIST
 import com.ssspvtltd.quick_app.model.ARG_ADD_ITEM_LIST
+import com.ssspvtltd.quick_app.model.alert.AlertMsg
 import com.ssspvtltd.quick_app.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick_app.model.order.add.SalepartyData
 import com.ssspvtltd.quick_app.model.order.add.SchemeData
@@ -27,6 +30,7 @@ import com.ssspvtltd.quick_app.model.order.add.addImage.ImageModel
 import com.ssspvtltd.quick_app.model.order.add.additem.PackType
 import com.ssspvtltd.quick_app.model.order.add.additem.PackTypeItem
 import com.ssspvtltd.quick_app.model.order.add.salepartydetails.AllStation
+import com.ssspvtltd.quick_app.model.order.add.salepartydetails.DefTransport
 import com.ssspvtltd.quick_app.model.order.add.salepartydetails.SubParty
 import com.ssspvtltd.quick_app.ui.order.add.activity.AddImageActivity
 import com.ssspvtltd.quick_app.ui.order.add.adapter.DefaultTransportAdapter
@@ -73,6 +77,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var subPartyData :  List<SubParty>? = emptyList()
     private var stationData :  List<AllStation>? = emptyList()
     private var schemeData :  List<SchemeData>? = emptyList()
+    private var transportData :  List<DefTransport>? = emptyList()
 
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -102,9 +107,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         super.onViewCreated(view, savedInstanceState)
         registerObserver()
 
-        val dateFormat          = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        /*val dateFormat          = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val todayDate           = dateFormat.format(Calendar.getInstance().time)
-        val threeDaysLaterDate  = dateFormat.format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 3) }.time)
+        val threeDaysLaterDate  = dateFormat.format(Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, 3) }.time)*/
 
        /* binding.tvDispatchFromDate.text = todayDate
         binding.tvDispatchToDate.text   = threeDaysLaterDate*/
@@ -167,7 +172,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         } )
         binding.etScheme.doAfterTextChanged {
             schemeId = ""
-            binding.etPurchaseParty.text.clear()
+            //binding.etPurchaseParty.text.clear()
         }
 
         binding.etPurchaseParty.doAfterTextChanged {
@@ -272,7 +277,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.rgPurchaseParty.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radioByNickName -> {
-                    binding.etPurchaseParty.text.clear()
+                    //binding.etPurchaseParty.text.clear()
                     viewModel.purchaseParty.observe(viewLifecycleOwner) {
                         purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
                         val purchasePartyAdapter = PurchasePartyAdapter(
@@ -288,7 +293,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 }
 
                 R.id.radioBySupplierName -> {
-                    binding.etPurchaseParty.text.clear()
+                    //binding.etPurchaseParty.text.clear()
                     viewModel.purchaseParty.observe(viewLifecycleOwner) {
                         val purchasePartyAdapter = PurchasePartyAdapter(
                             false, requireContext(), R.layout.item_saleparty, it.orEmpty()
@@ -338,6 +343,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etTransport.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus) {
+                if(transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
+                    binding.etTransport.text.clear()
+                }
+            }
             if (!binding.etTransport.isPopupShowing) {
                 binding.etTransport.showDropDown()
             }
@@ -365,8 +375,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etPurchaseParty.setOnFocusChangeListener { v, hasFocus ->
-            if(!hasFocus  ) {
-               if( purchasePartyData?.any{ it -> it.nickName == binding.etPurchaseParty.text.toString()} == false) {
+           if(!hasFocus  ) {
+
+                if( purchasePartyData?.any{ it -> it.nickName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
                     binding.etPurchaseParty.text.clear()
                 }
             }
@@ -406,6 +417,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             .show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun registerObserver() {
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
             if (it == true) {
@@ -507,8 +519,23 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.voucherData.observe(viewLifecycleOwner) {
+
+            if(it?.voucherCode.isNullOrBlank()) {
+                showAlertMsg(AlertMsg(
+                    "Error",
+                    "Voucher code not configured!",
+                    SweetAlertDialog.ERROR_TYPE,
+                    false,
+                    "OK",
+                    barColor = R.color.color_A5DC86,
+                    btnBgColor = R.color.error_text
+
+                ))
+            }
+
             binding.etMarketerCode.setText(it?.voucherCode)
             binding.etSerialNo.setText(it?.voucherNO)
+
             if (it?.isVisible == false) {
                 binding.tilRadioStar.visibility = View.GONE
             } else {
@@ -548,6 +575,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 requireContext(), R.layout.item_saleparty, it?.defTransport.orEmpty()
             )
 
+            transportData = it?.defTransport
+
             binding.etTransport.setThreshold(1)
             binding.etTransport.setAdapter(defaultTransportAdapter)
             binding.etTransport.setOnItemClickListener { parent, _, position, _ ->
@@ -560,6 +589,12 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                avlLimit =  it.avlLimit.toString()
             } else {
                 binding.autoCompleteStatus.setText("PENDING", false)
+            }
+
+            if(avlLimit.contains("-")) {
+                binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.error_text))
+            } else {
+                binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.dark_gray))
             }
 
             binding.etAvailableLimit.setText("${avlLimit}")
@@ -593,6 +628,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 R.layout.item_saleparty,
                 it?.distinctBy {it2 ->  it2.nickName }.orEmpty()
             )
+            purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
             binding.etPurchaseParty.setThreshold(1)
             binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
             binding.etPurchaseParty.setOnItemClickListener { parent, _, position, _ ->
@@ -626,6 +662,21 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.tvAddItem.setBackgroundResource(R.drawable.gray_300_bg)
             binding.tvAddItem.error = null
         }
+    }
+
+
+    private fun showAlertMsg(config: AlertMsg? = AlertMsg()) {
+        SweetAlertDialog(requireActivity(), config?.type!!).apply {
+            titleText = config.title
+            contentText = config.message
+            setCancelable(false)
+            confirmText = config.okButtonText
+            confirmButtonBackgroundColor = getColor(requireContext(), config.btnBgColor)
+            setConfirmClickListener {
+                dismiss()
+                config.isOkCallBack?.let { it1 -> it1() }
+            }
+        }.show()
     }
 
     private fun validate(): Boolean = with(binding) {

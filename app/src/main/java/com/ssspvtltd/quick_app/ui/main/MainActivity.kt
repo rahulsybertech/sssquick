@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_app.ui.main
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -49,8 +50,25 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
         viewModel.autoLogout()
 
+
         registerObserver()
         registerListner()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getTest()
+    }
+
+    fun getTest() {
+
+        val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val isComeFromCheckIn = sharedPreferences.getBoolean("isComeFromCheckIn", false)
+        if (isComeFromCheckIn) {
+            binding.bottomNavView.selectedItemId = R.id.addOrderFragment
+            sharedPreferences.edit().remove("isComeFromCheckIn").apply()
+        }
+
     }
 
     private fun registerListner() {
@@ -195,7 +213,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         navigationBarView: NavigationBarView,
         navController: NavController
     ) {
-        navigationBarView.setOnItemSelectedListener { item ->
+        navigationBarView.setOnItemSelectedListener { item ->//2131296328
+            Log.i("TaG","my nav ItemId -=-=-=> ${item.itemId}")
             if (item.itemId != R.id.addOrderFragment || runBlocking { viewModel.prefHelper.getCheckinStatus() } == true) {
                 NavigationUI.onNavDestinationSelected(item, navController, false)
             } else {
@@ -245,9 +264,6 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         runBlocking { viewModel.prefHelper.logout() }
     }
 
-    fun changeTab(){
-
-    }
 }
 
 //    private val drawerAction: (DrawerAction) -> Unit = {

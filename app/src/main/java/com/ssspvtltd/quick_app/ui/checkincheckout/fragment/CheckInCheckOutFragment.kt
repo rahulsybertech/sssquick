@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick_app.ui.checkincheckout.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
@@ -77,6 +78,7 @@ class CheckInCheckOutFragment :
 //         binding.etRemark.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS or InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun registerObserver() {
         viewModel.selectedTab.observe(this, ::handleTabSelection)
         viewModel.buttonType.observe(this, ::handleButtonVisibility)
@@ -118,11 +120,11 @@ class CheckInCheckOutFragment :
     }
 
     private fun navToHome() {
-        if (requireActivity() is MainActivity) {
-            findNavController().navigateUp()
-
-        }
-        else requireActivity().onBackPressed()
+        val sharedPreferences = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("isComeFromCheckIn", true)
+        editor.apply()
+        requireActivity().finish()
     }
 
     @OptIn(FlowPreview::class)
