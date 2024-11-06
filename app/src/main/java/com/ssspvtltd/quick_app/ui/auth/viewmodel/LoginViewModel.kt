@@ -1,5 +1,7 @@
 package com.ssspvtltd.quick_app.ui.auth.viewmodel
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -11,6 +13,7 @@ import com.ssspvtltd.quick_app.networking.ApiResponse
 import com.ssspvtltd.quick_app.networking.ResultWrapper
 import com.ssspvtltd.quick_app.ui.auth.repository.LoginRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -18,7 +21,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    @ApplicationContext private val mContext: Context
 ) : BaseViewModel() {
 
     private val _loginData = MutableLiveData<LoginData?>()
@@ -59,6 +63,7 @@ class LoginViewModel @Inject constructor(
         showProgressBar(ProgressConfig("Verifying OTP\nPlease wait..."))
         when (val response = repository.verifyOTP(mobileNo, otp)) {
             is ResultWrapper.Failure -> {
+                Toast.makeText(mContext, response.error.message, Toast.LENGTH_SHORT).show()
                 apiErrorData(response.error)
             }
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {

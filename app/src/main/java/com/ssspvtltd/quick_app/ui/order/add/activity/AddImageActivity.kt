@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
@@ -72,7 +73,12 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
 
     private val getGalleryImage = registerForActivityResult(GetMultipleContents()) {
         if (it?.isNotEmpty() == true) {
-            viewModel.addFilesToList(*it.toTypedArray())
+            val fileLimit  = 5 - viewModel.getImageModelList().size
+            if(it.size <= fileLimit) {
+                viewModel.addFilesToList(*it.toTypedArray())
+            }else{
+                Toast.makeText(this, "You can not select more then 5 images", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

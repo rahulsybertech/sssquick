@@ -78,7 +78,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var stationData :  List<AllStation>? = emptyList()
     private var schemeData :  List<SchemeData>? = emptyList()
     private var transportData :  List<DefTransport>? = emptyList()
-
+    private lateinit var subPartyAdapter: SubPartyAdapter
+    private lateinit var defaultTransportAdapter: DefaultTransportAdapter
+    private lateinit var stationAdapter: StationAdapter
+    private lateinit var purchasePartyAdapter: PurchasePartyAdapter
+    private lateinit var schemeAdapter: SchemeAdapter
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
 
@@ -163,7 +167,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
 
             override fun afterTextChanged(s: Editable?) {
-                Log.i("TaG","1111111111111111111111111")
                 if(s.isNullOrBlank()) {
                     viewModel.getInitialPurchaseParty()
                 }
@@ -210,6 +213,18 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         binding.placeOrder.setOnClickListener {
             if (validate()) binding.apply {
+
+                var totalQty = 0
+                var totalAmount = 0
+
+                addItemViewModel.packTypeDataList.forEach {
+                    if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
+                        totalAmount += (it.amount ?: "0").toInt()
+                        totalQty += (it.qty ?: "0").toInt()
+                    }
+
+                }
+
                 val hashMap: HashMap<String, RequestBody?> = HashMap()
                 hashMap["SalePartyId"] = salePartyId.toRequestBody()
                 hashMap["SubPartyId"] = subPartyId.toRequestBody()
@@ -232,11 +247,13 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
         }
         binding.tvAddItem.setOnClickListener {
+            binding.etPurchaseParty.clearFocus()
             if(binding.etPurchaseParty.text.isNullOrBlank()) {
-                // binding.etPurchaseParty.requestFocus()
+                binding.etPurchaseParty.requestFocus()
                 binding.tilPurchaseParty.isErrorEnabled = true
                 binding.tilPurchaseParty.setError("You need to select purchase party")
             } else {
+
                 openAddBottomSheet()
             }
 
@@ -413,8 +430,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
     private fun openAddBottomSheet(index: Int = -1) {
         addItemViewModel.bottomSheetIndex = index
-        AddItemBottomSheetFragment.newInstance()
-            .show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
+        AddItemBottomSheetFragment.newInstance().show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 
     @SuppressLint("SetTextI18n")
@@ -437,6 +453,20 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 viewModel.addImageDataList.clear()
                 salePartyId = ""
                 binding.llImageCount.visibility = View.GONE
+                binding.etSubPartyRemark.text.clear()
+
+                subPartyData            = emptyList()
+                stationData             = emptyList()
+                transportData           = emptyList()
+                /*purchasePartyData       = emptyList()
+                schemeData              = emptyList()*/
+
+                subPartyAdapter.setSubPartyData(subPartyData!!)
+                stationAdapter.setdefStationList(stationData!!)
+                defaultTransportAdapter.setDefTransportList(transportData!!)
+                /*purchasePartyAdapter.setPurchasePartyList(purchasePartyData!!)
+                schemeAdapter.setSchemeData(schemeData!!)*/
+
                 viewModel.getVoucher()
             }
         }
@@ -449,6 +479,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             ) { dialog ->
 
                 if (validate()) binding.apply {
+                    var totalQty = 0
+                    var totalAmount = 0
+
+                    addItemViewModel.packTypeDataList.forEach {
+                        if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
+                            totalAmount += (it.amount ?: "0").toInt()
+                            totalQty += (it.qty ?: "0").toInt()
+                        }
+
+                    }
                     val hashMap: HashMap<String, RequestBody?> = HashMap()
                     hashMap["SalePartyId"]          = salePartyId.toRequestBody()
                     hashMap["SubPartyId"]           = subPartyId.toRequestBody()
@@ -529,7 +569,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     "OK",
                     barColor = R.color.color_A5DC86,
                     btnBgColor = R.color.error_text
-
                 ))
             }
 
@@ -559,7 +598,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.salePartyDetail.observe(viewLifecycleOwner) {
-            val subPartyAdapter = SubPartyAdapter(
+            subPartyAdapter = SubPartyAdapter(
                 requireContext(), R.layout.item_saleparty, it?.subPartyList ?: emptyList()
             )
             subPartyData = it?.subPartyList
@@ -571,7 +610,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.tilSubParty.isErrorEnabled = !(subPartyItem.subPartyId.isNotNullOrBlank() || binding.tilSubParty.isErrorEnabled)
                 viewModel.getStation(salePartyId, subPartyId)
             }
-            val defaultTransportAdapter = DefaultTransportAdapter(
+            defaultTransportAdapter = DefaultTransportAdapter(
                 requireContext(), R.layout.item_saleparty, it?.defTransport.orEmpty()
             )
 
@@ -591,10 +630,10 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.autoCompleteStatus.setText("PENDING", false)
             }
 
-            if(avlLimit.contains("-")) {
+            if(avlLimit.contains("-") || avlLimit == "0") {
                 binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.error_text))
             } else {
-                binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.dark_gray))
+                binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.green))
             }
 
             binding.etAvailableLimit.setText("${avlLimit}")
@@ -607,7 +646,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             transportId = (it?.defTransport?.get(0)?.transportId.toString())
         }
         viewModel.station.observe(viewLifecycleOwner) {
-            val stationAdapter = StationAdapter(
+            stationAdapter = StationAdapter(
                 requireContext(), R.layout.item_saleparty, it.orEmpty()
             )
             stationData = it
@@ -622,7 +661,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.purchaseParty.observe(viewLifecycleOwner) {
-            val purchasePartyAdapter = PurchasePartyAdapter(
+            purchasePartyAdapter = PurchasePartyAdapter(
                 true,
                 requireContext(),
                 R.layout.item_saleparty,
@@ -640,7 +679,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.scheme.observe(viewLifecycleOwner) {
-            val schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
+            schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
             schemeData = it
             binding.etScheme.setThreshold(1)
             binding.etScheme.setAdapter(schemeAdapter)

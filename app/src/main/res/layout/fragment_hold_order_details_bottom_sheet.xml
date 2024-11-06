@@ -14,7 +14,7 @@
         android:padding="10dp"
         android:rotation="45"
         android:src="@drawable/ic_baseline_plus_24"
-        android:tint="@color/white"
+        android:tint="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

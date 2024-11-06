@@ -50,6 +50,16 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
 
     override fun onBindViewHolder(holder: PackDataInputViewHolder, position: Int) {
         holder.bind(list[position])
+        holder.binding.etItem.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus) {
+                if(!itemSuggestions.any { it-> it.itemName == holder.binding.etItem.text.toString() }) {
+                    holder.binding.etItem.text.clear()
+                }
+            }
+            if (!holder.binding.etItem.isPopupShowing) {
+                holder.binding.etItem.showDropDown()
+            }
+        }
     }
 
     override fun getItemCount(): Int {
@@ -106,6 +116,7 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
             etItem.setAdapter(
                 ItemDataListAdapter(itemView.context, R.layout.item_saleparty, itemSuggestions)
             )
+            etItem.dropDownWidth = 900
             binding.etItem.setOnFocusChangeListener { v, hasFocus ->
                 if (!binding.etItem.isPopupShowing) {
                     binding.etItem.showDropDown()

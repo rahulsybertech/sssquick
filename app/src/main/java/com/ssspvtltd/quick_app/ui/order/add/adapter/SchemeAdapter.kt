@@ -21,6 +21,12 @@ class SchemeAdapter(
     private val schemeData: MutableList<SchemeData> = ArrayList(schemeDataList)
     private var allSchemeData: List<SchemeData> = ArrayList(schemeDataList)
 
+    fun setSchemeData(schemeDataList: List<SchemeData>) {
+        schemeData.clear()
+        schemeData.addAll(schemeDataList)
+        allSchemeData = ArrayList(schemeDataList)
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int {
         Log.e("countCC", schemeData.size.toString())

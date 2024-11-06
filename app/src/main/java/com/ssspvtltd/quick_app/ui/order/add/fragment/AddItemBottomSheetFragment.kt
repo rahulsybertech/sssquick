@@ -127,8 +127,12 @@ class AddItemBottomSheetFragment :
     private fun validate(): Boolean {
         return if (mAdapter.getList().isNotEmpty()) {
             ( mAdapter.getList().any { item ->
-                item.itemName.isNullOrBlank() || item.itemID.isNullOrBlank() || item.itemQuantity.isNotNullOrBlank()
-            } )
+                                                item.itemName.isNullOrBlank() ||
+                                                item.itemID.isNullOrBlank() ||
+                                                item.itemQuantity.isNotNullOrBlank()
+
+                                        } && !binding.etQuantity.text.isNullOrEmpty()
+            )
         } else {
             false
         }

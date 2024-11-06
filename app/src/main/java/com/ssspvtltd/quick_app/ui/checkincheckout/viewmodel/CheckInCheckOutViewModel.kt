@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_app.ui.checkincheckout.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,6 +20,7 @@ import com.ssspvtltd.quick_app.ui.checkincheckout.repository.CheckInCheckOutRepo
 import com.ssspvtltd.quick_app.utils.extension.isNotNullOrBlank
 import com.ssspvtltd.quick_app.utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,10 +31,14 @@ import javax.inject.Inject
 class CheckInCheckOutViewModel @Inject constructor(
     private val gson: Gson,
     private val repository: CheckInCheckOutRepository,
+    @ApplicationContext private val context: Context
 ) : RecyclerWidgetViewModel() {
 
     private val _selectedTab = MutableLiveData<CheckInType>()
     val selectedTab: LiveData<CheckInType> get() = _selectedTab
+
+    private val _customerDataResp = MutableLiveData<List<CustomerData>>()
+    val customerDataResp: LiveData<List<CustomerData>> get() = _customerDataResp
 
     private val _buttonType = MutableLiveData<ButtonType>()
     val buttonType: LiveData<ButtonType> get() = _buttonType
@@ -65,13 +71,13 @@ class CheckInCheckOutViewModel @Inject constructor(
     var remark: String? = ""
     // var selectedItem = listOf<CustomerData>()
 
-    fun getCustomer(isProgressVisible: Boolean) = viewModelScope.launch { 
+    fun getCustomer(isProgressVisible: Boolean) = viewModelScope.launch {
         if (isProgressVisible)
             showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
         else {
             hideProgressBar()
         }
-        Log.e("respo", repository.customerList().toString())
+        // Log.e("respo", repository.customerList().toString())
         when (val response = repository.customerList()) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
@@ -95,7 +101,7 @@ class CheckInCheckOutViewModel @Inject constructor(
                     val btnType =
                         if (response.value.checkinStatus == true) ButtonType.CHECK_OUT else ButtonType.CHECK_IN
                     // val btnType = if (selectedItem.isEmpty()) ButtonType.CHECK_IN else ButtonType.CHECK_OUT
-
+                    _customerDataResp.postValue(mainList)
                     clearWidgetList()
                     addItemToWidgetList(mainList)
                     withContext(Dispatchers.Main) {
@@ -133,15 +139,17 @@ class CheckInCheckOutViewModel @Inject constructor(
         withContext(Dispatchers.Main) { _selectedTab.value = tabType }
     }
 
-    fun searchData(searchParam: String?) = viewModelScope.launch(Dispatchers.Default) {
+    fun searchData(searchParam: String?, mCallBack: ((List<CustomerData>) -> Unit)) = viewModelScope.launch(Dispatchers.Default) {
         clearWidgetList()
         if (searchParam.isNullOrBlank()) {
-            addItemToWidgetList(mainList)
+            mCallBack(mainList)
+            //addItemToWidgetList(mainList)
         } else {
             val filterList = mainList.filter { it.accountCode?.contains(searchParam, true) == true }
-            addItemToWidgetList(filterList)
+            //addItemToWidgetList(filterList)
+            mCallBack(filterList)
         }
-        withContext(Dispatchers.Main) { listDataChanged() }
+        //withContext(Dispatchers.Main) { listDataChanged() }
     }
 
     fun checkUncheckItem(data: CustomerData) = viewModelScope.launch(Dispatchers.Default) {
@@ -174,8 +182,8 @@ class CheckInCheckOutViewModel @Inject constructor(
         mainList = mainList.map { if (it == data) newData else it }
         // _isListModified.postValue(mainList != unmodifiedMainList)
         validateUpdateButton()
-        val filterList =
-            mainList.filter { it.accountCode?.contains(searchValue.toString(), true) == true }
+        val filterList = mainList.filter { it.accountCode?.contains(searchValue.toString(), true) == true }
+        _customerDataResp.postValue(filterList)
         changeAllWidgetList(filterList)
         withContext(Dispatchers.Main) { listDataChanged() }
     }
@@ -260,6 +268,7 @@ class CheckInCheckOutViewModel @Inject constructor(
                 // _isListModified.postValue(false)
                 validateUpdateButton()
                 changeAllWidgetList(mainList)
+                _customerDataResp.postValue(mainList)
                 withContext(Dispatchers.Main) {
                     listDataChanged()
                     hideProgressBar()

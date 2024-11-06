@@ -366,7 +366,16 @@
                 android:text="@string/check_in"
                 android:textColor="@color/white"
                 android:textSize="14sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:backgroundTint="#DF0808"
+                android:foregroundTint="#F30D0D"
+                android:progressTint="#E70A0A" />
 
             <View
                 android:layout_width="0.5dp"

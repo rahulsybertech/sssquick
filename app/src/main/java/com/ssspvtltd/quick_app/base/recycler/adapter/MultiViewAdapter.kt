@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_app.base.recycler.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,10 +52,16 @@ abstract class MultiViewAdapter : ListAdapter<BaseWidget, BaseViewHolder>(diffUt
     companion object {
         private val diffUtil = object : DiffUtil.ItemCallback<BaseWidget>() {
             override fun areItemsTheSame(oldItem: BaseWidget, newItem: BaseWidget): Boolean {
+                if (oldItem.viewType != newItem.viewType) {
+                    Log.i("TaG","Recyclerview UI created ")
+                }
                 return oldItem.getUniqueId() == newItem.getUniqueId()
             }
 
             override fun areContentsTheSame(oldItem: BaseWidget, newItem: BaseWidget): Boolean {
+                if (oldItem != newItem) {
+                    Log.i("TaG","Recyclerview UI created 222")
+                }
                 return oldItem == newItem
             }
         }

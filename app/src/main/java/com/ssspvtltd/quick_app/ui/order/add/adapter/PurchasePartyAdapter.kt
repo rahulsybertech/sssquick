@@ -23,6 +23,13 @@ class PurchasePartyAdapter(
     private var allPurchaseParty: List<PurchasePartyData> = ArrayList(purchasePartyData)
 
 
+    fun setPurchasePartyList(purchasePartyData: List<PurchasePartyData>)  {
+        purchaseParty.clear()
+        purchaseParty.addAll(purchasePartyData)
+        allPurchaseParty = ArrayList(purchasePartyData)
+        notifyDataSetChanged()
+    }
+
     override fun getCount(): Int {
         Log.e("countCC", purchaseParty.size.toString())
         return purchaseParty.size

@@ -21,6 +21,12 @@ class DefaultTransportAdapter(
     private val defTransport: MutableList<DefTransport?> = ArrayList(defTransportList)
     private var allDefTransport: List<DefTransport?> = ArrayList(defTransportList)
 
+    fun setDefTransportList(defTransportList: List<DefTransport?>) {
+        defTransport.clear()
+        defTransport.addAll(defTransportList)
+        allDefTransport = ArrayList(defTransportList)
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int {
         Log.e("countCC",defTransport.size.toString())

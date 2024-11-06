@@ -3,6 +3,9 @@ package com.ssspvtltd.quick_app.ui.checkincheckout.fragment
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -17,36 +20,46 @@ import com.ssspvtltd.quick_app.base.InflateF
 import com.ssspvtltd.quick_app.constants.ButtonType
 import com.ssspvtltd.quick_app.constants.CheckInType
 import com.ssspvtltd.quick_app.databinding.FragmentCheckInCheckOutBinding
-import com.ssspvtltd.quick_app.ui.checkincheckout.adapter.CustomerAdapter
+import com.ssspvtltd.quick_app.model.checkincheckout.CustomerData
+import com.ssspvtltd.quick_app.ui.checkincheckout.adapter.NewCustomerAdapter
 import com.ssspvtltd.quick_app.ui.checkincheckout.viewmodel.CheckInCheckOutViewModel
 import com.ssspvtltd.quick_app.ui.main.MainActivity
 import com.ssspvtltd.quick_app.utils.extension.getViewModel
 import com.ssspvtltd.quick_app.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class CheckInCheckOutFragment :
     BaseFragment<FragmentCheckInCheckOutBinding, CheckInCheckOutViewModel>() {
     override val inflate: InflateF<FragmentCheckInCheckOutBinding> get() = FragmentCheckInCheckOutBinding::inflate
     override fun initViewModel(): CheckInCheckOutViewModel = getViewModel()
-    private lateinit var mAdapter: CustomerAdapter
+    // private lateinit var mAdapter: CustomerAdapter
+    private lateinit var mAdapter: NewCustomerAdapter
+
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         registerObserver()
-        viewModel.getCustomer(true)
+        Log.i("TaG","getCustomer api call 11111")
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mAdapter = CustomerAdapter()
-        binding.recyclerView.layoutManager =
-            FlexboxLayoutManager(requireContext(), FlexDirection.ROW)
+        viewModel.getCustomer(true)
+        binding.progressBar.isVisible = true
+        // mAdapter = CustomerAdapter()
+        mAdapter = NewCustomerAdapter(requireContext())
+        binding.recyclerView.layoutManager = FlexboxLayoutManager(requireContext(), FlexDirection.ROW)
         binding.recyclerView.adapter = mAdapter
         // binding.recyclerView.addItemDecoration(ListSpacingItemDecoration(8.dp, 8.dp))
         registerListeners()
@@ -84,8 +97,12 @@ class CheckInCheckOutFragment :
         viewModel.buttonType.observe(this, ::handleButtonVisibility)
         viewModel.isListAvailable.observe(this) {
             viewModel.updateCount()
-            mAdapter.submitList(viewModel.widgetList)
+            // mAdapter.setCustomers((viewModel.widgetList)
+            //mAdapter.submitList(viewModel.widgetList)
             // binding.etRemark.text
+        }
+        viewModel.customerDataResp.observe(this) {
+            mAdapter.setCustomers(it)
         }
         viewModel.getRemark.observe(this) {
             if (it.equals("null", true))
@@ -99,14 +116,18 @@ class CheckInCheckOutFragment :
         }
         viewModel.ckeckoutSuccessData.observe(this) {
             binding.etSearch.text?.clear()
+            Log.i("TaG","getCustomer api call 22222")
             viewModel.getCustomer(false)
+            binding.progressBar.isVisible = true
             handleButtonVisibility(ButtonType.CHECK_IN)
             binding.update.isVisible = false
             //binding.etRemark.text.clear()
         }
         viewModel.addUpdateSuccessData.observe(this) {
             binding.etSearch.text?.clear()
+            Log.i("TaG","getCustomer api call 33333")
             viewModel.getCustomer(false)
+            binding.progressBar.isVisible = true
             binding.recyclerView.smoothScrollToPosition(0)
             handleButtonVisibility(ButtonType.CHECK_OUT)
         }
@@ -148,9 +169,18 @@ class CheckInCheckOutFragment :
             //     binding.update.isVisible = true
             // }
         }
+
+
+
+
+
         etSearch.textChanges().debounce(100).onEach {
-            viewModel.searchData(it?.toString())
-            viewModel.searchValue = binding.etSearch.text.toString()
+            val searchText = it?.toString()
+            Log.i("TaG", "Search filter text -------> $searchText")
+            viewModel.searchData(searchText, ::getSearchFilterData)
+            viewModel.searchValue = searchText
+           /* viewModel.searchData(it?.toString())
+            viewModel.searchValue = binding.etSearch.text.toString()*/
         }.launchIn(lifecycleScope)
 
 
@@ -171,11 +201,23 @@ class CheckInCheckOutFragment :
 
         swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
         swipeRefreshLayout.setOnRefreshListener {
+            Log.i("TaG","getCustomer api call 44444")
             viewModel.getCustomer(true)
+            //binding.progressBar.isVisible = true
             swipeRefreshLayout.isRefreshing = false
 
         }
     }
+
+    private fun getSearchFilterData(filterData: List<CustomerData>) {
+        Log.i("TaG","Filter data -------> $filterData")
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                mAdapter.setCustomers(filterData)
+            }
+        }
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     private fun handleTabSelection(type: CheckInType) = with(binding) {
@@ -228,8 +270,11 @@ class CheckInCheckOutFragment :
     }
 
     private fun handleButtonVisibility(buttonType: ButtonType) = with(binding) {
+
+        progressBar.isVisible = false
         when (buttonType) {
             ButtonType.CHECK_OUT -> {
+
                 checkOut.isVisible = true
                 // update.isVisible = true
                 checkIn.isVisible = false

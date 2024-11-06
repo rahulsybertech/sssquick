@@ -82,14 +82,14 @@ class AddItemViewModel @Inject constructor(
 
     fun submitData(packTypeItems: List<PackTypeItem>) = viewModelScope.launch {
         Log.i("TaG","add item -=-=-=-=-=-=-=-= ${packTypeItems}")
-
         if (bottomSheetPackData?.id.isNullOrBlank() || bottomSheetPackData?.value.isNullOrBlank()) {
             showToast("Please select a pack type")
         } else if ((bottomSheetPackAmount ?: "0").toDouble() <= 0) {
             showToast("Please select pack type amount")
         } else if (packTypeItems.any {
-                it.itemName.isNullOrBlank() || it.itemID.isNullOrBlank() || (it.itemQuantity ?: "0").toDouble() <= 0
-            }) {
+                it.itemName.isNullOrBlank() || it.itemID.isNullOrBlank() || it.itemQuantity.isNullOrBlank()
+            })
+        {
 
             showToast("Please input all fields")
         } else {

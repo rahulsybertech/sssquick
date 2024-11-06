@@ -18,9 +18,15 @@ class SubPartyAdapter(
     subPartyData : List<SubParty>,
 ) : ArrayAdapter<SubParty>(mContext, mLayoutResourceId, subPartyData) {
 
-    private val subParty: MutableList<SubParty> = ArrayList(subPartyData)
+    private var subParty: MutableList<SubParty> = ArrayList(subPartyData)
     private var allSubParty: List<SubParty> = ArrayList(subPartyData)
 
+    fun setSubPartyData(newSubPartyData: List<SubParty>) {
+        subParty.clear()
+        subParty.addAll(newSubPartyData)
+        allSubParty = ArrayList(newSubPartyData)
+        notifyDataSetChanged()
+    }
 
     override fun getCount(): Int {
         Log.e("countCC", subParty.size.toString())

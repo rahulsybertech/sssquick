@@ -16,8 +16,8 @@ android {
         applicationId "com.ssspvtltd.quick_app"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,8 +62,8 @@ android {
         }
         release {
             debuggable false
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             testProguardFiles 'test-proguard-rules.pro'
@@ -160,8 +160,13 @@ dependencies {
 
         implementation 'com.github.OzcanAlasalvar:DatePicker:1.0.4'
 
-    //pdf viewer
 
+
+    def roomVersion = "2.4.0" // Check for the latest version
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2" // Add Coroutine dependency
 
 
 

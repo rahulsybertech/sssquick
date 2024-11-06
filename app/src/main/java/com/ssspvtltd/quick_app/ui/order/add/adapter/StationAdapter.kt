@@ -22,6 +22,13 @@ class StationAdapter(
     private var allDefStation: List<AllStation?> = ArrayList(defStationList)
 
 
+    fun setdefStationList(defStationList: List<AllStation>) {
+        defStation.clear()
+        defStation.addAll(defStationList)
+        allDefStation = ArrayList(defStationList)
+        notifyDataSetChanged()
+    }
+
     override fun getCount(): Int {
         Log.e("countCC", defStation.size.toString())
         return defStation.size
