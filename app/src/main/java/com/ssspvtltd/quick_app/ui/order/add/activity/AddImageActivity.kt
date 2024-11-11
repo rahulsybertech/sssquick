@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents
@@ -71,16 +72,39 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
         finish()
     }
 
-    private val getGalleryImage = registerForActivityResult(GetMultipleContents()) {
-        if (it?.isNotEmpty() == true) {
-            val fileLimit  = 5 - viewModel.getImageModelList().size
-            if(it.size <= fileLimit) {
-                viewModel.addFilesToList(*it.toTypedArray())
-            }else{
-                Toast.makeText(this, "You can not select more then 5 images", Toast.LENGTH_SHORT).show()
+    private val getGalleryImage = registerForActivityResult(GetMultipleContents()) { uris ->
+        if (uris?.isNotEmpty() == true) {
+            val fileLimit = 5 - viewModel.getImageModelList().size
+            val validUris = uris.take(fileLimit).filter { uri ->
+                val fileSize = getFileSize(uri)
+                if (fileSize > (2 * 1024 * 1024)) { // Check if file size is greater than 2MB
+                    Toast.makeText(this, "selected image size should not more then 2MB.", Toast.LENGTH_SHORT).show()
+                    false
+                } else {
+                    true
+                }
+            }
+
+            if (validUris.isNotEmpty()) {
+                viewModel.addFilesToList(*validUris.toTypedArray())
+            } else {
+                //Toast.makeText(this, "No files meet the size requirement (max 2MB).", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
+    private fun getFileSize(uri: Uri): Long {
+        var fileSize: Long = 0
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if (sizeIndex != -1) {
+                cursor.moveToFirst()
+                fileSize = cursor.getLong(sizeIndex)
+            }
+        }
+        return fileSize
+    }
+
 
     private val getCameraImage = registerForActivityResult(TakePicture()) {
         if (it == true && imageUri != null) {

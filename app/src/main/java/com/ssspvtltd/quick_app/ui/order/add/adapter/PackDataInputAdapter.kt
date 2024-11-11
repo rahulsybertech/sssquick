@@ -1,9 +1,11 @@
 package com.ssspvtltd.quick_app.ui.order.add.adapter
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat.getColor
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.ssspvtltd.quick_app.R
@@ -15,9 +17,10 @@ import com.ssspvtltd.quick_app.utils.showToast
 import tech.developingdeveloper.toaster.Toaster
 
 
-class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataInputViewHolder>() {
+class PackDataInputAdapter(val mContext: Context)  : RecyclerView.Adapter<PackDataInputAdapter.PackDataInputViewHolder>() {
     private val list = mutableListOf(PackTypeItem("", "", ""))
     private val itemSuggestions = mutableListOf<ItemsData>()
+    private lateinit var myBinding: ItemPackDataInputBinding
 
 
     override fun onCreateViewHolder(
@@ -27,12 +30,22 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
             .inflate(LayoutInflater.from(parent.context), parent, false)
         return PackDataInputViewHolder(binding).apply {
             this.binding.btnAddDelete.setOnClickListener {
-                if (bindingAdapterPosition == list.lastIndex) addNewItem()
-                else if (bindingAdapterPosition != -1) deleteItem(bindingAdapterPosition)
+                if (list.getOrNull(bindingAdapterPosition)?.itemID.isNullOrBlank()) {
+                    this.binding.etItem.text.clear()
+                }
+                if (bindingAdapterPosition == list.lastIndex) {
+                   if( validator(this.binding)) {
+                        addNewItem()
+                    }
+                }
+                else if (bindingAdapterPosition != -1) {
+                    deleteItem(bindingAdapterPosition)
+                }
             }
             this.binding.etItem.setOnItemClickListener { parent, view, position, id ->
                 val suggestion = parent.getItemAtPosition(position) as? ItemsData
 
+                binding.tilItem.isErrorEnabled = false
                 list[bindingAdapterPosition].itemID = suggestion?.itemID
                 list[bindingAdapterPosition].itemName = suggestion?.itemName
             }
@@ -44,12 +57,30 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
             this.binding.etQuantity.doOnTextChanged { text, _, _, _ ->
                 if (bindingAdapterPosition == -1) return@doOnTextChanged
                 list[bindingAdapterPosition].itemQuantity = text?.toString()
+                binding.tilQuantity.isErrorEnabled = false
             }
         }
     }
 
     override fun onBindViewHolder(holder: PackDataInputViewHolder, position: Int) {
         holder.bind(list[position])
+        myBinding = holder.binding
+
+        if (position == list.lastIndex) {
+            myBinding.etQuantity.isEnabled              = true
+            myBinding.tilQuantity.boxBackgroundColor    = getColor(mContext, R.color.white)
+
+            myBinding.etItem.isEnabled              = true
+            myBinding.tilItem.boxBackgroundColor    = getColor(mContext, R.color.white)
+        } else {
+            myBinding.etQuantity.isEnabled              = false
+            myBinding.tilQuantity.boxBackgroundColor    = getColor(mContext, R.color.light_gray)
+
+            myBinding.etItem.isEnabled              = false
+            myBinding.tilItem.boxBackgroundColor    = getColor(mContext, R.color.light_gray)
+        }
+
+
         holder.binding.etItem.setOnFocusChangeListener { v, hasFocus ->
             if(!hasFocus) {
                 if(!itemSuggestions.any { it-> it.itemName == holder.binding.etItem.text.toString() }) {
@@ -65,6 +96,20 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
     override fun getItemCount(): Int {
         Log.i("TaG","item list data -=-=-=-=-=->>>> $list")
         return list.size
+    }
+
+    private fun validator(binding: ItemPackDataInputBinding): Boolean {
+       if(binding.etItem.text.isNullOrEmpty()){
+           binding.tilItem.isErrorEnabled = true
+           binding.tilItem.error = "select item"
+           return false
+       } else if(binding.etQuantity.text.isNullOrEmpty()){
+           binding.tilQuantity.isErrorEnabled = true
+           binding.tilQuantity.error = "select qty."
+           return false
+       }
+
+        return true
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -105,11 +150,33 @@ class PackDataInputAdapter : RecyclerView.Adapter<PackDataInputAdapter.PackDataI
     inner class PackDataInputViewHolder(val binding: ItemPackDataInputBinding) :
         BaseViewHolder(binding) {
         fun bind(item: PackTypeItem) = with(binding) {
-            Log.i("TaG","holder -=-=--=--=-=-=> $item")
             btnAddDelete.setImageResource(
-                if (bindingAdapterPosition == list.lastIndex) R.drawable.ic_baseline_plus_24
+                if (bindingAdapterPosition == list.lastIndex) R.drawable.add_circle_fill
                 else R.drawable.ic_baseline_delete_24
             )
+
+            if (list.size >= 1) {
+                if(bindingAdapterPosition == 0){
+                    tilItem.hint        = getString(R.string.item_ast)
+                    tilQuantity.hint    = getString(R.string.quantity_ast)
+                } else {
+                    tilItem.hint        = getString(R.string.item)
+                    tilQuantity.hint    = getString(R.string.quantity)
+                }
+            } else {
+                tilItem.hint        = getString(R.string.item)
+                tilQuantity.hint    = getString(R.string.quantity)
+            }
+
+
+            if (bindingAdapterPosition != list.lastIndex) {
+                etQuantity.isEnabled = false
+                tilQuantity.boxBackgroundColor = getColor(R.color.light_gray)
+
+                etItem.isEnabled = false
+                tilItem.boxBackgroundColor = getColor(R.color.light_gray)
+            }
+
             etQuantity.setText(item.itemQuantity.orEmpty())
             etItem.setText(item.itemName.orEmpty())
             etItem.threshold = 1

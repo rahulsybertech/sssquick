@@ -77,12 +77,17 @@
     <string name="dispatch_date">Dispatch Date</string>
     <string name="dispatch_date_ats">Dispatch Date*</string>
     <string name="item">Item</string>
+    <string name="item_ast">Item*</string>
     <string name="pack_type">Pack Type</string>
+    <string name="pack_type_ast">Pack Type*</string>
     <string name="add_item">Add Item</string>
     <string name="qty">Qty</string>
+    <string name="qty_ast">Qty*</string>
     <string name="type">Type</string>
     <string name="amount">Amount</string>
+    <string name="amount_ast">Amount*</string>
     <string name="quantity">Quantity</string>
+    <string name="quantity_ast">Quantity*</string>
     <string name="nick_name">Nick Name</string>
     <string name="supplier">Supplier</string>
     <string name="add_pack_type">Add Pack Type</string>
@@ -107,4 +112,5 @@
     <string name="order_cancel">Order Cancel</string>
     <string name="status">Status</string>
     <string name="error">Error</string>
+    <string name="save">Save</string>
 </resources>

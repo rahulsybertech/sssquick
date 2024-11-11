@@ -84,7 +84,7 @@ class AddItemViewModel @Inject constructor(
         Log.i("TaG","add item -=-=-=-=-=-=-=-= ${packTypeItems}")
         if (bottomSheetPackData?.id.isNullOrBlank() || bottomSheetPackData?.value.isNullOrBlank()) {
             showToast("Please select a pack type")
-        } else if ((bottomSheetPackAmount ?: "0").toDouble() <= 0) {
+        } else if ((bottomSheetPackAmount ?: "0").toDouble() <= 0) { // change check
             showToast("Please select pack type amount")
         } else if (packTypeItems.any {
                 it.itemName.isNullOrBlank() || it.itemID.isNullOrBlank() || it.itemQuantity.isNullOrBlank()

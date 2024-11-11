@@ -1,7 +1,6 @@
 package com.ssspvtltd.quick_app.ui.order.add.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.widget.doOnTextChanged
 import com.ssspvtltd.quick_app.R
@@ -18,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class AddItemBottomSheetFragment :
     BaseBottomDialog<FragmentAddItemBottomSheetBinding, AddItemViewModel>() {
-    private val mAdapter by lazy { PackDataInputAdapter() }
+    private val mAdapter by lazy { PackDataInputAdapter(requireContext()) }
     override val inflate: InflateBD<FragmentAddItemBottomSheetBinding>
         get() = FragmentAddItemBottomSheetBinding::inflate
 
@@ -35,12 +34,14 @@ class AddItemBottomSheetFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.recyclerView.adapter = mAdapter
+        binding.spinnerType.isFocusable = false
         registerListeners()
     }
 
     private fun registerObserver() {
         viewModel.packTypeItemSuggestions.observe(this) {
             mAdapter.setSuggestions(it.orEmpty())
+            viewModel.hideProgressBar()
         }
         viewModel.packTypeSuggestions.observe(this) {
             val packTypeAdapter = PackTypeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
@@ -77,8 +78,6 @@ class AddItemBottomSheetFragment :
                 viewModel.bottomSheetPackQuantity   = etQuantity.text?.toString()
                 viewModel.bottomSheetPackAmount     = etAmount.text?.toString()
 
-
-                Log.i("TaG","0000000000000000000  ${mAdapter.getList()}")
                 if (mAdapter.getList().size > 1) {
                     val packTypeItems = mAdapter.getList().filter {
                         !it.itemID.isNullOrBlank() && !it.itemName.isNullOrBlank()
@@ -97,7 +96,7 @@ class AddItemBottomSheetFragment :
                         }) {
 
 
-                        showToast("Please input all fields")
+                        showToast("Please select proper Item or qty.")
                     } else {
                         viewModel.submitData(mAdapter.getList())
                     }
@@ -109,15 +108,55 @@ class AddItemBottomSheetFragment :
 
 
         }
+
+
+        spinnerType.setOnFocusChangeListener { _, hasFocus ->
+            if(!hasFocus){
+                if (viewModel.packTypeSuggestions?.value?.any{
+                     it.value == binding.spinnerType.text.toString()
+                    } == false) {
+                    binding.spinnerType.text.clear()
+                }
+            }
+
+        }
+
+        etAmount.setOnFocusChangeListener { _, hasFocus ->
+            if(hasFocus) {
+                tilAmount.isErrorEnabled = false
+                etAmount.isCursorVisible = true
+            } else {
+                if (etAmount.text.isNullOrEmpty()) {
+                    tilAmount.isErrorEnabled = true
+                    tilAmount.error = "Enter Amount"
+                }
+            }
+        }
+
+        etQuantity.setOnFocusChangeListener { _, hasFocus ->
+            if(hasFocus) {
+                tilQuantity.isErrorEnabled = false
+                etQuantity.isCursorVisible = true
+            } else {
+                if (etQuantity.text.isNullOrEmpty()) {
+                    tilQuantity.isErrorEnabled = true
+                    tilQuantity.error = "Enter Qty."
+                }
+            }
+        }
+
         spinnerType.doOnTextChanged { text, _, _, _ ->
+            binding.tilPackingType.isErrorEnabled = false
             viewModel.bottomSheetPackData = viewModel.packTypeSuggestions.value?.find {
                 it.value?.equals(text?.toString()) == true
             }
         }
         etQuantity.doOnTextChanged { text, _, _, _ ->
+            binding.tilQuantity.isErrorEnabled = false
             viewModel.bottomSheetPackQuantity = text?.toString()
         }
         etAmount.doOnTextChanged { text, _, _, _ ->
+            binding.tilAmount.isErrorEnabled = false
             viewModel.bottomSheetPackAmount = text?.toString()
         }
 
@@ -125,13 +164,34 @@ class AddItemBottomSheetFragment :
     }
 
     private fun validate(): Boolean {
+
+        if (binding.etQuantity.text.isNullOrEmpty()) {
+            binding.tilQuantity.isErrorEnabled = true
+            //binding.etQuantity.requestFocus()
+            binding.etQuantity.isCursorVisible = true
+            binding.tilQuantity.error = "Enter Qty."
+        }
+        if (binding.etAmount.text.isNullOrEmpty()) {
+            binding.tilAmount.isErrorEnabled = true
+            //binding.etAmount.requestFocus()
+            binding.etAmount.isCursorVisible = true
+            binding.tilAmount.error = "Enter Amount"
+        }
+        if (binding.spinnerType.text.isNullOrEmpty()) {
+            binding.tilPackingType.isErrorEnabled = true
+            binding.tilPackingType.error = "select pack type"
+        }
         return if (mAdapter.getList().isNotEmpty()) {
+
+
             ( mAdapter.getList().any { item ->
                                                 item.itemName.isNullOrBlank() ||
                                                 item.itemID.isNullOrBlank() ||
                                                 item.itemQuantity.isNotNullOrBlank()
 
-                                        } && !binding.etQuantity.text.isNullOrEmpty()
+                                        } && !binding.etQuantity.text.isNullOrEmpty() && !binding.etAmount.text.isNullOrEmpty()
+                //   make focus on empty or required field  argent
+
             )
         } else {
             false

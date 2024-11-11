@@ -45,6 +45,7 @@ import com.ssspvtltd.quick_app.ui.order.add.viewmodel.AddOrderViewModel
 import com.ssspvtltd.quick_app.utils.extension.getParcelableArrayListExt
 import com.ssspvtltd.quick_app.utils.extension.getViewModel
 import com.ssspvtltd.quick_app.utils.extension.isNotNullOrBlank
+import com.ssspvtltd.quick_app.utils.hideKeyBoard
 import com.ssspvtltd.quick_app.utils.showWarningDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -84,6 +85,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private lateinit var purchasePartyAdapter: PurchasePartyAdapter
     private lateinit var schemeAdapter: SchemeAdapter
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+    private var isNickNameSelected = true
 
 
     private val addItemAdapter by lazy { PackDataAdapter() }
@@ -180,6 +182,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         binding.etPurchaseParty.doAfterTextChanged {
             purchasePartyId = ""
+
         }
 
         binding.etDiscription.doAfterTextChanged {
@@ -233,7 +236,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["TransportId"] = transportId.toRequestBody()
                 hashMap["BstationId"] = bookingStationId.toRequestBody()
                 hashMap["SchemeId"] = schemeId.toRequestBody()
-                hashMap["PvtMarka"] = pvtMarka.toRequestBody()
+                hashMap["OrderCategary"] = pvtMarka.toRequestBody()
                 hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
                 hashMap["DeliveryDateTo"] = tvDispatchToDate.text.toString().toRequestBody()
                 hashMap["Remark"] = etDiscription.text.toString().toRequestBody()
@@ -247,13 +250,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
         }
         binding.tvAddItem.setOnClickListener {
-            binding.etPurchaseParty.clearFocus()
             if(binding.etPurchaseParty.text.isNullOrBlank()) {
                 binding.etPurchaseParty.requestFocus()
                 binding.tilPurchaseParty.isErrorEnabled = true
                 binding.tilPurchaseParty.setError("You need to select purchase party")
             } else {
-
                 openAddBottomSheet()
             }
 
@@ -294,31 +295,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.rgPurchaseParty.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radioByNickName -> {
-                    //binding.etPurchaseParty.text.clear()
-                    viewModel.purchaseParty.observe(viewLifecycleOwner) {
-                        purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
-                        val purchasePartyAdapter = PurchasePartyAdapter(
-                            true,
-                            requireContext(),
-                            R.layout.item_saleparty,
-                            it?.distinctBy {it2-> it2.nickName }.orEmpty()
-                        )
-                        binding.etPurchaseParty.setThreshold(1)
-                        binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
-
-                    }
+                    binding.etPurchaseParty.text.clear()
+                    if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(true)
+                    isNickNameSelected = true
                 }
 
                 R.id.radioBySupplierName -> {
-                    //binding.etPurchaseParty.text.clear()
-                    viewModel.purchaseParty.observe(viewLifecycleOwner) {
-                        val purchasePartyAdapter = PurchasePartyAdapter(
-                            false, requireContext(), R.layout.item_saleparty, it.orEmpty()
-                        )
-                        purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
-                        binding.etPurchaseParty.setThreshold(1)
-                        binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
-                    }
+                    binding.etPurchaseParty.text.clear()
+                    if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(false)
+                    isNickNameSelected = false
                 }
             }
         }
@@ -361,7 +346,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         binding.etTransport.setOnFocusChangeListener { v, hasFocus ->
             if(!hasFocus) {
-                if(transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
+                if(transportData.isNullOrEmpty() || transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
                     binding.etTransport.text.clear()
                 }
             }
@@ -394,9 +379,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.etPurchaseParty.setOnFocusChangeListener { v, hasFocus ->
            if(!hasFocus  ) {
 
-                if( purchasePartyData?.any{ it -> it.nickName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
-                    binding.etPurchaseParty.text.clear()
-                }
+               if(isNickNameSelected) {
+                   if(purchasePartyData?.any { it -> it.nickName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
+                       binding.etPurchaseParty.text.clear()
+                   }
+               } else {
+                   if( purchasePartyData?.any{ it -> it.accountName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
+                       binding.etPurchaseParty.text.clear()
+                   }
+               }
+
             }
 
             if (!binding.etPurchaseParty.isPopupShowing) {
@@ -427,14 +419,39 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
         }
     }
+    fun List<PurchasePartyData>.filterNonEmptyFields(): List<PurchasePartyData> {
+        return this.filter { item ->
+            item.id?.isNotEmpty() == true &&
+                    item.nickName?.isNotEmpty() == true &&
+                    item.accountName?.isNotEmpty() == true &&
+                    item.nickNameStatus != null &&
+                    item.fontColor?.isNotEmpty() == true
+        }
+    }
+
 
     private fun openAddBottomSheet(index: Int = -1) {
         addItemViewModel.bottomSheetIndex = index
         AddItemBottomSheetFragment.newInstance().show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 
+    private fun successDialog(title: String, msg: String) {
+        SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE).apply {
+            titleText = title
+            contentText = msg
+            setCancelable(false)
+            confirmText = getString(R.string.ok)
+            confirmButtonBackgroundColor = getColor(context, R.color.red_2)
+
+        }.show()
+    }
+
     @SuppressLint("SetTextI18n")
     private fun registerObserver() {
+
+        viewModel.isOrderPlacedSuccess.observe(viewLifecycleOwner) {
+            successDialog("Order Placed", it)
+        }
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
             if (it == true) {
                 binding.etSalePartyName.text.clear()
@@ -497,7 +514,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["TransportId"]          = transportId.toRequestBody()
                     hashMap["BstationId"]           = bookingStationId.toRequestBody()
                     hashMap["SchemeId"]             = schemeId.toRequestBody()
-                    hashMap["PvtMarka"]             = pvtMarka.toRequestBody()
+                    hashMap["OrderCategary"]        = pvtMarka.toRequestBody()
                     hashMap["DeliveryDateFrom"]     = tvDispatchFromDate.text.toString().toRequestBody()
                     hashMap["DeliveryDateTo"]       = tvDispatchToDate.text.toString().toRequestBody()
                     hashMap["Remark"]               = etDiscription.text.toString().toRequestBody()
@@ -590,9 +607,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etSalePartyName.setOnItemClickListener { parent, _, position, _ ->
                 val salePartyItem = salePartyAdapter.getItem(position)
                 salePartyId = salePartyItem.accountID.toString()
-                viewModel.getSalePartyDetails(salePartyId)
+                viewModel.getSalePartyAndStationData(salePartyId,salePartyId, "")
+               /* viewModel.getSalePartyDetails(salePartyId)
+                viewModel.getStation(salePartyId, "")*/
                 binding.tilSaletParty.isErrorEnabled = !(salePartyItem.accountName.isNotNullOrBlank() || binding.tilSaletParty.isErrorEnabled)
-                viewModel.getStation(salePartyId, "")
+
             }
 
         }
@@ -661,19 +680,32 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.purchaseParty.observe(viewLifecycleOwner) {
-            purchasePartyAdapter = PurchasePartyAdapter(
-                true,
-                requireContext(),
-                R.layout.item_saleparty,
-                it?.distinctBy {it2 ->  it2.nickName }.orEmpty()
-            )
-            purchasePartyData = it?.distinctBy {it2-> it2.nickName }.orEmpty()
-            binding.etPurchaseParty.setThreshold(1)
-            binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
-            binding.etPurchaseParty.setOnItemClickListener { parent, _, position, _ ->
-                val purPartyItem = purchasePartyAdapter.getItem(position)
+            purchasePartyData = it?.filterNonEmptyFields()
+
+            if(!::purchasePartyAdapter.isInitialized) {
+
+                purchasePartyAdapter = PurchasePartyAdapter(
+                    isNickNameSelected, requireContext(), R.layout.item_saleparty, purchasePartyData.orEmpty()
+                )
+
+                binding.etPurchaseParty.setThreshold(1)
+                binding.etPurchaseParty.setAdapter(purchasePartyAdapter)
+
+            } else {
+                purchasePartyAdapter.updateType(isNickNameSelected)
+                purchasePartyAdapter.updateData(purchasePartyData.orEmpty())
+            }
+
+            binding.etPurchaseParty.setOnItemClickListener { parent, v, position, l ->
+
+                // val purPartyItem = parent.getItemAtPosition(position)  as PurchasePartyData
+                val purPartyItem = parent.getItemAtPosition(position)  as PurchasePartyData
+
+                Log.i("TaG","selected purchase party --------->${purPartyItem}")
                 purchasePartyId = purPartyItem.id.toString()
                 addItemViewModel.getItemsList(purchasePartyId)
+                binding.etPurchaseParty.clearFocus()
+                binding.etPurchaseParty.hideKeyBoard()
                 binding.tilPurchaseParty.isErrorEnabled = !(purPartyItem.id.isNotNullOrBlank() || binding.tilPurchaseParty.isErrorEnabled)
             }
         }
@@ -718,7 +750,41 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }.show()
     }
 
+
+    private fun checkCleanInValidSelectedData() {
+        if(salePartyData?.any { it.accountName == binding.etSalePartyName.text.toString() } == false) {
+            binding.etSalePartyName.text.clear()
+        }
+
+        if(isNickNameSelected) {
+            if(purchasePartyData?.any { it.nickName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
+                binding.etPurchaseParty.text.clear()
+            }
+        } else {
+            if( purchasePartyData?.any{ it.accountName.equals(binding.etPurchaseParty.text.trim().toString())} == false) {
+                binding.etPurchaseParty.text.clear()
+            }
+        }
+
+        if(stationData?.any { it.stationName == binding.etStation.text.toString() } == false) {
+            binding.etStation.text.clear()
+        }
+
+        if(transportData.isNullOrEmpty() || transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
+            binding.etTransport.text.clear()
+        }
+
+        if(subPartyData?.any { it.subPartyName == binding.etSubParty.text.toString() } == false) {
+            binding.etSubParty.text.clear()
+        }
+
+        if(salePartyData?.any { it.accountName == binding.etSalePartyName.text.toString() } == false) {
+            binding.etSalePartyName.text.clear()
+        }
+    }
+
     private fun validate(): Boolean = with(binding) {
+        checkCleanInValidSelectedData()
         if (etSalePartyName.text.isNullOrBlank()) {
             etSalePartyName.requestFocus()
             tilSaletParty.isErrorEnabled = true

@@ -29,6 +29,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     @Inject
     lateinit var baseRepository: BaseRepository
 
+    var loginErrorApiCallingCount = 0
+
     /**
      * ProgressBar
      */
@@ -76,8 +78,18 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             //showProgressBar(ProgressConfig("Checking Login Status\nPlease wait..."))
             when (val response = baseRepository.autoLogout()) {
                 is ResultWrapper.Failure -> {
-                    apiLoginStatusData(false)
-                    hideProgressBar()
+
+                    if(loginErrorApiCallingCount < 5) {
+                        ++loginErrorApiCallingCount
+                        callLoginStatusApi()
+                    } else {
+                        loginErrorApiCallingCount = 0
+                        apiLoginStatusData(false)
+                        hideProgressBar()
+                    }
+
+
+
                 }
                 is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                     withContext(Dispatchers.Main) {

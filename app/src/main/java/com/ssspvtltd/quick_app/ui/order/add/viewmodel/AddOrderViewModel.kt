@@ -21,7 +21,6 @@ import com.ssspvtltd.quick_app.model.order.add.salepartydetails.Data
 import com.ssspvtltd.quick_app.model.progress.ProgressConfig
 import com.ssspvtltd.quick_app.networking.ResultWrapper
 import com.ssspvtltd.quick_app.ui.order.add.repositry.AddOrderRepositry
-import com.ssspvtltd.quick_app.utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -67,6 +66,9 @@ class AddOrderViewModel @Inject constructor(
 
     private val _isOrderPlaced = MutableLiveData<Boolean>()
     val isOrderPlaced: LiveData<Boolean> get() = _isOrderPlaced
+
+    private val _isOrderPlacedSuccess = MutableLiveData<String>()
+    val isOrderPlacedSuccess: LiveData<String> get() = _isOrderPlacedSuccess
 
     private val _isOrderPlacedLimitError = MutableLiveData<String>()
     val isOrderPlacedLimitError: LiveData<String> get() = _isOrderPlacedLimitError
@@ -114,10 +116,6 @@ class AddOrderViewModel @Inject constructor(
         _purchaseParty.postValue(purchasePartyResponse)
 
         hideProgressBar()
-    }
-
-    private fun initializeEditOrder() {
-
     }
 
     fun getVoucher() = viewModelScope.launch {
@@ -220,8 +218,48 @@ class AddOrderViewModel @Inject constructor(
         }
     }
 
-    fun placeOrder(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
+    fun getSalePartyAndStationData(accountId: String, salePartyId: String, subPartyId: String ) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        val job1  = viewModelScope.launch (Dispatchers.IO) {
+                        when (val response = repository.salePartyDetail(accountId)) {
+                            is ResultWrapper.Failure -> {
+                                apiErrorData(response.error)
+                                Log.e("ersss", response.toString())
+                            }
+
+                            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                                response.value.data?.let {
+                                    withContext(Dispatchers.Main) {
+                                        _salePartyDetail.postValue(response.value.data)
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+
+
+        val job2 = viewModelScope.launch (Dispatchers.IO) {
+                        when (val response = repository.allStationList(salePartyId, subPartyId)) {
+                            is ResultWrapper.Failure -> apiErrorData(response.error)
+                            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                                response.value.data?.let {
+                                    withContext(Dispatchers.Main) {
+                                        _station.postValue(it)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+        job1.join()
+        job2.join()
+        hideProgressBar()
+    }
+
+    fun placeOrder(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Please wait..."))
         params["OrderBookSecondaryList"] = gson.toJson(addItemDataList).toRequestBody()
         val documents = mutableListOf<MultipartBody.Part>()
         addImageDataList.forEach { imageModel ->
@@ -244,12 +282,17 @@ class AddOrderViewModel @Inject constructor(
             }
             is ResultWrapper.Success -> {
                 _isOrderPlaced.postValue(true)
+                _isOrderPlacedSuccess.postValue(response.value.message.toString())
                 hideProgressBar()
                 Log.e("documents", gson.toJson(documents))
-                showToast(response.value.message)
+                //showToast(response.value.message)
+
             }
         }
     }
+
+
+
 
     fun getEditOrderDataIfNeeded() = viewModelScope.launch {
         if (pendingOrderID.isNullOrBlank()) return@launch

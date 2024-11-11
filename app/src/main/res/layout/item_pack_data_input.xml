@@ -12,7 +12,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="4dp"
-        android:hint="@string/item"
+        android:hint="@string/item_ast"
         app:layout_constraintEnd_toStartOf="@id/tilQuantity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -39,7 +39,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
         android:focusableInTouchMode="true"
-        android:hint="@string/quantity"
+        android:hint="@string/quantity_ast"
         app:layout_constraintEnd_toStartOf="@id/btnAddDelete"
         app:layout_constraintStart_toEndOf="@id/tilItem"
         app:layout_constraintTop_toTopOf="parent">
@@ -61,8 +61,7 @@
         android:layout_width="24dp"
         android:layout_height="0dp"
         android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_baseline_plus_24"
-        android:tint="?attr/colorControlNormal"
+        android:src="@drawable/add_circle_fill"
         app:layout_constraintBottom_toBottomOf="@id/tilItem"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/tilItem" />

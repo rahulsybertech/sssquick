@@ -12,6 +12,7 @@
       <color name="yellow_light">#F5E4B8</color>
       <color name="gray">#ACA8A8</color>
       <color name="dark_gray">#E46B6969</color>
+      <color name="light_gray">#278F8B8B</color>
       <color name="green">#37973B</color>
       <color name="green_light">#B53B863E</color>
       <color name="solid_grey">#939393</color>
@@ -28,6 +29,7 @@
       <color name="warning_text">#9F6000</color>
       <color name="warning_bg">#FEEFB3</color>
       <color name="red_200">#CEF83A44</color>
+      <color name="red_2">#C33610</color>
       <color name="error_text">#CED8000C</color>
       <color name="error_bg">#FFD2D2</color>
       <color name="color_A5DC86">#A5DC86</color>
