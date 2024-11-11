@@ -273,7 +273,7 @@ class AddOrderViewModel @Inject constructor(
         }
         when (val response = repository.placeOrder(params, documents)) {
             is ResultWrapper.Failure -> {
-                if (response.error.message?.contains("Limit", ignoreCase = true) == true) {
+                if (response.error.islimitexceed == true) {
                     hideProgressBar()
                     _isOrderPlacedLimitError.postValue(response.error.message!!)
                 } else {

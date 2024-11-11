@@ -13,4 +13,5 @@ data class ApiResponse<T>(
     val checkinStatus: Boolean? = null,
     //UserDefined
     var apiRequestCode: Int? = null,
+    var islimitexceed: Boolean? = null,
 )
