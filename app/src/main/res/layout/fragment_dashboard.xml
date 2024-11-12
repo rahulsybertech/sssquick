@@ -359,6 +359,61 @@
 
                   </LinearLayout>
 
+                  <LinearLayout
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:id="@+id/ll_4"
+                      android:layout_below="@+id/ll_3">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="5dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/gray_200_bg">
+
+                              <ImageView
+                                  android:id="@+id/icon_total_sale_amount"
+                                  android:layout_width="60dp"
+                                  android:layout_height="60dp"
+                                  android:layout_alignParentStart="true"
+                                  android:layout_centerInParent="true"
+                                  android:layout_marginStart="10dp"
+                                  android:layout_marginTop="10dp"
+                                  android:layout_marginEnd="10dp"
+                                  android:layout_marginBottom="10dp"
+                                  android:background="@drawable/gray_300_bg"
+                                  android:padding="10dp"
+                                  android:rotation="180"
+                                  android:src="@drawable/pending_lr"
+                                  app:tint="?attr/colorPrimaryDark" />
+
+                              <TextView
+                                  android:id="@+id/txt_total_sale_amt"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:layout_marginTop="10dp"
+                                  android:layout_marginEnd="5dp"
+                                  android:layout_toEndOf="@+id/icon_total_sale_amount"
+                                  android:fontFamily="@font/helvetica_regular"
+                                  android:text="Total Sale Amt."
+                                  android:textColor="@color/black" />
+
+                              <TextView
+                                  android:id="@+id/tvTotalSaleAmount"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:layout_below="@+id/txt_total_sale_amt"
+                                  android:layout_toEndOf="@+id/icon_total_sale_amount"
+                                  android:fontFamily="@font/helvetica_bold"
+                                  android:text="-"
+                                  android:textColor="@color/black"
+                                  android:textSize="25dp" />
+
+                        </RelativeLayout>
+
+                  </LinearLayout>
+
             </RelativeLayout>
 
 

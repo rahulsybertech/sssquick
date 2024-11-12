@@ -50,7 +50,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
         viewModel.autoLogout()
 
-
+        viewModel.getCheckInStatus()
         registerObserver()
         registerListner()
     }

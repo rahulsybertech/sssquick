@@ -18,6 +18,7 @@ import com.ssspvtltd.quick_app.model.ARG_ADD_IMAGE_LIST
 import com.ssspvtltd.quick_app.model.order.add.addImage.ImageModel
 import com.ssspvtltd.quick_app.ui.order.add.adapter.AddImageAdapter
 import com.ssspvtltd.quick_app.ui.order.add.viewmodel.AddImageViewModel
+import com.ssspvtltd.quick_app.utils.SharedEditImageUriList
 import com.ssspvtltd.quick_app.utils.extension.dp
 import com.ssspvtltd.quick_app.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,11 +37,20 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
         registerObserver()
         registerListener()
         viewModel.prepareList()
+        setImageUri()
     }
 
     private fun registerObserver() {
         viewModel.isListAvailable.observe(this) {
             if (it) mAdapter.submitList(viewModel.widgetList)
+        }
+    }
+    private fun setImageUri() {
+        val uris = SharedEditImageUriList.imageUris
+        if (uris?.isNotEmpty() == true) {
+            viewModel.setEditImageList(uris)
+            //viewModel.addFilesToList(*uris.toTypedArray())
+        } else {
         }
     }
 
@@ -56,6 +66,9 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
             getGalleryImage.launch("image/*")
         }
         mAdapter.deleteImageListener = { image, position ->
+            if(SharedEditImageUriList.imageUris?.contains(Uri.parse(image.filePath)) == true) {
+                SharedEditImageUriList.imageUris = SharedEditImageUriList.imageUris?.filter { it != Uri.parse(image.filePath) }?.toTypedArray()?.toList()
+            }
             viewModel.deleteFileFromList(image, position)
         }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

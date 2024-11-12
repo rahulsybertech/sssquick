@@ -95,6 +95,7 @@ class AddItemViewModel @Inject constructor(
         } else {
             withContext(Dispatchers.Default) {
                 val packTypeNew = PackType(
+                    id = null,
                     pcsId = bottomSheetPackData?.id!!,
                     packName = bottomSheetPackData?.value,
                     amount = bottomSheetPackAmount,

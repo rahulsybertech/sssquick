@@ -7,7 +7,7 @@ object Mocker {
     fun getPackDataList(): List<PackType> {
         return listOf(
             PackType(
-                "1", "Bora","1", "100.00",
+                null,"1", "Bora","1", "100.00",
                  itemDetail = listOf(
                     PackTypeItem("Shirt 1", "Shirt 1", "10"),
                     PackTypeItem("Jeans 1", "Jeans 1", "10")

@@ -19,7 +19,7 @@ data class EditOrderDataNew(
     val deliveryDateTo: String?,
     @SerializedName("docsList")
     @Expose
-    val docsList: List<Any?>?,
+    val docsList: List<DocListData?>?,
     @SerializedName("id")
     @Expose
     val id: String?,
@@ -41,6 +41,9 @@ data class EditOrderDataNew(
     @SerializedName("orderTypeName")
     @Expose
     val orderTypeName: String?,
+    @SerializedName("orderStatus")
+    @Expose
+    val orderStatus: String?,
     @SerializedName("purchasePartyId")
     @Expose
     val purchasePartyId: String?,
@@ -93,8 +96,18 @@ data class EditOrderDataNew(
     @Expose
     val voucherCodeNo: String?
 ) {
-    
+    data class DocListData(
+        @SerializedName("docId")
+        @Expose
+        val docId: String?,
+        @SerializedName("docsUrls")
+        @Expose
+        val docsUrls: String?,
+    )
     data class ItemDetails(
+        @SerializedName("id")
+        @Expose
+        val id: String?,
         @SerializedName("amount")
         @Expose
         val amount: Double?,

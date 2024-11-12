@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_app.base
 
+import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
@@ -79,17 +80,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             when (val response = baseRepository.autoLogout()) {
                 is ResultWrapper.Failure -> {
 
-                    if(loginErrorApiCallingCount < 5) {
-                        ++loginErrorApiCallingCount
-                        callLoginStatusApi()
-                    } else {
-                        loginErrorApiCallingCount = 0
-                        apiLoginStatusData(false)
-                        hideProgressBar()
-                    }
-
-
-
+                    Log.i("TaG","status -=-=-=-=-=-==-=--=-=-->${response.error}")
+                    //apiErrorData(response.error)
                 }
                 is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                     withContext(Dispatchers.Main) {

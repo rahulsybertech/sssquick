@@ -113,6 +113,7 @@ class DashboardFragment : Fragment() {
     private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
         with(binding){
             tvTotalSale.text  = (dashBoardData?.totalSaleCount ?: 0).toString()
+            tvTotalSaleAmount.text = (dashBoardData?.totalSaleAmt ?: 0).toString()
         }
 
     }
@@ -191,10 +192,5 @@ class DashboardFragment : Fragment() {
 
         datePickerDialog.show()
     }
-
-
-
-
-
 
 }

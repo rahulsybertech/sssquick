@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick_app.base.recycler.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.ssspvtltd.quick_app.base.BaseViewModel
 import com.ssspvtltd.quick_app.base.recycler.data.BaseWidget
@@ -82,9 +83,11 @@ open class RecyclerWidgetViewModel @Inject constructor() : BaseViewModel() {
     protected fun addItemToWidgetList(
         position: Int, item: List<BaseWidget>
     ) = synchronized(widgetList) {
-        val list = ArrayList(widgetList)
-        list.addAll(position, item)
-        widgetList = list
+        if(position != -1) {
+            val list = ArrayList(widgetList)
+            list.addAll(position, item)
+            widgetList = list
+        }
     }
 
     /**

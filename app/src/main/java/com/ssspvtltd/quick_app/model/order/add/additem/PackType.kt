@@ -9,6 +9,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class PackType(
+    var id : String?,
     var pcsId: String,
     var packName: String?,
     var qty: String?,

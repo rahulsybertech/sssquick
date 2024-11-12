@@ -116,7 +116,7 @@ class LoginViewModel @Inject constructor(
         showProgressBar(ProgressConfig("Checking Login Status\nPlease wait..."))
         when (val response = repository.autoLogout()) {
             is ResultWrapper.Failure -> {
-                _loginStatus.postValue(false)
+                //_loginStatus.postValue(false)
                 hideProgressBar()
             }
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
@@ -126,5 +126,17 @@ class LoginViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun getCheckInStatus() = viewModelScope.launch{
+
+        when( val response = repository.customerList()) {
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                prefHelper.setCheckinStatus(response.value.checkinStatus ?: false)
+            }
+        }
+
+
     }
 }

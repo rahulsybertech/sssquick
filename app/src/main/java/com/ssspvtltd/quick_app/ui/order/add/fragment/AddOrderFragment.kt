@@ -3,6 +3,7 @@ package com.ssspvtltd.quick_app.ui.order.add.fragment
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -15,6 +16,8 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick_app.R
 import com.ssspvtltd.quick_app.base.BaseFragment
@@ -29,6 +32,7 @@ import com.ssspvtltd.quick_app.model.order.add.SchemeData
 import com.ssspvtltd.quick_app.model.order.add.addImage.ImageModel
 import com.ssspvtltd.quick_app.model.order.add.additem.PackType
 import com.ssspvtltd.quick_app.model.order.add.additem.PackTypeItem
+import com.ssspvtltd.quick_app.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick_app.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick_app.model.order.add.salepartydetails.DefTransport
 import com.ssspvtltd.quick_app.model.order.add.salepartydetails.SubParty
@@ -42,12 +46,16 @@ import com.ssspvtltd.quick_app.ui.order.add.adapter.StationAdapter
 import com.ssspvtltd.quick_app.ui.order.add.adapter.SubPartyAdapter
 import com.ssspvtltd.quick_app.ui.order.add.viewmodel.AddItemViewModel
 import com.ssspvtltd.quick_app.ui.order.add.viewmodel.AddOrderViewModel
+import com.ssspvtltd.quick_app.utils.SharedEditImageUriList
 import com.ssspvtltd.quick_app.utils.extension.getParcelableArrayListExt
 import com.ssspvtltd.quick_app.utils.extension.getViewModel
 import com.ssspvtltd.quick_app.utils.extension.isNotNullOrBlank
 import com.ssspvtltd.quick_app.utils.hideKeyBoard
 import com.ssspvtltd.quick_app.utils.showWarningDialog
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
@@ -73,12 +81,14 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var transportId: String         = ""
     private var schemeId: String            = ""
     private var selectedStatus: String      = "PENDING"
+
     private var purchasePartyData : List<PurchasePartyData>? = emptyList()
-    private var salePartyData :  List<SalepartyData>? = emptyList()
-    private var subPartyData :  List<SubParty>? = emptyList()
-    private var stationData :  List<AllStation>? = emptyList()
-    private var schemeData :  List<SchemeData>? = emptyList()
-    private var transportData :  List<DefTransport>? = emptyList()
+    private var salePartyData :  List<SalepartyData>?        = emptyList()
+    private var subPartyData :  List<SubParty>?              = emptyList()
+    private var stationData :  List<AllStation>?             = emptyList()
+    private var schemeData :  List<SchemeData>?              = emptyList()
+    private var transportData :  List<DefTransport>?         = emptyList()
+
     private lateinit var subPartyAdapter: SubPartyAdapter
     private lateinit var defaultTransportAdapter: DefaultTransportAdapter
     private lateinit var stationAdapter: StationAdapter
@@ -86,8 +96,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private lateinit var schemeAdapter: SchemeAdapter
     private val dateFormat  = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private var isNickNameSelected = true
-
-
+    private lateinit var salePartyAdapter: SalePartyAdapter
+    private var editData: EditOrderDataNew? = null
     private val addItemAdapter by lazy { PackDataAdapter() }
 
     companion object {
@@ -103,7 +113,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             viewModel.initAllData()
             addItemViewModel.getPackDataList()
             addItemViewModel.getPackType()
-            viewModel.getEditOrderDataIfNeeded()
         }
 
     }
@@ -124,9 +133,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, statusOptions)
         binding.autoCompleteStatus.setAdapter(adapter)
 
-        binding.autoCompleteStatus.setOnItemClickListener { parent, view, position, id ->
+        binding.autoCompleteStatus.setOnItemClickListener { parent, _, position, id ->
             selectedStatus = parent.getItemAtPosition(position).toString()
-           Log.i("TaG","Selected Status -=-=--=-=-> $selectedStatus")
         }
         binding.autoCompleteStatus.setText("PENDING", false)
 
@@ -218,32 +226,33 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             if (validate()) binding.apply {
 
                 var totalQty = 0
-                var totalAmount = 0
+                var totalAmount:Double = 0.0
 
                 addItemViewModel.packTypeDataList.forEach {
                     if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
-                        totalAmount += (it.amount ?: "0").toInt()
-                        totalQty += (it.qty ?: "0").toInt()
+                        totalAmount += (it.amount ?: "0.0").toDouble()
+                        totalQty += (it.qty ?: "0.0").toInt()
                     }
 
                 }
 
                 val hashMap: HashMap<String, RequestBody?> = HashMap()
-                hashMap["SalePartyId"] = salePartyId.toRequestBody()
-                hashMap["SubPartyId"] = subPartyId.toRequestBody()
-                hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
-                hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
-                hashMap["TransportId"] = transportId.toRequestBody()
-                hashMap["BstationId"] = bookingStationId.toRequestBody()
-                hashMap["SchemeId"] = schemeId.toRequestBody()
-                hashMap["OrderCategary"] = pvtMarka.toRequestBody()
-                hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
-                hashMap["DeliveryDateTo"] = tvDispatchToDate.text.toString().toRequestBody()
-                hashMap["Remark"] = etDiscription.text.toString().toRequestBody()
-                hashMap["TotalQty"] = "0".toRequestBody()
-                hashMap["TotalAmt"] = "0".toRequestBody()
-                hashMap["OrderTypeName"] = "TRADING".toRequestBody()
-                hashMap["OrderStatus"] = selectedStatus.toRequestBody()
+                hashMap["SalePartyId"]        = salePartyId.toRequestBody()
+                hashMap["SubPartyId"]         = subPartyId.toRequestBody()
+                hashMap["SubPartyasRemark"]   = etSubPartyRemark.text.toString().toRequestBody()
+                hashMap["PurchasePartyId"]    = purchasePartyId.toRequestBody()
+                hashMap["TransportId"]        = transportId.toRequestBody()
+                hashMap["BstationId"]         = bookingStationId.toRequestBody()
+                hashMap["SchemeId"]           = schemeId.toRequestBody()
+                hashMap["OrderCategary"]      = pvtMarka.toRequestBody()
+                hashMap["DeliveryDateFrom"]   = tvDispatchFromDate.text.toString().toRequestBody()
+                hashMap["DeliveryDateTo"]     = tvDispatchToDate.text.toString().toRequestBody()
+                hashMap["Remark"]             = etDiscription.text.toString().toRequestBody()
+                hashMap["TotalQty"]           = "0".toRequestBody()
+                hashMap["TotalAmt"]           = "0".toRequestBody()
+                hashMap["OrderTypeName"]      = "TRADING".toRequestBody()
+                hashMap["OrderStatus"]        = selectedStatus.toRequestBody()
+                if(viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] = (editData?.id ?: "").toRequestBody()
 
 
                 viewModel.placeOrder(hashMap)
@@ -435,13 +444,22 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         AddItemBottomSheetFragment.newInstance().show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 
-    private fun successDialog(title: String, msg: String) {
+    private fun successOrderDialog(title: String, msg: String) {
         SweetAlertDialog(context, SweetAlertDialog.SUCCESS_TYPE).apply {
             titleText = title
             contentText = msg
             setCancelable(false)
             confirmText = getString(R.string.ok)
             confirmButtonBackgroundColor = getColor(context, R.color.red_2)
+            setConfirmClickListener {
+                it.dismissWithAnimation()
+                if (viewModel.pendingOrderID.isNotNullOrBlank())  {
+                    val navOptions = NavOptions.Builder()
+                        .setPopUpTo(R.id.addOrderFragment, true)
+                        .build()
+                    findNavController().navigate(R.id.dashboardFragment, null, navOptions)
+                }
+            }
 
         }.show()
     }
@@ -450,7 +468,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private fun registerObserver() {
 
         viewModel.isOrderPlacedSuccess.observe(viewLifecycleOwner) {
-            successDialog("Order Placed", it)
+            successOrderDialog("Order Placed", it)
         }
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
             if (it == true) {
@@ -522,6 +540,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["TotalAmt"]             = "0".toRequestBody()
                     hashMap["OrderTypeName"]        = "TRADING".toRequestBody()
                     hashMap["OrderStatus"]          = "HOLD".toRequestBody()
+                    if(viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] = (editData?.id ?: "").toRequestBody()
 
                     viewModel.placeOrder(hashMap)
 
@@ -529,50 +548,188 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 dialog.dismissWithAnimation()
             }
         }
+        viewModel.setEditOrderFields.observe(viewLifecycleOwner) {
+            binding.placeOrder.text = "Update"
+            viewModel.getEditOrderDataIfNeeded()
+        }
         viewModel.editOrderData.observe(viewLifecycleOwner) {
-            binding.etSerialNo.setText(it?.orderNo)
-            binding.etMarketerCode.setText(it?.marketerCode)
-            binding.etSalePartyName.setText(it?.salePartyName)
-            /*binding.etAvailableLimit.setText("1000")
-            binding.etAverageDays.setText("10")*/
-            binding.etSubParty.setText(it?.subPartyName)
-            binding.etTransport.setText(it?.transportName)
-            binding.etStation.setText(it?.bstationName)
-            binding.etScheme.setText(it?.schemeName)
-            binding.etPurchaseParty.setText(it?.purchasePartyName)
-            binding.tvDispatchToDate.text = it?.deliveryDateTo
-            binding.tvDispatchFromDate.text = it?.deliveryDateFrom
-            binding.etDiscription.setText(it?.remark)
 
-            val tempItemDetailList = mutableListOf<PackType>()
-            it?.itemDetailsList?.forEach { itemDetail ->
+            lifecycleScope.launch {
+                try{
 
-                val tempSubItemList = mutableListOf<PackTypeItem>()
-                itemDetail?.itemDetail?.forEach { subItem ->
-                    tempSubItemList.add(
-                        PackTypeItem(
-                            itemID = subItem?.itemId,
-                            itemName = subItem?.itemName,
-                            itemQuantity = (subItem?.itemQuantity ?: 0).toString()
+                    editData = it
+                    val serialNo    = it?.voucherCodeNo?.split(" ")?.get(1)
+                    val voucherNo   = it?.voucherCodeNo?.split(" ")?.get(0)
+                    binding.etSerialNo.setText(serialNo)
+                    binding.etMarketerCode.setText(voucherNo)
+
+                    var job1 : Deferred<Job>? = null
+
+
+                    if (salePartyData.isNullOrEmpty()) {
+                        salePartyData = listOf(
+                            SalepartyData(
+                            accountID = it?.salePartyId,
+                            accountName = it?.salePartyName,
+                            rno = ""
+                        ))
+                        if(::salePartyAdapter.isInitialized) {
+                            salePartyAdapter.setItem(salePartyData)
+                            Log.i("TaG","make new data ------------=-===========--->${salePartyData}")
+                        }
+                    } else {
+                        if(salePartyData?.any{ its -> its.accountID == it?.salePartyId } == false) {
+                            val tempList :MutableList<SalepartyData> = mutableListOf()
+                            tempList.addAll(salePartyData ?: emptyList())
+                            tempList.addAll(listOf(
+                                SalepartyData(
+                                    accountID = it?.salePartyId,
+                                    accountName = it?.salePartyName,
+                                    rno = ""
+                                )))
+                            salePartyData = tempList
+                            if(::salePartyAdapter.isInitialized) {
+                                salePartyAdapter.setItem(salePartyData)
+                                Log.i("TaG","make new data ------------=-===========--->${salePartyData}")
+                            }
+                        }
+                    }
+
+                    val editSaleParty = salePartyData?.filter { saleData -> saleData.accountID == it?.salePartyId}
+                    if(!editSaleParty.isNullOrEmpty()) {
+                        binding.etSalePartyName.setText(editSaleParty[0].accountName)
+                        salePartyId = editSaleParty[0].accountID ?: ""
+                        job1 = async{  viewModel.getSalePartyAndStationData(salePartyId,salePartyId,"")}
+
+                    }
+
+                    job1?.join()
+
+                    val editSchemeData = schemeData?.filter { statData -> statData.schemeId == it?.schemeId }
+                    if(!editSchemeData.isNullOrEmpty()) {
+                        binding.etScheme.setText(editSchemeData[0].schemeName)
+                        schemeId = editSchemeData[0].schemeId ?: ""
+                    }
+
+
+
+                    binding.tvDispatchToDate.text   = it?.deliveryDateTo
+                    binding.tvDispatchFromDate.text = it?.deliveryDateFrom
+                    binding.etDiscription.setText(it?.remark)
+                    binding.rgPurchaseParty.check(R.id.radioBySupplierName)
+
+                    when(it?.pvtMarka ?: "") {
+                        "*" -> {
+                            binding.rgStartype.check(R.id.star1)
+                        }
+                        "***" -> {
+                            binding.rgStartype.check(R.id.star3)
+                        }
+                    }
+
+                    var job3 : Deferred<Job>? = null
+
+
+
+                    val editSubPartyData =  subPartyData?.filter { subData -> subData.subPartyId == it?.subPartyId }
+                    if(!editSubPartyData.isNullOrEmpty()) {
+                        binding.etSubParty.setText(editSubPartyData[0].subPartyName)
+                        subPartyId = editSubPartyData[0].subPartyId
+                        job3 = async { viewModel.getStation(salePartyId, subPartyId) }
+                    }
+
+                    job3?.join()
+
+                    val editTransportData = transportData?.filter { transData -> transData.transportId == it?.transportId }
+                    if(!editTransportData.isNullOrEmpty()) {
+                        binding.etTransport.setText(editTransportData[0].transportName)
+                        transportId = editTransportData[0].transportId
+                    }
+
+
+                    val editStationData = stationData?.filter { statData -> statData.stationId == it?.bstationId }
+                    if(!editStationData.isNullOrEmpty()) {
+                        binding.etStation.setText(editStationData[0].stationName)
+                        bookingStationId = editStationData[0].stationId
+                    }
+
+                    val editPurchasePartyData = purchasePartyData?.filter { purchaseData ->  purchaseData.id == it?.purchasePartyId}
+                    if(!editPurchasePartyData.isNullOrEmpty()) {
+                        binding.etPurchaseParty.setText(editPurchasePartyData[0].accountName)
+                        purchasePartyId = editPurchasePartyData[0].id ?: ""
+                        addItemViewModel.getItemsList(purchasePartyId)
+                    }
+
+
+
+                    // for testing
+                    val imageUrlList = mutableListOf<String>()
+
+                    it?.docsList?.forEach {
+                        if(it?.docsUrls?.contains("pdf",true) == false) {
+                            imageUrlList.add(it.docsUrls ?: "")
+                        }
+                    }
+
+                    //val imageUrlList = arrayOf("https://image.ssspltd.com/sybererp/IMAGES/43029624-ea4a-434c-9a14-d7da24840bad/Screenshot_20241108-211432_Instagram20241111161911939.jpg")
+                    val imageUriList = imageUrlList.map {its-> Uri.parse(its) }
+                    SharedEditImageUriList.imageUris = imageUriList
+
+                    if(imageUriList.isNotEmpty()) {
+                        binding.llImageCount.visibility = View.VISIBLE
+                        binding.tvImageCount.text = checkTwoDigitNo(imageUriList.size.toString())
+                    }
+
+
+                    when(it?.orderStatus) {
+                        "PENDING" -> {
+                            binding.autoCompleteStatus.setText("PENDING", false)
+                            selectedStatus = "PENDING"
+                        }
+                        "HOLD" -> {
+                            binding.autoCompleteStatus.setText("HOLD", false)
+                            selectedStatus = "HOLD"
+                        }
+                    }
+
+
+
+                    val tempItemDetailList = mutableListOf<PackType>()
+                    it?.itemDetailsList?.forEach { itemDetail ->
+
+                        val tempSubItemList = mutableListOf<PackTypeItem>()
+                        itemDetail?.itemDetail?.forEach { subItem ->
+                            tempSubItemList.add(
+                                PackTypeItem(
+                                    itemID = subItem?.itemId,
+                                    itemName = subItem?.itemName,
+                                    itemQuantity = (subItem?.itemQuantity ?: 0).toInt().toString()
+                                )
+                            )
+                        }
+
+                        tempItemDetailList.add(
+                            PackType(
+                                id = itemDetail?.id ?: "",
+                                pcsId = itemDetail?.pcsId ?: "",
+                                packName = itemDetail?.packName,
+                                qty = itemDetail?.qty?.toInt().toString(),
+                                amount = itemDetail?.amount?.toInt().toString(),
+                                itemDetail = tempSubItemList.toList()
+                            )
                         )
-                    )
-                }
+                    }
 
-                tempItemDetailList.add(
-                    PackType(
-                        pcsId = itemDetail?.pcsId ?: "",
-                        packName = itemDetail?.packName,
-                        qty = itemDetail?.qty.toString(),
-                        amount = itemDetail?.amount.toString(),
-                        itemDetail = tempSubItemList.toList()
-                    )
-                )
+
+                    viewModel.addItemDataList = ArrayList(tempItemDetailList)
+                    addItemViewModel.packTypeDataList = tempItemDetailList
+                    addItemViewModel.getPackDataList()
+                } catch(e: Exception) {
+                    e.printStackTrace()
+                }
             }
 
 
-            viewModel.addItemDataList = ArrayList(tempItemDetailList)
-            addItemViewModel.packTypeDataList = tempItemDetailList
-            addItemViewModel.getPackDataList()
         }
 
         viewModel.voucherData.observe(viewLifecycleOwner) {
@@ -601,7 +758,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         viewModel.saleParty.observe(viewLifecycleOwner) {
             salePartyData = it
-            val salePartyAdapter = SalePartyAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
+            salePartyAdapter = SalePartyAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
             binding.etSalePartyName.setThreshold(1)
             binding.etSalePartyName.setAdapter(salePartyAdapter)
             binding.etSalePartyName.setOnItemClickListener { parent, _, position, _ ->

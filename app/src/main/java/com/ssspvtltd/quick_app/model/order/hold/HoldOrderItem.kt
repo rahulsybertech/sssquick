@@ -23,6 +23,7 @@ data class HoldOrderItem(
     val supplierMob: String?,
     val supplierName: String?,
     val status: String?,
+    val isAdjustedStatus: Boolean?,
     val remark: String?,
     val type: String?
 ): BaseWidget, Parcelable {

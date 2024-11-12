@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick_app.ui.order.add.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick_app.application.MainApplication
@@ -32,6 +33,27 @@ class AddImageViewModel @Inject constructor(
          }
         list.add(ImageModel(null, ImageViewType.ADD_IMAGE))
         addItemToWidgetList(list)
+        withContext(Dispatchers.Main) { listDataChanged() }
+    }
+
+    fun setEditImageList(uris: List<Uri>) = viewModelScope.launch(Dispatchers.Default) {
+        val data = mutableListOf<ImageModel>()
+        uris.forEach { uri ->
+            val filePath = uri.path  // This returns the file path as a string
+            val file = filePath?.let { File(it) }
+            data.add(ImageModel(filePath, ImageViewType.IMAGE))
+            /*if (file?.exists() == true) {
+
+            }*/
+        }
+        val addIndex = data.indexOfFirst { it.viewType == ImageViewType.IMAGE }
+        val list = mutableListOf<ImageModel>()
+        uris.forEach {
+            withContext(Dispatchers.IO) {
+                list.add(ImageModel(it.toString(), ImageViewType.IMAGE))
+            }
+        }
+        addItemToWidgetList(addIndex, list)
         withContext(Dispatchers.Main) { listDataChanged() }
     }
 

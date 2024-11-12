@@ -18,13 +18,21 @@ class SalePartyAdapter(
     customerData: List<SalepartyData>,
 ) : ArrayAdapter<SalepartyData>(mContext, mLayoutResourceId, customerData) {
 
-    private val saleParty: MutableList<SalepartyData> = ArrayList(customerData)
+    private var saleParty: MutableList<SalepartyData> = ArrayList(customerData)
     private var allSaleParty: List<SalepartyData> = ArrayList(customerData)
 
 
     override fun getCount(): Int {
         Log.e("countCC", saleParty.size.toString())
         return saleParty.size
+    }
+
+    fun setItem(newData:  List<SalepartyData>?) {
+        saleParty.clear()
+        saleParty.addAll(newData ?: emptyList())
+        allSaleParty = ArrayList(newData ?: emptyList())
+
+        notifyDataSetChanged()
     }
 
     override fun getItem(position: Int): SalepartyData {

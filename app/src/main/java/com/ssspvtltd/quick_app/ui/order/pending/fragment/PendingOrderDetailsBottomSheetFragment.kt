@@ -48,6 +48,7 @@ import com.ssspvtltd.quick_app.utils.extension.getParcelableExt
 import com.ssspvtltd.quick_app.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import java.lang.ref.WeakReference
 
 @AndroidEntryPoint
 class PendingOrderDetailsBottomSheetFragment :
@@ -61,6 +62,10 @@ class PendingOrderDetailsBottomSheetFragment :
 
     private var pdfUrl = ""
     override fun initViewModel(): BaseViewModel = getViewModel()
+
+    private lateinit var downloadManager: DownloadManager
+    var downloadId: Long? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,6 +107,11 @@ class PendingOrderDetailsBottomSheetFragment :
 
     private fun registerListeners() = with(binding) {
         btnCloseDialog.setOnClickListener { dismiss() }
+        if (pendingOrderItem?.isAdjustedStatus == false) {
+            btnEdit.visibility = View.VISIBLE
+        } else {
+            btnEdit.visibility = View.GONE
+        }
         btnEdit.setOnClickListener {
             val bundle = Bundle().apply {
                 putString(ARG_PENDING_ORDER_ID, pendingOrderItem?.orderID)
@@ -126,8 +136,8 @@ class PendingOrderDetailsBottomSheetFragment :
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        imageView.adjustViewBounds = true
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        imageView.adjustViewBounds  = true
+        imageView.scaleType         = ImageView.ScaleType.FIT_CENTER
 
         val builder = AlertDialog.Builder(context)
         builder.setView(imageView)
@@ -171,10 +181,10 @@ class PendingOrderDetailsBottomSheetFragment :
 
     @SuppressLint("MissingInflatedId")
     private fun showPdfPreviewDialog(url: String) {
-    dismiss()
+    //dismiss()
         pdfUrl = url
-        //checkAndRequestPermissions()
-        showPdf(url)
+        checkAndRequestPermissions()
+        // showPdf(url)
         /*val intent = Intent(Intent.ACTION_VIEW)
         intent.setDataAndType(Uri.parse(url), "application/pdf")
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -187,7 +197,6 @@ class PendingOrderDetailsBottomSheetFragment :
         }*/
 
     }
-
 
     private fun showPdf(url: String) {
         val urlData = url.split("/")
@@ -214,17 +223,18 @@ class PendingOrderDetailsBottomSheetFragment :
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         }
 
-        val downloadManager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val downloadId = downloadManager.enqueue(request)
+        downloadManager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        downloadId      = downloadManager.enqueue(request)
 
         // Create an instance of the custom BroadcastReceiver
         val receiver = DownloadCompleteReceiver(
-            downloadId = downloadId,
+            downloadId = downloadId!!,
             fileName = fileName,
-            context = requireContext(),
+            fragmentReference = WeakReference(requireParentFragment()), // Pass a weak reference to the fragment
             downloadManager = downloadManager,
             openPdf = { file -> openPdf(file) }
         )
+
 
         // Register the BroadcastReceiver
         val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
@@ -234,7 +244,6 @@ class PendingOrderDetailsBottomSheetFragment :
             requireContext().registerReceiver(receiver, filter)
         }
     }
-
 
     // Function to open the PDF file
     private fun openPdf(file: File) {
@@ -263,10 +272,11 @@ class PendingOrderDetailsBottomSheetFragment :
 
     private fun checkAndRequestPermissions() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 showPdf(pdfUrl)
             } else {
-                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), STORAGE_PERMISSION_REQUEST_CODE)
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), STORAGE_PERMISSION_REQUEST_CODE)
             }
         } else {
             showPdf(pdfUrl)
@@ -281,7 +291,6 @@ class PendingOrderDetailsBottomSheetFragment :
             STORAGE_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     showPdf(pdfUrl)
-                } else {
                 }
             }
 

@@ -76,6 +76,24 @@ class AddOrderViewModel @Inject constructor(
     private val _editOrderData = MutableLiveData<EditOrderDataNew?>()
     val editOrderData: LiveData<EditOrderDataNew?> get() = _editOrderData
 
+
+    //=================================== For Edit Order ===========================================
+    private val _salePartyEdit = MutableLiveData<List<SalepartyData>>()
+    val salePartyEdit: LiveData<List<SalepartyData>> get() = _salePartyEdit
+
+    private val _schemeEdit = MutableLiveData<List<SchemeData>>()
+    val schemeEdit: LiveData<List<SchemeData>> get() = _schemeEdit
+
+    private val _purchasePartyEdit = MutableLiveData<List<PurchasePartyData>?>()
+    val purchasePartyEdit: LiveData<List<PurchasePartyData>?> get() = _purchasePartyEdit
+
+    private val _setEditOrderFields = MutableLiveData<Boolean>()
+    val setEditOrderFields: LiveData<Boolean> get() = _setEditOrderFields
+
+    private val _salePartyDetailEdit = MutableLiveData<Data?>()
+    val salePartyDetailEdit: MutableLiveData<Data?> get() = _salePartyDetailEdit
+
+
     // Added Item List
     var addItemDataList = ArrayList<PackType>()
     var addImageDataList = ArrayList<ImageModel>()
@@ -89,7 +107,7 @@ class AddOrderViewModel @Inject constructor(
         if (pendingOrderID.isNullOrBlank()) {
             initializeNewOrder()
         } else {
-            //initializeEditOrder()
+            initializeEditOrder()
         }
     }
 
@@ -100,15 +118,15 @@ class AddOrderViewModel @Inject constructor(
     private fun initializeNewOrder() = viewModelScope.launch(Dispatchers.Default) {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
 
-        val voucherDeferred = async { getVoucherSuspend() }
-        val salePartyDeferred = async { getSalePartySuspend() }
-        val schemeDeferred = async { getSchemeSuspend() }
-        val purchasePartyDeferred = async { getPurchasePartySuspend(null) }
+        val voucherDeferred         = async { getVoucherSuspend() }
+        val salePartyDeferred       = async { getSalePartySuspend() }
+        val schemeDeferred          = async { getSchemeSuspend() }
+        val purchasePartyDeferred   = async { getPurchasePartySuspend(null) }
 
-        val voucherResponse = voucherDeferred.await()
-        val salePartyResponse = salePartyDeferred.await()
-        val schemeResponse = schemeDeferred.await()
-        val purchasePartyResponse = purchasePartyDeferred.await()
+        val voucherResponse         = voucherDeferred.await()
+        val salePartyResponse       = salePartyDeferred.await()
+        val schemeResponse          = schemeDeferred.await()
+        val purchasePartyResponse   = purchasePartyDeferred.await()
 
         _voucherData.postValue(voucherResponse)
         _saleParty.postValue(salePartyResponse)
@@ -116,6 +134,27 @@ class AddOrderViewModel @Inject constructor(
         _purchaseParty.postValue(purchasePartyResponse)
 
         hideProgressBar()
+    }
+
+    private fun initializeEditOrder() = viewModelScope.launch(Dispatchers.Default) {
+
+        val salePartyDeferred       = async { getSalePartySuspend() }
+        val schemeDeferred          = async { getSchemeSuspend() }
+        val purchasePartyDeferred   = async { getPurchasePartySuspend(null) }
+
+        val salePartyResponse       = salePartyDeferred.await()
+        val schemeResponse          = schemeDeferred.await()
+        val purchasePartyResponse   = purchasePartyDeferred.await()
+
+        /*_salePartyEdit.postValue(salePartyResponse)
+        _schemeEdit.postValue(schemeResponse)
+        _purchasePartyEdit.postValue(purchasePartyResponse)*/
+
+        _saleParty.postValue(salePartyResponse)
+        _scheme.postValue(schemeResponse)
+        _purchaseParty.postValue(purchasePartyResponse)
+        _setEditOrderFields.postValue(true)
+
     }
 
     fun getVoucher() = viewModelScope.launch {
@@ -291,20 +330,18 @@ class AddOrderViewModel @Inject constructor(
         }
     }
 
-
-
-
     fun getEditOrderDataIfNeeded() = viewModelScope.launch {
         if (pendingOrderID.isNullOrBlank()) return@launch
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        //initializeEditOrder()
         when (val response = repository.editOrder(pendingOrderID)) {
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
-                Log.e("pprespoerror", response.toString())
+                Log.e("getEditOrderDataIfNeeded", response.toString())
             }
 
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                Log.e("ppresposuccess", response.toString())
+                Log.i("getEditOrderDataIfNeeded", response.toString())
                 response.value.data?.let {
                     withContext(Dispatchers.Main) {
 
