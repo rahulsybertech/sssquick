@@ -13,6 +13,7 @@ import com.ssspvtltd.quick_app.databinding.FragmentDashboardBinding
 import com.ssspvtltd.quick_app.model.DashBoardDataResponse
 import com.ssspvtltd.quick_app.ui.main.MainActivity
 import com.ssspvtltd.quick_app.ui.order.add.viewmodel.DashBoardViewmodel
+import com.ssspvtltd.quick_app.utils.amountFormat
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -113,7 +114,7 @@ class DashboardFragment : Fragment() {
     private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
         with(binding){
             tvTotalSale.text  = (dashBoardData?.totalSaleCount ?: 0).toString()
-            tvTotalSaleAmount.text = (dashBoardData?.totalSaleAmt ?: 0).toString()
+            tvTotalSaleAmount.text = amountFormat((dashBoardData?.totalSaleAmt ?: 0).toString())
         }
 
     }

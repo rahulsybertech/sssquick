@@ -468,7 +468,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private fun registerObserver() {
 
         viewModel.isOrderPlacedSuccess.observe(viewLifecycleOwner) {
-            successOrderDialog("Order Placed", it)
+            if(viewModel.pendingOrderID.isNotNullOrBlank()) successOrderDialog("Update Confirmed", it)
+            else successOrderDialog("Order Placed", it)
         }
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
             if (it == true) {
