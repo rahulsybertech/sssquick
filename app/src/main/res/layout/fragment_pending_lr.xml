@@ -7,7 +7,7 @@
     android:background="@color/white"
     tools:context=".ui.order.pending.fragment.PendingOrderFragment">
 
-    <com.ssspvtltd.quick_app.widgets.AppToolbar
+    <com.ssspvtltd.quick.widgets.AppToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

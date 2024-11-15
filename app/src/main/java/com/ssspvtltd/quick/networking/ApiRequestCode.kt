@@ -1,0 +1,29 @@
+package com.ssspvtltd.quick.networking
+
+enum class ApiRequestCode {
+    LOGIN,
+    VERIFY_OTP,
+    RESEND_OTP,
+    LOGOUT,
+    LOGOUT_STATUS,
+    CUSTOMER_LIST,
+    ADD_UPDATE_CUSTOMER_LIST,
+    CHECKOUT_CUSTOMER,
+    VOUCHER_DATA,
+    SALE_PARTY,
+    All_STATION,
+    PURCHASE_PARTY,
+    ITEM_LIST,
+    PACK_TYPE,
+    SCHEME,
+    SALE_PARTY_DETAILS,
+    PENDING_ORDER,
+    HOLD_ORDER,
+    GOODS_RETURN,
+    PENDING_LR,
+    STOCK_IN_OFFICE,
+    SAVE_ORDER,
+    EDIT_ORDER,
+    DASHBOARD_DATA,
+    DASHBOARD_SALE_DATA
+}

@@ -7,22 +7,22 @@
 
     <fragment
         android:id="@+id/dashboardFragment"
-        android:name="com.ssspvtltd.quick_app.ui.dashboard.DashboardFragment"
+        android:name="com.ssspvtltd.quick.ui.dashboard.DashboardFragment"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/addOrderFragment"
-        android:name="com.ssspvtltd.quick_app.ui.order.add.fragment.AddOrderFragment"
+        android:name="com.ssspvtltd.quick.ui.order.add.fragment.AddOrderFragment"
         tools:layout="@layout/fragment_add_order" />
 
     <fragment
         android:id="@+id/pendingorderFragment"
-        android:name="com.ssspvtltd.quick_app.ui.order.pending.fragment.PendingOrderFragment"
+        android:name="com.ssspvtltd.quick.ui.order.pending.fragment.PendingOrderFragment"
         tools:layout="@layout/fragment_pending_order" />
 
     <fragment
         android:id="@+id/holdorderFragment"
-        android:name="com.ssspvtltd.quick_app.ui.order.hold.fragment.HoldOrderFragment"
+        android:name="com.ssspvtltd.quick.ui.order.hold.fragment.HoldOrderFragment"
         tools:layout="@layout/fragment_hold_order" />
 
     <!--    <dialog-->
