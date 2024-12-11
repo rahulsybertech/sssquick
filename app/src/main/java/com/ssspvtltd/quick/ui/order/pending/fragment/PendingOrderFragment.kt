@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.order.pending.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
@@ -39,12 +40,13 @@ class PendingOrderFragment : BaseFragment<FragmentPendingOrderBinding, PendingOr
     }
 
     private fun callPendingOrderApi() {
-        val filterRequest =FilterRequest(null, null,null,null,true)
+        val filterRequest = FilterRequest(null, null, null, null, true)
         viewModel.getPendingOrder(filterRequest)
     }
 
     private fun registerObserver() {
         viewModel.isListAvailable.observe(this) {
+
             mAdapter.submitList(viewModel.widgetList)
         }
     }
@@ -64,11 +66,11 @@ class PendingOrderFragment : BaseFragment<FragmentPendingOrderBinding, PendingOr
         //     addFragment(AddOrderFragment(),R.id.addOrderFragment,false)
         // }
         mAdapter.onItemClick = {
+            println("GET_DATA_ONCLICK ${it.orderID}")
             PendingOrderDetailsBottomSheetFragment.newInstance(it).show(
                 childFragmentManager, PendingOrderDetailsBottomSheetFragment::class.simpleName
             )
         }
-
         swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
         swipeRefreshLayout.setOnRefreshListener {
             callPendingOrderApi()

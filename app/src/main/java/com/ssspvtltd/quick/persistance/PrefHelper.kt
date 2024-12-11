@@ -21,6 +21,14 @@ class PrefHelper(private val prefStore: PrefStore) {
         prefStore.setValue(PrefKeys.KEY_USER_NAME, userName.orEmpty())
     }
 
+    suspend fun setOrderId(orderId: String?) {
+        prefStore.setValue(PrefKeys.KEY_USER_NAME, orderId.orEmpty())
+    }
+
+    suspend fun getOrderId(): String? {
+        return prefStore.getValue(PrefKeys.KEY_USER_NAME).firstOrNull()
+    }
+
     suspend fun getMarketerCode(): String? {
         return prefStore.getValue(PrefKeys.KEY_MARKETER_CODE).firstOrNull()
     }
@@ -51,19 +59,20 @@ class PrefHelper(private val prefStore: PrefStore) {
 
 
     suspend fun setCheckinStatus(status: Boolean) {
-        prefStore.setValue(PrefKeys.KEY_CHECKIN_STATUS, status?:false)
+        prefStore.setValue(PrefKeys.KEY_CHECKIN_STATUS, status ?: false)
     }
 
     suspend fun getCheckinStatus(): Boolean? {
         return prefStore.getValue(PrefKeys.KEY_CHECKIN_STATUS).firstOrNull()
     }
+
     fun getUserNameAsFlow(): Flow<String?> {
         return prefStore.getValue(PrefKeys.KEY_USER_NAME)
     }
+
     fun getUserNameAsFlow1(): Flow<String?> {
         return prefStore.getValue(PrefKeys.KEY_USER_NAME)
     }
-
 
 
     suspend fun clearPref() {

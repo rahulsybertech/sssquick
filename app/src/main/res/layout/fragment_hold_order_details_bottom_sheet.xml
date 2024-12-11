@@ -13,6 +13,7 @@
         android:gravity="center"
         android:padding="10dp"
         android:rotation="45"
+        android:visibility="visible"
         android:src="@drawable/ic_baseline_plus_24"
         android:tint="@color/red"
         app:layout_constraintEnd_toEndOf="parent"
@@ -26,8 +27,10 @@
         android:paddingVertical="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCloseDialog">
+        app:layout_constraintTop_toBottomOf="@id/btnCloseDialog"
+        app:layout_constraintVertical_bias="0.0">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guidelineStart"
@@ -43,16 +46,56 @@
             android:orientation="vertical"
             app:layout_constraintGuide_end="16dp" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnEdit"
+        <LinearLayout
+            android:id="@+id/testll"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:background="@color/black"
-            android:text="Edit"
-            android:textColor="@color/white"
-            android:visibility="visible"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="-11dp"
+            android:layout_marginEnd="4dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/btnEdit"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/hold_pending_edit"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/deleteItem"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/delete_hold" />
+
+        </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/lvlSaleNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Order No : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/testll" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvSaleNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/testll"
+            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSaleParty"
@@ -63,7 +106,7 @@
             android:text="Sale Party : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/btnEdit"  />
+            app:layout_constraintTop_toBottomOf="@id/lvlSaleNo" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvSaleParty"
@@ -71,12 +114,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="OMM HOSIERY : MUZAFFARPUR"
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/btnEdit" />
+            app:layout_constraintTop_toBottomOf="@id/tvSaleNo"
+            tools:text="OMM HOSIERY : MUZAFFARPUR" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSupplier"
@@ -95,12 +138,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="OMM HOSIERY : MUZAFFARPUR"
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvSaleParty" />
+            app:layout_constraintTop_toBottomOf="@id/tvSaleParty"
+            tools:text="OMM HOSIERY : MUZAFFARPUR" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSubParty"
@@ -119,11 +162,11 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="OMM HOSIERY : MUZAFFARPUR"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvSupplier" />
+            app:layout_constraintTop_toBottomOf="@id/tvSupplier"
+            tools:text="OMM HOSIERY : MUZAFFARPUR" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlStatus"
@@ -142,21 +185,20 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="Pending"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvSubParty" />
-        
+            app:layout_constraintTop_toBottomOf="@id/tvSubParty"
+            tools:text="Pending" />
 
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlImage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="6dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Docs        : "
+            android:text="Docs         : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
             app:layout_constraintTop_toBottomOf="@+id/lvlStatus" />
@@ -164,7 +206,8 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/llImg"
             android:layout_width="0dp"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
@@ -172,9 +215,18 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvImg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
 
+            <!--3700B3-->
+
+            <ImageView
+                android:id="@+id/regeneratedPdf"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="6dp"
+                android:src="@drawable/hold_pending_pdf_refresh"
+                app:tint="@color/black" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -226,11 +278,34 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="THis is remark text"
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/lvlRemark" />
+            app:layout_constraintTop_toBottomOf="@id/lvlRemark"
+            tools:text="THis is remark text" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvManufacture"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Marketer Name"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/tvRemark" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvManufactureData"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@id/tvManufacture"
+            tools:text="THis is remark text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

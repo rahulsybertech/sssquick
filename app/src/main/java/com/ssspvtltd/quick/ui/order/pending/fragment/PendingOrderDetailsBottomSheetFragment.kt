@@ -14,6 +14,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +26,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,6 +44,7 @@ import com.ssspvtltd.quick.databinding.FragmentPendingOrderDetailsBottomSheetBin
 import com.ssspvtltd.quick.model.ARG_PENDING_ORDER_ID
 import com.ssspvtltd.quick.model.ARG_PENDING_ORDER_ITEM
 import com.ssspvtltd.quick.model.order.pending.PendingOrderItem
+import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderImageListAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderItemAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderPDFListAdapter
@@ -48,8 +53,13 @@ import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileOutputStream
 import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.URL
+
 
 @AndroidEntryPoint
 class PendingOrderDetailsBottomSheetFragment :
@@ -68,22 +78,26 @@ class PendingOrderDetailsBottomSheetFragment :
     var downloadId: Long? = null
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        pendingOrderItem    = arguments?.getParcelableExt(ARG_PENDING_ORDER_ITEM)
-        mAdapter            = PendingOrderItemAdapter(pendingOrderItem?.orderNo, null)
-        imgAdapter          = PendingOrderImageListAdapter(pendingOrderItem?.imagePathList, ::imageCallBack)
-        pdfAdapter          = PendingOrderPDFListAdapter(pendingOrderItem?.pdfPathList, ::showPdfPreviewDialog)
+        pendingOrderItem = arguments?.getParcelableExt(ARG_PENDING_ORDER_ITEM)
+        mAdapter = PendingOrderItemAdapter(pendingOrderItem?.orderNo, null)
+        imgAdapter = PendingOrderImageListAdapter(pendingOrderItem?.imagePathList, ::imageCallBack)
+        pdfAdapter = PendingOrderPDFListAdapter(
+            pendingOrderItem?.pdfPathList, ::showPdfPreviewDialog
+        )
 
+        println("GET_MY_PDF 2 ${pendingOrderItem?.pdfPathList}")
         mAdapter.submitList(pendingOrderItem?.itemDetail)
+
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         (view.parent as? View)?.setBackgroundColor(Color.TRANSPARENT)
         dialog?.setCanceledOnTouchOutside(false)
-        binding.recyclerView.adapter    = mAdapter
+        binding.recyclerView.adapter = mAdapter
         setRecyclerViewAdapters()
 
         initViews()
@@ -91,26 +105,48 @@ class PendingOrderDetailsBottomSheetFragment :
     }
 
     private fun setRecyclerViewAdapters() {
-        binding.rvImg.layoutManager     =  LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvImg.adapter           = imgAdapter
 
-        binding.rvPdfDoc.layoutManager  =  LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvPdfDoc.adapter        = pdfAdapter
+        binding.rvImg.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvImg.adapter = imgAdapter
+
+        binding.rvPdfDoc.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvPdfDoc.adapter = pdfAdapter
     }
 
     private fun initViews() = with(binding) {
-        tvSaleParty.text    = pendingOrderItem?.salePartyName ?: "N/A"
-        tvSupplier.text     = pendingOrderItem?.supplierName ?: "N/A"
-        tvStatus.text       = pendingOrderItem?.status ?: "--"
-        tvRemark.text  = pendingOrderItem?.remark ?: "--"
-
-        if(pendingOrderItem?.subPartyasRemark.isNotNullOrBlank()) {
-            lvlSubParty.text    = "Remark     : "
-            tvSubParty.text     = pendingOrderItem?.subPartyasRemark
-        } else {
-            lvlSubParty.text    = "Sub Party  : "
-            tvSubParty.text     = pendingOrderItem?.subPartyName ?: "Self"
+        tvSaleParty.text = pendingOrderItem?.salePartyName ?: "N/A"
+        tvSupplier.text = pendingOrderItem?.supplierName ?: "N/A"
+        tvStatus.text = pendingOrderItem?.status ?: "--"
+        tvRemark.text = pendingOrderItem?.remark ?: "--"
+        tvSaleNo.text = pendingOrderItem?.orderNo ?: ""
+        lifecycleScope.launch {
+            tvManufactureData.text = viewModel.prefHelper.getUserName() ?: ""
         }
+        if (pendingOrderItem?.subPartyasRemark.isNotNullOrBlank()) {
+            lvlSubParty.text = "Remark     : "
+            tvSubParty.text = pendingOrderItem?.subPartyasRemark
+        } else {
+            lvlSubParty.text = "Sub Party  : "
+            tvSubParty.text = pendingOrderItem?.subPartyName ?: "Self"
+        }
+
+        binding.regeneratedPdf.setOnClickListener {
+            val pendingOrderPDFRegenerateRequest =
+                PendingOrderPDFRegenerateRequest.PendingOrderPDFRegenerateRequestItem(
+                    pendingOrderItem?.orderID
+                )
+            viewModel.getPDF(pendingOrderPDFRegenerateRequest)
+        }
+
+        viewModel.fetchPdfUrl.observe(viewLifecycleOwner, Observer { pdfUrl ->
+
+            println("GETTING_PDF_URL - $pdfUrl")
+            downloadPdfToDownloads(requireContext(), pdfUrl)
+
+        })
+
     }
 
     private fun registerListeners() = with(binding) {
@@ -130,6 +166,7 @@ class PendingOrderDetailsBottomSheetFragment :
             findNavController().navigate(R.id.addOrderFragment, bundle, navOptions)
             dismissAllowingStateLoss()
         }
+
     }
 
     private fun imageCallBack(url: String) {
@@ -144,8 +181,8 @@ class PendingOrderDetailsBottomSheetFragment :
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        imageView.adjustViewBounds  = true
-        imageView.scaleType         = ImageView.ScaleType.FIT_CENTER
+        imageView.adjustViewBounds = true
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
 
         val builder = AlertDialog.Builder(context)
         builder.setView(imageView)
@@ -189,7 +226,7 @@ class PendingOrderDetailsBottomSheetFragment :
 
     @SuppressLint("MissingInflatedId")
     private fun showPdfPreviewDialog(url: String) {
-    //dismiss()
+        // dismiss()
         pdfUrl = url
         checkAndRequestPermissions()
         // showPdf(url)
@@ -212,11 +249,14 @@ class PendingOrderDetailsBottomSheetFragment :
         Log.d("TaG", "showPdf: $fileName")
 
         // Use the public downloads directory
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileName
+        )
         if (file.exists()) {
             openPdf(file)
         } else {
-            Log.i("TaG","-----> Download start <--------")
+            Log.i("TaG", "-----> Download start <--------")
             downloadPdf(url, fileName)
         }
     }
@@ -231,8 +271,9 @@ class PendingOrderDetailsBottomSheetFragment :
             setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         }
 
-        downloadManager = requireContext().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadId      = downloadManager.enqueue(request)
+        downloadManager =
+            requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        downloadId = downloadManager.enqueue(request)
 
         // Create an instance of the custom BroadcastReceiver
         val receiver = DownloadCompleteReceiver(
@@ -240,7 +281,10 @@ class PendingOrderDetailsBottomSheetFragment :
             fileName = fileName,
             fragmentReference = WeakReference(requireParentFragment()), // Pass a weak reference to the fragment
             downloadManager = downloadManager,
-            openPdf = { file -> openPdf(file) }
+            openPdf = { file ->
+                openPdf(file)
+                println("FILE_NAME $file")
+            }
         )
 
 
@@ -248,6 +292,7 @@ class PendingOrderDetailsBottomSheetFragment :
         val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             requireContext().registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+            // openPdf(file)
         } else {
             requireContext().registerReceiver(receiver, filter)
         }
@@ -255,7 +300,11 @@ class PendingOrderDetailsBottomSheetFragment :
 
     // Function to open the PDF file
     private fun openPdf(file: File) {
-        val uri = FileProvider.getUriForFile(requireContext(), "${requireContext().packageName}.provider", file)
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.provider",
+            file
+        )
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/pdf")
@@ -280,31 +329,100 @@ class PendingOrderDetailsBottomSheetFragment :
 
     private fun checkAndRequestPermissions() {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                showPdf(pdfUrl)
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                downloadPdfToDownloads(requireContext(), pdfUrl)
             } else {
-                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE), STORAGE_PERMISSION_REQUEST_CODE)
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    ),
+                    STORAGE_PERMISSION_REQUEST_CODE
+                )
             }
         } else {
-            showPdf(pdfUrl)
+            downloadPdfToDownloads(requireContext(), pdfUrl)
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when (requestCode) {
             STORAGE_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    showPdf(pdfUrl)
+                    downloadPdfToDownloads(requireContext(), pdfUrl)
                 }
             }
 
         }
     }
 
+    fun downloadPdfToDownloads(context: Context, pdfUrl: String) {
+        // Step 1: Get the Downloads directory
+        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val fileName = pdfUrl.substringAfterLast("/")
+        val pdfFile = File(downloadsDir, fileName)
+
+        // Step 2: Download the file
+        try {
+            StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
+            val url = URL(pdfUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connect()
+
+            val inputStream = connection.inputStream
+            val outputStream = FileOutputStream(pdfFile)
+
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+
+            inputStream.close()
+            outputStream.close()
+
+            // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Step 3: Open the PDF
+        openPdf(pdfFile)
+        // try {
+        //     val uri: Uri = FileProvider.getUriForFile(
+        //         context,
+        //         "com.ssspvtltd.quick.fileprovider",
+        //         pdfFile
+        //     )
+        //
+        //     val intent = Intent(Intent.ACTION_VIEW)
+        //     intent.setDataAndType(uri, "application/pdf")
+        //     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        //
+        //     context.startActivity(intent)
+        // } catch (e: Exception) {
+        //     e.printStackTrace()
+        //     Toast.makeText(context, "No PDF viewer found", Toast.LENGTH_SHORT).show()
+        // }
+    }
 
     companion object {
         private const val STORAGE_PERMISSION_REQUEST_CODE = 1001

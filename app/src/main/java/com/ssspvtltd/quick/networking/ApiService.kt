@@ -18,9 +18,12 @@ import com.ssspvtltd.quick.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick.model.order.add.salepartydetails.Data
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
+import com.ssspvtltd.quick.model.order.hold.HoldDeleteOrderResponse
 import com.ssspvtltd.quick.model.order.hold.HoldOrderData
 import com.ssspvtltd.quick.model.order.pending.FilterRequest
 import com.ssspvtltd.quick.model.order.pending.PendingOrderData
+import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
+import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateResponse
 import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import okhttp3.MultipartBody
@@ -129,6 +132,10 @@ interface ApiService {
        @Body holdOrderRequest: HoldOrderRequest?
     ): ApiResponse<List<HoldOrderData>>
 
+    @POST("api/OrderBook/DeleteOrderBook")
+    suspend fun holdDeleteOrder(
+        @Query("orderId") orderId: String
+    ): ApiResponse<HoldDeleteOrderResponse>
 
     @POST("api/Report/GetGrReturnOrderDetails")
     suspend fun goodsReturn(
@@ -168,4 +175,10 @@ interface ApiService {
         @Query("fromDate") fromDate : String,
         @Query("toDate") toDate: String
     ): Response<DashBoardDataResponse>
+
+    @POST("api/OrderBook/OrderBookGeneratePdf")
+    suspend fun getOrderBookGeneratePdf(
+        @Body pendingOrderPDFRegenerateRequest: PendingOrderPDFRegenerateRequest.PendingOrderPDFRegenerateRequestItem
+    ): Response<PendingOrderPDFRegenerateResponse>
+
 }

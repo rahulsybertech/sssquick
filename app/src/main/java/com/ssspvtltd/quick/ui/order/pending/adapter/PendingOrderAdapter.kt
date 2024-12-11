@@ -9,9 +9,12 @@ import com.ssspvtltd.quick.base.recycler.data.CommonViewType
 import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick.databinding.ItemPendingOrderBinding
 import com.ssspvtltd.quick.databinding.ItemPendingOrderHeaderBinding
+import com.ssspvtltd.quick.di.PrefHelperEntryPoint.Companion.prefHelper
 import com.ssspvtltd.quick.model.order.pending.PendingOrderItem
 import com.ssspvtltd.quick.utils.DateTimeFormat
 import com.ssspvtltd.quick.utils.DateTimeUtils
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 class PendingOrderAdapter : MultiViewAdapter() {
@@ -62,10 +65,17 @@ class PendingOrderAdapter : MultiViewAdapter() {
 class PendingOrderHeaderViewHolder(private val binding: ItemPendingOrderHeaderBinding) :
     BaseViewHolder(binding) {
     fun bind(item: TitleSubtitleWrapper) = with(binding) {
-        tvOrderDate.text = DateTimeUtils.formatDate(
-            item.title, DateTimeFormat.DATE_TIME_FORMAT1,
-            DateTimeFormat.DATE_TIME_FORMAT3
-        )
+
+        println("DATE_CHECKING ${item.id}, ${item.title}, ${item.subtitle}, ${item.actionText}, ${item.anyObject}, ${item.viewType}")
+
+        val outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+
+        tvOrderDate.text = LocalDateTime.parse(item.title, DateTimeFormatter.ISO_DATE_TIME).format(outputFormatter)
+
+        // tvOrderDate.text = DateTimeUtils.formatDate(
+        //     item.id, DateTimeFormat.DATE_TIME_FORMAT1,
+        //     DateTimeFormat.DATE_TIME_FORMAT3
+        // )
     }
 }
 
@@ -73,6 +83,7 @@ class PendingOrderViewHolder(private val binding: ItemPendingOrderBinding) :
     BaseViewHolder(binding) {
     fun bind(item: PendingOrderItem) = with(binding) {
         tvSaleBillNo.text = getString(R.string.order_no_format, item.orderNo)
+        // prefHelper.setOrderId(getString(R.string.order_no_format, item.orderNo)
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
         tvSubParty.text = """Qty: ${(item.qty ?: "--")}"""

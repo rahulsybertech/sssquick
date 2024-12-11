@@ -32,6 +32,7 @@ class HoldOrderViewModel @Inject constructor(
         when (val response = repository.holdOrderList(req)) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> {
+                println("GETTING_RESPONSE_HOLD  ${Gson().toJson(response.value.data?.get(0))}")
                 holdOrderList = response.value.data.orEmpty()
                 prepareFilteredList()
             }

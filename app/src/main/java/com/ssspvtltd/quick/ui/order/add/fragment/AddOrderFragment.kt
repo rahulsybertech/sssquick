@@ -149,7 +149,26 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         binding.toolbar.apply {
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
-            if(viewModel.pendingOrderID.isNotNullOrBlank()) setTitle("Edit Order")
+            if(viewModel.pendingOrderID.isNotNullOrBlank()){
+                setTitle("Edit Order")
+
+                binding.etSalePartyName.isEnabled = false
+                binding.radioSubparty.isEnabled = false
+                binding.radioSubpartyRemark.isEnabled = false
+                binding.etSubParty.isEnabled = false
+                binding.etTransport.isEnabled = false
+                binding.etStation.isEnabled = false
+                binding.etScheme.isEnabled = false
+                binding.radioByNickName.isEnabled = false
+                binding.radioBySupplierName.isEnabled = false
+                binding.tilPurchaseParty.isEnabled = false
+                binding.autoCompleteStatus.isEnabled = false
+                binding.etDiscription.isEnabled = false
+                binding.tvDispatchFromDate.isEnabled = false
+                binding.tvDispatchToDate.isEnabled = false
+                binding.tvItemImage.isEnabled = false
+
+            }
             else setTitle("Add Order")
         }
         binding.tvDispatchFromDate.setOnClickListener {
@@ -477,6 +496,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private fun registerObserver() {
 
         viewModel.isOrderPlacedSuccess.observe(viewLifecycleOwner) {
+            println("MY_SUCCESS_MESSAGE $it")
+
             if(viewModel.pendingOrderID.isNotNullOrBlank()) successOrderDialog("Update Confirmed", it)
             else successOrderDialog("Order Placed", it)
         }
@@ -1128,7 +1149,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             val fromDate = Calendar.getInstance().apply {
                 time = dateFormat.parse(binding.tvDispatchFromDate.text.toString())!!
             }
-            datePickerDialog.datePicker.minDate = fromDate.timeInMillis + (1 * 24 * 60 * 60 * 1000)  // +3 days from fromDate
+            datePickerDialog.datePicker.minDate = fromDate.timeInMillis
+            // + (1 * 24 * 60 * 60 * 1000)  // +3 days from fromDate
 
         }
 

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -11,11 +12,15 @@ import androidx.lifecycle.viewModelScope
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.application.MainApplication
+import com.ssspvtltd.quick.commonrepo.CommonPDFRepo
+import com.ssspvtltd.quick.model.HoldOrderRequest
 import com.ssspvtltd.quick.model.alert.AlertMsg
+import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.persistance.PrefHelper
+import com.ssspvtltd.quick.ui.order.hold.repository.HoldOrderRepository
 import com.ssspvtltd.quick.utils.ApiErrorData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,10 +32,32 @@ import javax.inject.Inject
 open class BaseViewModel @Inject constructor() : ViewModel() {
     @Inject
     lateinit var prefHelper: PrefHelper
+
     @Inject
     lateinit var baseRepository: BaseRepository
 
+    @Inject
+    lateinit var commonPDFRepo: CommonPDFRepo
+
+    @Inject
+    lateinit var holdOrderRepository: HoldOrderRepository
+
+
     var loginErrorApiCallingCount = 0
+
+    private var getPDfURL = MutableLiveData<String>()
+    val fetchPdfUrl: LiveData<String> = getPDfURL
+
+    fun updatePdfUrl(url: String) {
+        getPDfURL.value = url
+    }
+
+    private var holdDeleteMessage = MutableLiveData<String>()
+    val fetchHoldDeleteMessage: LiveData<String> = holdDeleteMessage
+
+    fun updateHoldDeleteMessage(message: String) {
+        holdDeleteMessage.value = message
+    }
 
     /**
      * ProgressBar
@@ -76,18 +103,19 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     fun callLoginStatusApi() {
         viewModelScope.launch(Dispatchers.IO) {
-            //showProgressBar(ProgressConfig("Checking Login Status\nPlease wait..."))
+            // showProgressBar(ProgressConfig("Checking Login Status\nPlease wait..."))
             when (val response = baseRepository.autoLogout()) {
                 is ResultWrapper.Failure -> {
 
-                    Log.i("TaG","status -=-=-=-=-=-==-=--=-=-->${response.error}")
-                    //apiErrorData(response.error)
+                    Log.i("TaG", "status -=-=-=-=-=-==-=--=-=-->${response.error}")
+                    // apiErrorData(response.error)
                 }
+
                 is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                     withContext(Dispatchers.Main) {
                         hideProgressBar()
                         apiLoginStatusData(response.value.data?.loginStatus ?: false)
-                       // apiLoginStatusData(false)
+                        // apiLoginStatusData(false)
                     }
                 }
             }
@@ -100,6 +128,7 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
             }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
                     hideProgressBar()
@@ -130,7 +159,8 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         @ColorRes btnBgColor: Int = R.color.error_text,
         callback: (() -> Unit)? = null
     ) {
-        alertMsgLiveData.postValue(AlertMsg(title, message, type, cancelable, okButtonText, barColor, btnBgColor, callback)
+        alertMsgLiveData.postValue(
+            AlertMsg(title, message, type, cancelable, okButtonText, barColor, btnBgColor, callback)
         )
     }
 
@@ -156,9 +186,45 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
         )
     }
 
-
     protected fun getString(@StringRes id: Int?, vararg args: Any): String? {
         if (id == null) return null
         return MainApplication.localeContext.getString(id, *args)
     }
+
+
+    fun getPDF(pendingOrderPDFRegenerateRequest: PendingOrderPDFRegenerateRequest.PendingOrderPDFRegenerateRequestItem) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            when (val response =
+                commonPDFRepo.callOrderBookGeneratePdf(pendingOrderPDFRegenerateRequest)) {
+                is ResultWrapper.Failure -> {
+                    println("ERROR_IN_RESPONSE ${response.error}")
+                    apiErrorData(response.error)
+                }
+
+                is ResultWrapper.Success -> {
+                    hideProgressBar()
+                    println("ERROR_IN_RESPONSE 2 ${response.value.body()?.data}")
+                    getPDfURL.value = response.value.body()?.data!!
+                }
+            }
+        }
+
+    fun deleteOrder(orderId: String) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Deleting Data..."))
+            when (val response =
+                holdOrderRepository.holdOrderDelete(orderId)) {
+                is ResultWrapper.Failure -> {
+                    println("ERROR_IN_RESPONSE ${response.error}")
+                    apiErrorData(response.error)
+                }
+
+                is ResultWrapper.Success -> {
+                    hideProgressBar()
+                    println("ERROR_IN_RESPONSE 2 ${response.value.message}")
+                    holdDeleteMessage.value = response.value.message!!
+                }
+            }
+        }
 }

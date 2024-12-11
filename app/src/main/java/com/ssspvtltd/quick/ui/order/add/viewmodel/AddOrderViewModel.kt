@@ -313,6 +313,7 @@ class AddOrderViewModel @Inject constructor(
         when (val response = repository.placeOrder(params, documents)) {
             is ResultWrapper.Failure -> {
                 if (response.error.islimitexceed == true) {
+                    println("getSalePartyAndStationData - ${response.error.message!!}")
                     hideProgressBar()
                     _isOrderPlacedLimitError.postValue(response.error.message!!)
                 } else {
@@ -320,6 +321,7 @@ class AddOrderViewModel @Inject constructor(
                 }
             }
             is ResultWrapper.Success -> {
+                println("getSalePartyAndStationData 2 - ${response.value.message.toString()}")
                 _isOrderPlaced.postValue(true)
                 _isOrderPlacedSuccess.postValue(response.value.message.toString())
                 hideProgressBar()

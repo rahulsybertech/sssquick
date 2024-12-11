@@ -29,9 +29,9 @@ suspend fun <T> safeApiCall(
                 if (response.isSuccessful) ResultWrapper.Success(response)
                 else ResultWrapper.Failure(
                     getErrorObject(
-                        apiRequestCode, NetworkStatus.NETWORK_FAILURE.message,
-                        response.code().toString()
-                    )
+                    apiRequestCode, NetworkStatus.NETWORK_FAILURE.message,
+                    response.code().toString()
+                )
                 )
             } else {
                 ResultWrapper.Failure(
@@ -39,6 +39,7 @@ suspend fun <T> safeApiCall(
                 )
             }
         } catch (throwable: Throwable) {
+            throwable.printStackTrace()
             when (throwable) {
                 is SocketException,
                 is TimeoutException,
