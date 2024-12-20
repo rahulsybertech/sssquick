@@ -162,7 +162,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.radioByNickName.isEnabled = false
                 binding.radioBySupplierName.isEnabled = false
                 binding.tilPurchaseParty.isEnabled = false
-                binding.autoCompleteStatus.isEnabled = false
                 binding.etDiscription.isEnabled = false
                 binding.tvDispatchFromDate.isEnabled = false
                 binding.tvDispatchToDate.isEnabled = false

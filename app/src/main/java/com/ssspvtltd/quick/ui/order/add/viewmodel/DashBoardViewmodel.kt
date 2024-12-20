@@ -45,6 +45,8 @@ class DashBoardViewmodel @Inject constructor(
     fun getDashBoardDetails() = viewModelScope.launch{
 
         when( val response = repository.callGetDashBoardDetails(prefHelper.getAccountId() ?: "")) {
+
+            // yaha error response aarha
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
@@ -62,6 +64,7 @@ class DashBoardViewmodel @Inject constructor(
     fun getDashBoardSaleCountDetails(fromDate: String, toDate: String) = viewModelScope.launch{
 
         when( val response = repository.callGetDashBoardSaleCountDetails(prefHelper.getAccountId() ?: "", fromDate, toDate)) {
+            // or yaha bhi
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data

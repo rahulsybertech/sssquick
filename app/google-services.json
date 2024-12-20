@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "268121410227",
+    "firebase_url": "https://sssquick-e74d2.firebaseio.com",
+    "project_id": "sssquick-e74d2",
+    "storage_bucket": "sssquick-e74d2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268121410227:android:d3989034219d96538b3ec6",
+        "android_client_info": {
+          "package_name": "com.ssspvtltd.quick"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268121410227-o0tdjkpomln3u375ps5a1gvp83ife58u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcBRxy7IFLP6VEEHIAiNSesxhque89-CA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268121410227-o0tdjkpomln3u375ps5a1gvp83ife58u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

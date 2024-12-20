@@ -10,13 +10,13 @@ import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.snackbar.Snackbar
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.alert.AlertMsg
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.ui.auth.activity.LoginActivity
 import com.ssspvtltd.quick.ui.splash.SplashActivity
 import com.ssspvtltd.quick.utils.ApiErrorData
-import com.ssspvtltd.quick.R
 import kotlinx.coroutines.runBlocking
 import tech.developingdeveloper.toaster.Toaster
 
@@ -33,7 +33,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
 
     override fun onResume() {
         super.onResume()
-        if(this !is LoginActivity && this !is SplashActivity) {
+        if (this !is LoginActivity && this !is SplashActivity) {
             viewModel.callLoginStatusApi()
         }
     }
@@ -51,7 +51,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
 
     val errorObserver = Observer<ApiErrorData> {
         hideProgressBar()
-        handleApiErrorResponse(it.apiResponse,it.titleMsg)
+        handleApiErrorResponse(it.apiResponse, it.titleMsg)
     }
 
 
@@ -61,18 +61,19 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
     }
 
     val loginStatusObserver = Observer<Boolean> { isUserLogin ->
-        if (!isUserLogin){
+        if (!isUserLogin) {
 
-            if(this !is LoginActivity && this !is SplashActivity) {
+            if (this !is LoginActivity && this !is SplashActivity) {
 
                 val dialog = AlertDialog.Builder(this)
                     .setTitle(getString(R.string.session_expired_title))
                     .setMessage(getString(R.string.you_have_been_logout_by_adm))
                     .setPositiveButton(getString(R.string.ok)) { _, _ ->
                         viewModel.logout()
-                        runBlocking { viewModel.prefHelper.clearPref()}
+                        runBlocking { viewModel.prefHelper.clearPref() }
                         val intent = Intent(this, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                         finishAffinity()
 
@@ -83,8 +84,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
 
             }
 
-        }
-        else {
+        } else {
             hideProgressBar()
         }
 
@@ -116,7 +116,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
         }
     }
 
-   private fun showAlertMsg(config: AlertMsg? = AlertMsg()) {
+    private fun showAlertMsg(config: AlertMsg? = AlertMsg()) {
         SweetAlertDialog(this, config?.type!!).apply {
             titleText = config.title
             contentText = config.message
@@ -164,9 +164,23 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
 
     private fun handleApiErrorResponse(errorResponse: ApiResponse<*>, title: String?) {
         SweetAlertDialog(this, SweetAlertDialog.ERROR_TYPE).apply {
-            titleText   = title ?: getString(R.string.sorry)
+            titleText = title ?: getString(R.string.sorry)
             contentText = errorResponse.message ?: getString(R.string.something_went_wrong)
             confirmText = getString(R.string.ok)
+            setConfirmClickListener {
+                if (errorResponse.message.equals("Token is expired or invalid.")) {
+                    dismiss()
+                    viewModel.logout()
+                    runBlocking { viewModel.prefHelper.clearPref() }
+                    val intent = Intent(context, LoginActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finishAffinity()
+                } else {
+                    dismiss()
+                }
+            }
 
             confirmButtonBackgroundColor = getColor(R.color.error_text)
             setCancelable(false)

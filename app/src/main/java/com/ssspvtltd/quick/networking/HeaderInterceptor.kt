@@ -12,7 +12,9 @@ class HeaderInterceptor @Inject constructor() : Interceptor {
             .addHeader(
                 "Authorization",
                   // runBlocking { PrefHelperEntryPoint.prefHelper.getAccessToken().orEmpty()})
-                "Bearer " + runBlocking { PrefHelperEntryPoint.prefHelper.getAccessToken().orEmpty() })
+                "Bearer " + runBlocking {
+                    PrefHelperEntryPoint.prefHelper.getAccessToken().orEmpty()
+                })
             .build()
         return chain.proceed(newRequest)
     }

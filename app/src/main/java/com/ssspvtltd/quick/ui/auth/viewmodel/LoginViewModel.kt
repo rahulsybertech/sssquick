@@ -49,7 +49,7 @@ class LoginViewModel @Inject constructor(
                 apiErrorData(response.error)
             }
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                //logic goes here(loops, if else, data mani   pulation)
+                //logic goes here(loops, if else, data manipulation)
                 prefHelper.setUserName(response.value.data?.name)
                 withContext(Dispatchers.Main) {
                        hideProgressBar()
@@ -69,6 +69,7 @@ class LoginViewModel @Inject constructor(
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 //logic goes here(loops, if else, data manipulation)
                 prefHelper.setUserName(response.value.data?.name)
+                println("Access_Token - ${response.value.data?.accessToken}")
                 prefHelper.setAccessToken(response.value.data?.accessToken)
                 prefHelper.setMarketerMobile(response.value.data?.mobile)
                 prefHelper.setMarketerCode(response.value.data?.marketerCode)
