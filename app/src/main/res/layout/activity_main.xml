@@ -62,6 +62,14 @@
 <!--                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
 <!--                tools:itemCount="8"-->
 <!--                tools:listitem="@layout/item_drawer" />-->
-
+      <TextView
+          android:id="@+id/verName"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="bottom"
+          android:gravity="center_horizontal"
+          android:layout_marginBottom="4dp"
+          android:textColor="@color/black"
+          android:text="" />
       </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -26,6 +26,7 @@ import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateResponse
 import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
+import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -98,7 +99,8 @@ interface ApiService {
 
     @POST("api/OrderBook/GetPurchasePartyList")
     suspend fun purchasePartyList(
-        @Query("schemeId") schemeId: String?
+        @Query("schemeId") schemeId: String?,
+        @Query("nickNameWise") nickNameWise: Boolean
     ): ApiResponse<List<PurchasePartyData>>
 
     @POST("api/OrderBook/GetItemList")
@@ -129,7 +131,7 @@ interface ApiService {
 
     @POST("api/Report/GetHoldOrderDetails")
     suspend fun holdOrder(
-       @Body holdOrderRequest: HoldOrderRequest?
+        @Body holdOrderRequest: HoldOrderRequest?
     ): ApiResponse<List<HoldOrderData>>
 
     @POST("api/OrderBook/DeleteOrderBook")
@@ -149,7 +151,7 @@ interface ApiService {
 
     @POST("api/Report/GetStockInOfficeOrderDetails")
     suspend fun stockInOffice(
-       @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<StockInOfficeData>>
 
     @Multipart
@@ -172,7 +174,7 @@ interface ApiService {
     @POST("api/OrderBook/GetDashboardSaleCountData")
     suspend fun getDashBoardSaleCountData(
         @Query("marketerId") marketerId: String,
-        @Query("fromDate") fromDate : String,
+        @Query("fromDate") fromDate: String,
         @Query("toDate") toDate: String
     ): Response<DashBoardDataResponse>
 
@@ -180,5 +182,10 @@ interface ApiService {
     suspend fun getOrderBookGeneratePdf(
         @Body pendingOrderPDFRegenerateRequest: PendingOrderPDFRegenerateRequest.PendingOrderPDFRegenerateRequestItem
     ): Response<PendingOrderPDFRegenerateResponse>
+
+    @POST("api/OrderBook/GetAppDetailsByAppName")
+    suspend fun fetchVersion(
+        @Query("appName") appName: String
+    ): Response<CheckVersionResponse>
 
 }

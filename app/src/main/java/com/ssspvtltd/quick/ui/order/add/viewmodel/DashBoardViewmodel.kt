@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.DashBoardDataResponse
+import com.ssspvtltd.quick.model.progress.ProgressConfig
+import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.ui.order.add.repositry.DashBoardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,34 +21,26 @@ import javax.inject.Inject
 class DashBoardViewmodel @Inject constructor(
     private val gson: Gson,
     private val repository: DashBoardRepository
-): RecyclerWidgetViewModel() {
+) : RecyclerWidgetViewModel() {
 
     private var _dashBoardDetailsLiveData = MutableLiveData<DashBoardDataResponse.Data?>()
     val dashBoardDetailsLiveData: LiveData<DashBoardDataResponse.Data?> = _dashBoardDetailsLiveData
 
     private val _dashBoardSaleCountDetailsLiveData = MutableLiveData<DashBoardDataResponse.Data?>()
-    val dashBoardSaleCountDetailsLiveData: LiveData<DashBoardDataResponse.Data?> = _dashBoardSaleCountDetailsLiveData
+    val dashBoardSaleCountDetailsLiveData: LiveData<DashBoardDataResponse.Data?> =
+        _dashBoardSaleCountDetailsLiveData
 
-    /*private val _combinedDashBoardLiveData = MediatorLiveData<DashBoardDataResponse.Data?>()
-    val combinedDashBoardLiveData: LiveData<DashBoardDataResponse.Data?> = _combinedDashBoardLiveData
+    private var _needToUpdateVersion = MutableLiveData<CheckVersionResponse.Data?>()
+    val fetchCheckVersion: MutableLiveData<CheckVersionResponse.Data?> = _needToUpdateVersion
 
-    init {
-        // Observe dashBoardDetailsLiveData and dashBoardSaleCountDetailsLiveData
-        _combinedDashBoardLiveData.addSource(_dashBoardDetailsLiveData) { detailsData ->
-            detailsData?.totalSaleCount  = _dashBoardSaleCountDetailsLiveData.value?.totalSaleCount
-        }
-
-    }*/
-
-    companion object{
+    companion object {
         const val TAG = "TaG"
     }
 
-    fun getDashBoardDetails() = viewModelScope.launch{
+    fun getDashBoardDetails() = viewModelScope.launch {
 
-        when( val response = repository.callGetDashBoardDetails(prefHelper.getAccountId() ?: "")) {
+        when (val response = repository.callGetDashBoardDetails(prefHelper.getAccountId() ?: "")) {
 
-            // yaha error response aarha
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
@@ -61,10 +55,13 @@ class DashBoardViewmodel @Inject constructor(
 
     }
 
-    fun getDashBoardSaleCountDetails(fromDate: String, toDate: String) = viewModelScope.launch{
+    fun getDashBoardSaleCountDetails(fromDate: String, toDate: String) = viewModelScope.launch {
 
-        when( val response = repository.callGetDashBoardSaleCountDetails(prefHelper.getAccountId() ?: "", fromDate, toDate)) {
-            // or yaha bhi
+        when (val response = repository.callGetDashBoardSaleCountDetails(
+            prefHelper.getAccountId() ?: "",
+            fromDate,
+            toDate
+        )) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
@@ -75,7 +72,22 @@ class DashBoardViewmodel @Inject constructor(
 
             }
         }
-
-
     }
+
+    fun checkVersionAPI(appName: String) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Checking Version..."))
+        when (val response = repository.checkVersion(appName)) {
+            is ResultWrapper.Failure -> {
+                println("ERROR_IN_RESPONSE ${response.error}")
+                apiErrorData(response.error)
+            }
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                println("ERROR_IN_RESPONSE 2 ${response.value.body()?.data}")
+                _needToUpdateVersion.postValue(response.value.body()?.data)
+            }
+        }
+    }
+
 }

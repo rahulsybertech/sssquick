@@ -33,6 +33,7 @@ class LoginRepository @Inject constructor(private val apiService: ApiService) {
             apiService.resendOtp(mobileNo)
         }
     }
+
     suspend fun logout(mobileNo: String): ResultWrapper<ApiResponse<*>, ApiResponse<*>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.LOGOUT.ordinal) {
             apiService.logout(mobileNo)
@@ -51,4 +52,5 @@ class LoginRepository @Inject constructor(private val apiService: ApiService) {
             apiService.customer()
         }
     }
+
 }

@@ -18,6 +18,7 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.navigation.NavigationBarView
+import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -32,6 +33,7 @@ import com.ssspvtltd.quick.ui.order.stockinoffice.activity.StockInOfficeActivity
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.observe
 import com.ssspvtltd.quick.utils.showWarningDialog
+import com.ssspvtltd.quick.utils.versionName
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -52,7 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
         viewModel.getCheckInStatus()
         registerObserver()
-        registerListner()
+        registerListener()
     }
 
     override fun onResume() {
@@ -60,7 +62,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         getTest()
     }
 
-    fun getTest() {
+    private fun getTest() {
 
         val sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
         val isComeFromCheckIn = sharedPreferences.getBoolean("isComeFromCheckIn", false)
@@ -71,7 +73,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
     }
 
-    private fun registerListner() {
+    private fun registerListener() {
         Log.e(
             "getCheckinStatus",
             (runBlocking { viewModel.prefHelper.getCheckinStatus() }).toString()
@@ -100,10 +102,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         val marketerName: TextView = headerView.findViewById(R.id.marketer_name)
         val mobileNo: TextView = headerView.findViewById(R.id.marketer_mobile)
         val marketerCode: TextView = headerView.findViewById(R.id.marketer_code)
+        val versionName : TextView = binding.navView.findViewById(R.id.verName)
+        versionName.text = versionName()
         lifecycleScope.launch {
-            mobileNo.setText(viewModel.prefHelper.getMarketerMobile())
-            marketerCode.setText(viewModel.prefHelper.getMarketerCode ())
-            marketerName.setText(viewModel.prefHelper.getUserName())
+            mobileNo.text = viewModel.prefHelper.getMarketerMobile()
+            marketerCode.text = viewModel.prefHelper.getMarketerCode ()
+            marketerName.text = viewModel.prefHelper.getUserName()
         }
 
         binding.navView.setNavigationItemSelectedListener {
@@ -204,12 +208,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         binding.drawerLayout.openDrawer(GravityCompat.START)
     }
 
-    fun closeDrawer() {
+    private fun closeDrawer() {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
     }
 
 
-    fun setupWithNavController(
+    private fun setupWithNavController(
         navigationBarView: NavigationBarView,
         navController: NavController
     ) {

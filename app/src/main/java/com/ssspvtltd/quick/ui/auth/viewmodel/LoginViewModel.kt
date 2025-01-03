@@ -21,8 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository,
-    @ApplicationContext private val mContext: Context
+    private val repository: LoginRepository, @ApplicationContext private val mContext: Context
 ) : BaseViewModel() {
 
     private val _loginData = MutableLiveData<LoginData?>()
@@ -32,7 +31,7 @@ class LoginViewModel @Inject constructor(
     val verifyOtpData: LiveData<ApiResponse<VerifyOtpData>?> get() = _verifyOtpData
 
     private val _resendOtpData = MutableLiveData<ApiResponse<*>?>()
-    val resendOtpData:LiveData<ApiResponse<*>?> get() = _resendOtpData
+    val resendOtpData: LiveData<ApiResponse<*>?> get() = _resendOtpData
 
     private val _logoutData = MutableLiveData<ApiResponse<*>?>()
     val logoutData: LiveData<ApiResponse<*>?> get() = _logoutData
@@ -41,33 +40,34 @@ class LoginViewModel @Inject constructor(
     val loginStatus: LiveData<Boolean?> get() = _loginStatus
 
 
-
     fun userLogin(mobileNo: String?) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Verifying mobile number\nPlease wait..."))
         when (val response = repository.loginUser(mobileNo)) {
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
             }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                //logic goes here(loops, if else, data manipulation)
+                // logic goes here(loops, if else, data manipulation)
                 prefHelper.setUserName(response.value.data?.name)
                 withContext(Dispatchers.Main) {
-                       hideProgressBar()
+                    hideProgressBar()
                     _loginData.postValue(response.value.data)
                 }
             }
         }
     }
 
-    fun verifyOTP(mobileNo: String?, otp:String?) = viewModelScope.launch {
+    fun verifyOTP(mobileNo: String?, otp: String?) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Verifying OTP\nPlease wait..."))
         when (val response = repository.verifyOTP(mobileNo, otp)) {
             is ResultWrapper.Failure -> {
                 Toast.makeText(mContext, response.error.message, Toast.LENGTH_SHORT).show()
                 apiErrorData(response.error)
             }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                //logic goes here(loops, if else, data manipulation)
+                // logic goes here(loops, if else, data manipulation)
                 prefHelper.setUserName(response.value.data?.name)
                 println("Access_Token - ${response.value.data?.accessToken}")
                 prefHelper.setAccessToken(response.value.data?.accessToken)
@@ -88,6 +88,7 @@ class LoginViewModel @Inject constructor(
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
             }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
                     hideProgressBar()
@@ -102,7 +103,8 @@ class LoginViewModel @Inject constructor(
         when (val response = repository.logout(prefHelper.getMarketerMobile().toString())) {
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
-               }
+            }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
                     hideProgressBar()
@@ -120,6 +122,7 @@ class LoginViewModel @Inject constructor(
                 //_loginStatus.postValue(false)
                 hideProgressBar()
             }
+
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 withContext(Dispatchers.Main) {
                     hideProgressBar()
@@ -129,15 +132,13 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun getCheckInStatus() = viewModelScope.launch{
-
-        when( val response = repository.customerList()) {
+    fun getCheckInStatus() = viewModelScope.launch {
+        when (val response = repository.customerList()) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
                 prefHelper.setCheckinStatus(response.value.checkinStatus ?: false)
             }
         }
-
-
     }
+
 }

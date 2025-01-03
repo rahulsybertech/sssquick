@@ -1,8 +1,9 @@
- package com.ssspvtltd.quick.ui.splash
+package com.ssspvtltd.quick.ui.splash
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.BaseViewModel
@@ -23,9 +24,10 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, BaseViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         lifecycleScope.launch {
             delay(1000)
-            val intent = if (!viewModel.prefHelper.getAccessToken()     .isNullOrBlank()) {
+            val intent = if (!viewModel.prefHelper.getAccessToken().isNullOrBlank()) {
                 Intent(this@SplashActivity, MainActivity::class.java)
             } else {
                 Intent(this@SplashActivity, LoginActivity::class.java)

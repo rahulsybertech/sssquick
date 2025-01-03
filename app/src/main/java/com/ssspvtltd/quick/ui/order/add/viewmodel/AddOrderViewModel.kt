@@ -102,12 +102,12 @@ class AddOrderViewModel @Inject constructor(
      * Initializes all data required for adding an order.
      * Determines whether to start a new order or edit an existing one based on the pendingOrderID.
      */
-    fun initAllData() {
+    fun initAllData(schemeId: String?, type: Boolean) {
 
         if (pendingOrderID.isNullOrBlank()) {
-            initializeNewOrder()
+            initializeNewOrder(schemeId, type)
         } else {
-            initializeEditOrder()
+            initializeEditOrder(schemeId, type)
         }
     }
 
@@ -115,13 +115,13 @@ class AddOrderViewModel @Inject constructor(
      * Starts the initialization process for a new order.
      * Fetches voucher, sale party, scheme, and purchase party data asynchronously.
      */
-    private fun initializeNewOrder() = viewModelScope.launch(Dispatchers.Default) {
+    private fun initializeNewOrder(schemeId: String? ,type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
 
         val voucherDeferred         = async { getVoucherSuspend() }
         val salePartyDeferred       = async { getSalePartySuspend() }
         val schemeDeferred          = async { getSchemeSuspend() }
-        val purchasePartyDeferred   = async { getPurchasePartySuspend(null) }
+        val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
 
         val voucherResponse         = voucherDeferred.await()
         val salePartyResponse       = salePartyDeferred.await()
@@ -136,11 +136,11 @@ class AddOrderViewModel @Inject constructor(
         hideProgressBar()
     }
 
-    private fun initializeEditOrder() = viewModelScope.launch(Dispatchers.Default) {
+    private fun initializeEditOrder(schemeId: String?, type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
 
         val salePartyDeferred       = async { getSalePartySuspend() }
         val schemeDeferred          = async { getSchemeSuspend() }
-        val purchasePartyDeferred   = async { getPurchasePartySuspend(null) }
+        val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
 
         val salePartyResponse       = salePartyDeferred.await()
         val schemeResponse          = schemeDeferred.await()
@@ -197,23 +197,27 @@ class AddOrderViewModel @Inject constructor(
         }
     }
 
-    fun getPurchaseParty(schemeId: String? = null) = viewModelScope.launch {
+    fun getPurchaseParty(schemeId: String?, type: Boolean) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        getPurchasePartySuspend(schemeId).let {
+        getPurchasePartySuspend(schemeId, type).let {
             _purchaseParty.postValue(it)
             hideProgressBar()
         }
     }
-    fun getInitialPurchaseParty() = viewModelScope.launch(Dispatchers.Default) {
-        val purchasePartyDeferred = async { getPurchasePartySuspend(null) }
+    fun getInitialPurchaseParty(schemeId: String?, type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
+        val purchasePartyDeferred = async {
+            getPurchasePartySuspend(schemeId, type)
+        }
         val purchasePartyResponse = purchasePartyDeferred.await()
         _purchaseParty.postValue(purchasePartyResponse)
     }
 
-    private suspend fun getPurchasePartySuspend(schemeId: String? = null): List<PurchasePartyData> {
+    private suspend fun getPurchasePartySuspend(schemeId: String?, type : Boolean): List<PurchasePartyData> {
         return withContext(Dispatchers.Default) {
-            return@withContext when (val response = repository.purchasePartyList(schemeId)) {
-                is ResultWrapper.Success -> response.value.data.orEmpty()
+            return@withContext when (val response = repository.purchasePartyList(schemeId, type)) {
+                is ResultWrapper.Success -> {
+                response.value.data.orEmpty()
+            }
                 is ResultWrapper.Failure -> {
                     apiErrorData(response.error)
                     listOf() // return empty list
@@ -299,6 +303,7 @@ class AddOrderViewModel @Inject constructor(
 
     fun placeOrder(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Please wait..."))
+        println("GETTING_REQUEST_PLACE_ORDER ${Gson().toJson(params)}")
         params["OrderBookSecondaryList"] = gson.toJson(addItemDataList).toRequestBody()
         val documents = mutableListOf<MultipartBody.Part>()
         addImageDataList.forEach { imageModel ->

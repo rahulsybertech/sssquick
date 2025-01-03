@@ -23,6 +23,7 @@ import com.ssspvtltd.quick.ui.main.MainActivity
 import com.ssspvtltd.quick.utils.extension.dp
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.isPhoneNumber
+import com.ssspvtltd.quick.utils.versionName
 import dagger.hilt.android.AndroidEntryPoint
 import `in`.aabhasjindal.otptextview.OTPListener
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun registerObservers() {
+
         viewModel.errorLiveData.observe(this) {
             if (it.apiResponse.apiRequestCode == ApiRequestCode.VERIFY_OTP.ordinal) {
                 binding.otpView.showError()
@@ -78,6 +80,9 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun registerListeners() = with(binding) {
+
+        binding.tvVersion.text = versionName()
+
         binding.scroll.fullScroll(View.FOCUS_DOWN)
 
         llPolicy.setOnClickListener {
@@ -97,6 +102,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
                     llView.setBackgroundResource(R.color.gray)
                     llView.layoutParams.height = 2.dp
                 }
+
                 it?.isPhoneNumber() == true -> {
                     mobile.error = null
                     mobile.setTextColor(getColor(R.color.green))
@@ -144,13 +150,13 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             binding.llView.layoutParams.height = 5
         }
         binding.resendOtp.setOnClickListener {
-                viewModel.resendOTP(binding.mobile.text.toString())
+            viewModel.resendOTP(binding.mobile.text.toString())
         }
 
         otpView.otpListener = object : OTPListener {
             override fun onInteractionListener() {
                 if (binding.otpView.otp!!.isNotEmpty()) {
-                     binding.scroll.fullScroll(View.FOCUS_DOWN)
+                    binding.scroll.fullScroll(View.FOCUS_DOWN)
                 }
                 if (binding.otpView.otp?.length != 4) {
                     binding.next.setBackgroundResource(R.drawable.bg_btn_effect_red)
@@ -162,6 +168,8 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 //                Toast.makeText(this@LoginActivity, "The OTP is $otp", Toast.LENGTH_SHORT).show()
             }
         }
+
+
     }
 
     private fun showWebViewDialog(url: String) {
@@ -169,7 +177,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
 
         dialog.setContentView(R.layout.webview_dialog)
         webView = dialog.findViewById(R.id.webView)
-        val closeBtn: AppCompatImageButton =  dialog.findViewById(R.id.closeBtn)
+        val closeBtn: AppCompatImageButton = dialog.findViewById(R.id.closeBtn)
 
         closeBtn.setOnClickListener {
             webView.clearHistory()
@@ -178,8 +186,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
         webView.webViewClient = object : WebViewClient() {
 
             override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
+                view: WebView?, request: WebResourceRequest?
             ): Boolean {
                 return true
             }
@@ -201,12 +208,13 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
     }
 
     private fun setResendTime() {
-        val timer= object : CountDownTimer(30000, 1000) {
+        val timer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val va = (millisUntilFinished % 60000 / 1000).toInt()
                 binding.otpDesc.text = "Seconds remaining : ${String.format("%02d", va)}"
                 binding.resendOtp.visibility = View.GONE
             }
+
             override fun onFinish() {
                 binding.otpDesc.text = "Didn't receive the OTP?"
                 binding.resendOtp.visibility = View.VISIBLE
@@ -219,7 +227,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
         super.onResume()
         lifecycleScope.launch {
             val accessToken = viewModel.prefHelper.getAccessToken() ?: ""
-            if (accessToken.isBlank())viewModel.prefHelper.setUserName("")
+            if (accessToken.isBlank()) viewModel.prefHelper.setUserName("")
         }
     }
 }

@@ -26,6 +26,8 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
     protected lateinit var binding: VB
     protected lateinit var viewModel: VM
 
+    private var dialog : AlertDialog? = null
+
     abstract val inflate: InflateA<VB>
     abstract fun initViewModel(): VM
 
@@ -65,7 +67,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
 
             if (this !is LoginActivity && this !is SplashActivity) {
 
-                val dialog = AlertDialog.Builder(this)
+                 dialog = AlertDialog.Builder(this)
                     .setTitle(getString(R.string.session_expired_title))
                     .setMessage(getString(R.string.you_have_been_logout_by_adm))
                     .setPositiveButton(getString(R.string.ok)) { _, _ ->
@@ -80,7 +82,7 @@ abstract class BaseActivity<VB : ViewBinding, VM : BaseViewModel> : AppCompatAct
                     }
                     .setCancelable(false)
                     .create()
-                dialog.show()
+                dialog?.show()
 
             }
 

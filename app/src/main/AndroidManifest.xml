@@ -44,11 +44,11 @@
         <activity
             android:name="com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustNothing"/>
         <activity
             android:name="com.ssspvtltd.quick.ui.auth.activity.LoginActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name="com.ssspvtltd.quick.ui.main.MainActivity"
             android:exported="false" />

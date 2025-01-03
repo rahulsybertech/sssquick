@@ -13,7 +13,6 @@ import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.application.MainApplication
 import com.ssspvtltd.quick.commonrepo.CommonPDFRepo
-import com.ssspvtltd.quick.model.HoldOrderRequest
 import com.ssspvtltd.quick.model.alert.AlertMsg
 import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.model.progress.ProgressConfig
@@ -210,21 +209,20 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             }
         }
 
-    fun deleteOrder(orderId: String) =
-        viewModelScope.launch {
-            showProgressBar(ProgressConfig("Deleting Data..."))
-            when (val response =
-                holdOrderRepository.holdOrderDelete(orderId)) {
-                is ResultWrapper.Failure -> {
-                    println("ERROR_IN_RESPONSE ${response.error}")
-                    apiErrorData(response.error)
-                }
+    fun deleteOrder(orderId: String) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Deleting Data..."))
+        when (val response =
+            holdOrderRepository.holdOrderDelete(orderId)) {
+            is ResultWrapper.Failure -> {
+                println("ERROR_IN_RESPONSE ${response.error}")
+                apiErrorData(response.error)
+            }
 
-                is ResultWrapper.Success -> {
-                    hideProgressBar()
-                    println("ERROR_IN_RESPONSE 2 ${response.value.message}")
-                    holdDeleteMessage.value = response.value.message!!
-                }
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                println("ERROR_IN_RESPONSE 2 ${response.value.message}")
+                holdDeleteMessage.value = response.value.message!!
             }
         }
+    }
 }

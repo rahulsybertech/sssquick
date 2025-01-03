@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick.base
 
 import com.ssspvtltd.quick.model.auth.AutoLogout
+import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.networking.ApiRequestCode
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ApiService

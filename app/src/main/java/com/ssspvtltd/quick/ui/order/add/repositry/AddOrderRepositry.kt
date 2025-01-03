@@ -49,9 +49,9 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
         }
     }
 
-    suspend fun purchasePartyList(schemeId:String?): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
+    suspend fun purchasePartyList(schemeId:String?, type : Boolean): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY.ordinal) {
-            apiService.purchasePartyList(schemeId)
+            apiService.purchasePartyList(schemeId, type)
         }
     }
 
