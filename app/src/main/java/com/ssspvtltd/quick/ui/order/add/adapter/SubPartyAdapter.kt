@@ -44,9 +44,7 @@ class SubPartyAdapter(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val inflater = mContext
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val rowView: View = inflater.inflate(
-            R.layout.item_saleparty, parent, false
-        )
+        val rowView: View = inflater.inflate(R.layout.item_saleparty, parent, false)
         try {
             val subPartyData = getItem(position)
             val subAutoCompleteView =
@@ -55,7 +53,7 @@ class SubPartyAdapter(
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return rowView!!
+        return rowView
     }
 
     override fun getFilter(): Filter {

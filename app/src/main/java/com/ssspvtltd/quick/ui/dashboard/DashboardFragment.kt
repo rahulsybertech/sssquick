@@ -1,15 +1,24 @@
 package com.ssspvtltd.quick.ui.dashboard
 
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.ActivityNotFoundException
+import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.BuildCompat
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.google.gson.Gson
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.databinding.FragmentDashboardBinding
@@ -23,6 +32,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+
 
 @AndroidEntryPoint
 class DashboardFragment : Fragment() {
@@ -44,6 +54,7 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,181 +63,233 @@ class DashboardFragment : Fragment() {
         setMyView()
         callApis()
 
-    }
 
-    private fun setViewModelObservers() {
-        viewModel.dashBoardDetailsLiveData.observe(viewLifecycleOwner, dashBoardObserver)
-        viewModel.dashBoardSaleCountDetailsLiveData.observe(viewLifecycleOwner, dashBoardObserver2)
-        viewModel.fetchCheckVersion.observe(viewLifecycleOwner, versionObserver)
-    }
+        if (!Environment.isExternalStorageManager()) {
 
-    private fun callApis() {
-        viewModel.getDashBoardDetails()
-        viewModel.getDashBoardSaleCountDetails(
-            binding.txtTotalSaleFromDate.text.toString(), binding.txtTotalSaleToDate.text.toString()
-        )// one week from current
-
-        viewModel.checkVersionAPI("SSSQUICK")
-
-
-
-    }
-
-    private fun setMyView() {
-        val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
-        val currentDate = LocalDate.now()
-        val oneWeekBeforeDate = currentDate.minusWeeks(1L)
-
-        binding.txtTotalSaleFromDate.text = oneWeekBeforeDate.format(formatter)
-        binding.txtTotalSaleToDate.text = currentDate.format(formatter)
-
-    }
-
-
-    private fun setClickListeners() {
-
-        binding.toolbar.apply {
-            setNavigationClickListener {
-                (requireActivity() as? MainActivity)?.openDrawer()
-            }
-            setTitle("Dashboard")
-        }
-
-        binding.llFromDate.setOnClickListener {
-            showFromDatePicker()
-        }
-
-        binding.llToDate.setOnClickListener {
-            showToDatePicker()
-        }
-
-        binding.swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            callApis()
-            binding.swipeRefreshLayout.isRefreshing = false
-
-        }
-
-    }
-
-    private val versionObserver = Observer<CheckVersionResponse.Data?>{versionResponse ->
-        if (versionResponse?.versionName!! == BuildConfig.VERSION_NAME){
-
-        }
-    }
-
-
-    private val dashBoardObserver = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
-
-        with(binding) {
-            tvTodaysorders.text = (dashBoardData?.todayOrderCount ?: 0).toString()
-            tvHoldOrders.text = (dashBoardData?.totalHoldOrderCount ?: 0).toString()
-            tvPendingOrders.text = (dashBoardData?.totalPendingOrderCount ?: 0).toString()
-            tvPendingGR.text = (dashBoardData?.totalGRCount ?: 0).toString()
-        }
-
-    }
-    private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
-        with(binding) {
-            tvTotalSale.text = (dashBoardData?.totalSaleCount ?: 0).toString()
-            println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
-            if (dashBoardData?.totalSaleAmt == null) {
-                tvTotalSaleAmount.text = "0.0"
-            } else {
-                tvTotalSaleAmount.text = amountFormat((dashBoardData.totalSaleAmt).toString())
-            }
-        }
-    }
-
-    private fun showFromDatePicker() {
-        val fromDate = Calendar.getInstance()
-
-        // Check if there's already a selected "From Date"
-        if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
-            fromDate.time = dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
-        }
-
-        val fromDateListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                fromDate.set(Calendar.YEAR, year)
-                fromDate.set(Calendar.MONTH, monthOfYear)
-                fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.txtTotalSaleFromDate.text = dateFormat.format(fromDate.time)
-
-                // Check if ToDate needs to be updated based on the selected FromDate
-                val currentToDate = Calendar.getInstance().apply {
-                    time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
+            SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
+                titleText = "All file access permission request!"
+                contentText = "Are you ready to grant the File access request PDFs access?"
+                setCancelable(false)
+                confirmText = "Yes, Sure"
+                cancelText =  "No"
+                confirmButtonBackgroundColor = getColor(context, R.color.error_text)
+                this.setConfirmClickListener {
+                    dismiss()
+                    val intent = Intent()
+                    intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                    val uri = Uri.fromParts("package", requireContext().packageName, null)
+                    intent.setData(uri)
+                    startActivity(intent)
                 }
-                if (currentToDate.before(fromDate)) {
-                    val updatedToDate = fromDate.clone() as Calendar
-                    updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
-                    binding.txtTotalSaleToDate.text = dateFormat.format(updatedToDate.time)
+                this.setCancelClickListener {
+                    requireActivity().finishAffinity()
                 }
-                viewModel.getDashBoardSaleCountDetails(
-                    binding.txtTotalSaleFromDate.text.toString(),
-                    binding.txtTotalSaleToDate.text.toString()
-                ) // Refresh sale count details
-
-            }
-
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            fromDateListener,
-            fromDate.get(Calendar.YEAR),
-            fromDate.get(Calendar.MONTH),
-            fromDate.get(Calendar.DAY_OF_MONTH)
-        )
-
-        // Restrict the "From Date" to today or earlier
-        val today = Calendar.getInstance()
-        datePickerDialog.datePicker.maxDate = today.timeInMillis
-
-        datePickerDialog.show()
+            }.show()
+        }
     }
 
-    private fun showToDatePicker() {
-        val toDate = Calendar.getInstance()
+        private fun setViewModelObservers() {
+            viewModel.dashBoardDetailsLiveData.observe(viewLifecycleOwner, dashBoardObserver)
+            viewModel.dashBoardSaleCountDetailsLiveData.observe(
+                viewLifecycleOwner,
+                dashBoardObserver2
+            )
 
-        // Check if there's already a selected "To Date"
-        if (!binding.txtTotalSaleToDate.text.isNullOrEmpty()) {
-            toDate.time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
         }
 
-        val toDateListener =
-            DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-                toDate.set(Calendar.YEAR, year)
-                toDate.set(Calendar.MONTH, monthOfYear)
-                toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                binding.txtTotalSaleToDate.text = dateFormat.format(toDate.time)
-                viewModel.getDashBoardSaleCountDetails(
-                    binding.txtTotalSaleFromDate.text.toString(),
-                    binding.txtTotalSaleToDate.text.toString()
-                ) // Refresh sale count details
+        private fun callApis() {
+            viewModel.getDashBoardDetails()
+            viewModel.getDashBoardSaleCountDetails(
+                binding.txtTotalSaleFromDate.text.toString(),
+                binding.txtTotalSaleToDate.text.toString()
+            )// one week from current
+
+        }
+
+        private fun setMyView() {
+            val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+            val currentDate = LocalDate.now()
+            val oneWeekBeforeDate = currentDate.minusWeeks(1L)
+
+            binding.txtTotalSaleFromDate.text = oneWeekBeforeDate.format(formatter)
+            binding.txtTotalSaleToDate.text = currentDate.format(formatter)
+
+        }
+
+
+        private fun setClickListeners() {
+
+            binding.toolbar.apply {
+                setNavigationClickListener {
+                    (requireActivity() as? MainActivity)?.openDrawer()
+                }
+                setTitle("Dashboard")
             }
 
-        // Retrieve the selected "From Date" or use today's date if not selected
-        val fromDate = Calendar.getInstance().apply {
-            time = if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
-                dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
-            } else {
-                Calendar.getInstance().time
+            binding.llFromDate.setOnClickListener {
+                showFromDatePicker()
+            }
+
+            binding.llToDate.setOnClickListener {
+                showToDatePicker()
+            }
+
+            binding.swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
+            binding.swipeRefreshLayout.setOnRefreshListener {
+                callApis()
+                binding.swipeRefreshLayout.isRefreshing = false
+
+            }
+
+        }
+
+        private val versionObserver = Observer<CheckVersionResponse.Data?> { versionResponse ->
+
+            if (versionResponse?.versionName!! > BuildConfig.VERSION_CODE.toString()) {
+                SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE).apply {
+                    titleText = "Alert! New update"
+                    contentText = "New update is required to access the application."
+                    setCancelable(false)
+                    confirmText = "Ok, Proceed!"
+                    // cancelText = "No"
+                    confirmButtonBackgroundColor = getColor(context, R.color.red_2)
+                    setConfirmClickListener {
+                        it.dismissWithAnimation()
+                        try {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("market://details?id=${context.packageName}")
+                                )
+                            )
+                        } catch (e: ActivityNotFoundException) {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
+                                )
+                            )
+                        }
+                    }
+                }.show()
             }
         }
 
-        val datePickerDialog = DatePickerDialog(
-            requireContext(),
-            toDateListener,
-            toDate.get(Calendar.YEAR),
-            toDate.get(Calendar.MONTH),
-            toDate.get(Calendar.DAY_OF_MONTH)
-        )
+        private val dashBoardObserver = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
+            with(binding) {
+                tvTodaysorders.text = (dashBoardData?.todayOrderCount ?: 0).toString()
+                tvHoldOrders.text = (dashBoardData?.totalHoldOrderCount ?: 0).toString()
+                tvPendingOrders.text = (dashBoardData?.totalPendingOrderCount ?: 0).toString()
+                tvPendingGR.text = (dashBoardData?.totalGRCount ?: 0).toString()
+            }
+        }
+        private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
+            with(binding) {
+                tvTotalSale.text = (dashBoardData?.totalSaleCount ?: 0).toString()
+                println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
+                if (dashBoardData?.totalSaleAmt == null) {
+                    tvTotalSaleAmount.text = "0.0"
+                } else {
+                    tvTotalSaleAmount.text = amountFormat((dashBoardData.totalSaleAmt).toString())
+                }
+            }
+        }
 
-        // Restrict the "To Date" to be no earlier than the "From Date" and no later than today
-        datePickerDialog.datePicker.minDate = fromDate.timeInMillis
-        val today = Calendar.getInstance()
-        datePickerDialog.datePicker.maxDate = today.timeInMillis
+        private fun showFromDatePicker() {
+            val fromDate = Calendar.getInstance()
 
-        datePickerDialog.show()
+            // Check if there's already a selected "From Date"
+            if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
+                fromDate.time = dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
+            }
+
+            val fromDateListener =
+                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                    fromDate.set(Calendar.YEAR, year)
+                    fromDate.set(Calendar.MONTH, monthOfYear)
+                    fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    binding.txtTotalSaleFromDate.text = dateFormat.format(fromDate.time)
+
+                    // Check if ToDate needs to be updated based on the selected FromDate
+                    val currentToDate = Calendar.getInstance().apply {
+                        time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
+                    }
+                    if (currentToDate.before(fromDate)) {
+                        val updatedToDate = fromDate.clone() as Calendar
+                        updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
+                        binding.txtTotalSaleToDate.text = dateFormat.format(updatedToDate.time)
+                    }
+                    viewModel.getDashBoardSaleCountDetails(
+                        binding.txtTotalSaleFromDate.text.toString(),
+                        binding.txtTotalSaleToDate.text.toString()
+                    ) // Refresh sale count details
+
+                }
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                fromDateListener,
+                fromDate.get(Calendar.YEAR),
+                fromDate.get(Calendar.MONTH),
+                fromDate.get(Calendar.DAY_OF_MONTH)
+            )
+
+            // Restrict the "From Date" to today or earlier
+            val today = Calendar.getInstance()
+            datePickerDialog.datePicker.maxDate = today.timeInMillis
+
+            datePickerDialog.show()
+        }
+
+        override fun onResume() {
+            super.onResume()
+            viewModel.checkVersionAPI("SSSQUICK")
+            viewModel.fetchCheckVersion.observe(viewLifecycleOwner, versionObserver)
+        }
+
+        private fun showToDatePicker() {
+            val toDate = Calendar.getInstance()
+
+            // Check if there's already a selected "To Date"
+            if (!binding.txtTotalSaleToDate.text.isNullOrEmpty()) {
+                toDate.time = dateFormat.parse(binding.txtTotalSaleToDate.text.toString())!!
+            }
+
+            val toDateListener =
+                DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+                    toDate.set(Calendar.YEAR, year)
+                    toDate.set(Calendar.MONTH, monthOfYear)
+                    toDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                    binding.txtTotalSaleToDate.text = dateFormat.format(toDate.time)
+                    viewModel.getDashBoardSaleCountDetails(
+                        binding.txtTotalSaleFromDate.text.toString(),
+                        binding.txtTotalSaleToDate.text.toString()
+                    ) // Refresh sale count details
+                }
+
+            // Retrieve the selected "From Date" or use today's date if not selected
+            val fromDate = Calendar.getInstance().apply {
+                time = if (!binding.txtTotalSaleFromDate.text.isNullOrEmpty()) {
+                    dateFormat.parse(binding.txtTotalSaleFromDate.text.toString())!!
+                } else {
+                    Calendar.getInstance().time
+                }
+            }
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                toDateListener,
+                toDate.get(Calendar.YEAR),
+                toDate.get(Calendar.MONTH),
+                toDate.get(Calendar.DAY_OF_MONTH)
+            )
+
+            // Restrict the "To Date" to be no earlier than the "From Date" and no later than today
+            datePickerDialog.datePicker.minDate = fromDate.timeInMillis
+            val today = Calendar.getInstance()
+            datePickerDialog.datePicker.maxDate = today.timeInMillis
+
+            datePickerDialog.show()
+        }
+
     }
-
-}

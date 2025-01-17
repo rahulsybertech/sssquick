@@ -167,7 +167,9 @@ class AddOrderViewModel @Inject constructor(
 
     private suspend fun getVoucherSuspend(): VoucherData? = withContext(Dispatchers.Default) {
         return@withContext when (val response = repository.getVoucher()) {
-            is ResultWrapper.Success -> response.value.data
+            is ResultWrapper.Success -> {
+                response.value.data
+            }
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
                 null
@@ -348,7 +350,8 @@ class AddOrderViewModel @Inject constructor(
             }
 
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                Log.i("getEditOrderDataIfNeeded", response.toString())
+                println("getEditOrderDataIfNeeded ${response.value.data?.transportName?:""}")
+                Log.i("getEditOrderDataIfNeeded", response.value.data?.transportName?:"")
                 response.value.data?.let {
                     withContext(Dispatchers.Main) {
 

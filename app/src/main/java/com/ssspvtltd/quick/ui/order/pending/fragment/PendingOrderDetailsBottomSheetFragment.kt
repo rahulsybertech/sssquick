@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -141,7 +142,6 @@ class PendingOrderDetailsBottomSheetFragment :
         }
 
         viewModel.fetchPdfUrl.observe(viewLifecycleOwner, Observer { pdfUrl ->
-
             println("GETTING_PDF_URL - $pdfUrl")
             downloadPdfToDownloads(requireContext(), pdfUrl)
 
@@ -243,6 +243,7 @@ class PendingOrderDetailsBottomSheetFragment :
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun showPdf(url: String) {
         val urlData = url.split("/")
         val fileName = urlData.lastOrNull() ?: "downloaded_file.pdf"  // Extract file name from URL
@@ -257,7 +258,10 @@ class PendingOrderDetailsBottomSheetFragment :
             openPdf(file)
         } else {
             Log.i("TaG", "-----> Download start <--------")
-            downloadPdf(url, fileName)
+
+            println("CHECKING_THE_PERMISSION ${Environment.isExternalStorageManager()}")
+
+
         }
     }
 
@@ -354,6 +358,13 @@ class PendingOrderDetailsBottomSheetFragment :
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+
+    }
+
+
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -372,9 +383,11 @@ class PendingOrderDetailsBottomSheetFragment :
         }
     }
 
-    fun downloadPdfToDownloads(context: Context, pdfUrl: String) {
+    private fun downloadPdfToDownloads(context: Context, pdfUrl: String) {
         // Step 1: Get the Downloads directory
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val fileName = pdfUrl.substringAfterLast("/")
         val pdfFile = File(downloadsDir, fileName)
 

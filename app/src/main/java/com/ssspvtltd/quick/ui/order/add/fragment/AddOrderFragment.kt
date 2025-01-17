@@ -10,6 +10,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
@@ -19,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
+import com.google.gson.Gson
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
@@ -74,7 +76,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private val addItemViewModel by viewModels<AddItemViewModel>()
 
     private var salePartyId: String = ""
-    private var subPartyId: String = "SELF"
+
+    // changes
+    private var subPartyId: String = ""
     private var purchasePartyId: String = ""
     private var pvtMarka: String = "*"
     private var bookingStationId: String = ""
@@ -104,6 +108,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var statusOptionsOnEdit = listOf("PENDING", "HOLD", "CANCEL")
     private var isSubPartyRadioSelect = true
     private lateinit var statusDropDownAdapter: ArrayAdapter<String>
+    private var traceIdentifier : String? = null
 
     companion object {
         const val TAG = "TaG"
@@ -188,6 +193,21 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.etSalePartyName.doAfterTextChanged {
             salePartyId = ""
         }
+        binding.tilSaletParty.setEndIconOnClickListener {
+            //Abhinav
+            binding.etSalePartyName.text.clear()
+            binding.etAvailableLimit.text?.clear()
+            binding.etAverageDays.text?.clear()
+            binding.etSubParty.text?.clear()
+            binding.etTransport.text?.clear()
+            binding.etStation.text?.clear()
+            binding.etScheme.text?.clear()
+            binding.etPurchaseParty.text?.clear()
+            binding.etDiscription.text?.clear()
+            binding.tvDispatchFromDate.text = ""
+            binding.tvDispatchToDate.text = ""
+        }
+
         binding.etSubParty.doAfterTextChanged {
             subPartyId = ""
         }
@@ -289,10 +309,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["TotalAmt"] = "0".toRequestBody()
                 hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                 hashMap["OrderStatus"] = selectedStatus.toRequestBody()
+                hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
 
-                println("PLACING_ORDER ${schemeId}, $")
+                println("PLACING_ORDER 0 ${traceIdentifier}")
 
                 viewModel.placeOrder(hashMap)
             }
@@ -389,7 +410,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
 
         binding.etSubParty.setOnFocusChangeListener { v, hasFocus ->
+            println("HAS_FOCUS $hasFocus")
             if (!hasFocus) {
+
                 if (subPartyData?.any { it -> it.subPartyName == binding.etSubParty.text.toString() } == false) {
                     binding.etSubParty.text.clear()
                 }
@@ -611,7 +634,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                         (editData?.id ?: "").toRequestBody()
 
-                    println("PLACING_ORDER ${schemeId}, $")
+                    println("PLACING_ORDER 1 ${schemeId}, $")
 
                     viewModel.placeOrder(hashMap)
 
@@ -629,6 +652,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 try {
 
                     editData = it
+
+                    println("GETTING_EDIT_DATA $editData")
 
                     if (it?.isCancel == true) {
                         statusDropDownAdapter = ArrayAdapter(
@@ -748,9 +773,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     var job3: Deferred<Job>? = null
 
 
+                    println("GETTING_SubParty_DATA ${subPartyData}")
                     val editSubPartyData =
                         subPartyData?.filter { subData -> subData.subPartyId == it?.subPartyId }
                     if (!editSubPartyData.isNullOrEmpty()) {
+                        println("GETTING_VALUE_OF_SUB_PARTY 0 ${editSubPartyData[0].subPartyName}")
                         binding.etSubParty.setText(editSubPartyData[0].subPartyName)
                         subPartyId = editSubPartyData[0].subPartyId
                         job3 = async { viewModel.getStation(salePartyId, subPartyId) }
@@ -758,11 +785,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
                     job3?.join()
 
+
+                    // var job4 : Deferred<Job>? = null
+
+                    println("GETTING_TRANSPORT_DATA ${transportData}")
                     val editTransportData =
                         transportData?.filter { transData -> transData.transportId == it?.transportId }
                     if (!editTransportData.isNullOrEmpty()) {
                         binding.etTransport.setText(editTransportData[0].transportName)
                         transportId = editTransportData[0].transportId
+                        // job4 = async { viewModel.getTra }
                     }
 
 
@@ -848,12 +880,10 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     e.printStackTrace()
                 }
             }
-
-
         }
 
         viewModel.voucherData.observe(viewLifecycleOwner) {
-
+            traceIdentifier = it?.traceIdentifier
             if (it?.voucherCode.isNullOrBlank()) {
                 showAlertMsg(
                     AlertMsg(
@@ -882,7 +912,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             salePartyData = it
             salePartyAdapter =
                 SalePartyAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
-            binding.etSalePartyName.setThreshold(1)
+            binding.etSalePartyName.threshold = 1
             binding.etSalePartyName.setAdapter(salePartyAdapter)
             binding.etSalePartyName.setOnItemClickListener { parent, _, position, _ ->
                 val salePartyItem = salePartyAdapter.getItem(position)
@@ -902,7 +932,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 requireContext(), R.layout.item_saleparty, it?.subPartyList ?: emptyList()
             )
             subPartyData = it?.subPartyList
-            binding.etSubParty.setThreshold(1)
+            binding.etSubParty.threshold = 1
             binding.etSubParty.setAdapter(subPartyAdapter)
             binding.etSubParty.setOnItemClickListener { parent, _, position, _ ->
                 val subPartyItem = subPartyAdapter.getItem(position)
@@ -911,13 +941,13 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     !(subPartyItem.subPartyId.isNotNullOrBlank() || binding.tilSubParty.isErrorEnabled)
                 viewModel.getStation(salePartyId, subPartyId)
             }
+
             defaultTransportAdapter = DefaultTransportAdapter(
                 requireContext(), R.layout.item_saleparty, it?.defTransport.orEmpty()
             )
-
             transportData = it?.defTransport
 
-            binding.etTransport.setThreshold(1)
+            binding.etTransport.threshold = 1
             binding.etTransport.setAdapter(defaultTransportAdapter)
             binding.etTransport.setOnItemClickListener { parent, _, position, _ ->
                 val tId = defaultTransportAdapter.getItem(position)
@@ -946,10 +976,10 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etAvailableLimit.setText("${avlLimit}")
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etAverageDays.setText(it?.avgDays.toString())
-            binding.etSubParty.setText(it?.defSubPartyName.orEmpty())
-            binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
+            binding.etSubParty.setText(it?.defSubPartyName.orEmpty(), false)
+            // binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
             bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
-            binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
+            // binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
             transportId = (it?.defTransport?.get(0)?.transportId.toString())
         }
         viewModel.station.observe(viewLifecycleOwner) {
@@ -957,7 +987,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 requireContext(), R.layout.item_saleparty, it.orEmpty()
             )
             stationData = it
-            binding.etStation.setThreshold(1)
+            binding.etStation.threshold = 1
             binding.etStation.setAdapter(stationAdapter)
             binding.etStation.setOnItemClickListener { parent, _, position, _ ->
                 val stationId = stationAdapter.getItem(position)
@@ -967,6 +997,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
             }
         }
+
 
         viewModel.purchaseParty.observe(viewLifecycleOwner) {
             purchasePartyData = it?.filterNonEmptyFields()

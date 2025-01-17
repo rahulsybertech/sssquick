@@ -17,6 +17,13 @@ import kotlinx.coroutines.launch
 
 class PendingOrderPDFListAdapter(private val pdfs: List<PendingOrderItem.PdfPath>?, val mCallBack: (String) -> Unit) : RecyclerView.Adapter<PendingOrderPDFListAdapter.MyViewHolder>() {
 
+    fun updateData(newData: List<PendingOrderItem.PdfPath>) {
+        // .clear()
+        // pdfs.addAll(newData)
+        // allPurchaseParty = ArrayList(newData)
+        // notifyDataSetChanged()
+    }
+
     inner class MyViewHolder(val binding: ImageListAdapterBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(item: String, onItemClick: (String) -> Unit) {
             itemView.setOnClickListener { onItemClick(item) }
