@@ -108,7 +108,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var statusOptionsOnEdit = listOf("PENDING", "HOLD", "CANCEL")
     private var isSubPartyRadioSelect = true
     private lateinit var statusDropDownAdapter: ArrayAdapter<String>
-    private var traceIdentifier : String? = null
+    private var traceIdentifier : String? = ""
 
     companion object {
         const val TAG = "TaG"
@@ -283,7 +283,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             if (validate()) binding.apply {
 
                 var totalQty = 0
-                var totalAmount: Double = 0.0
+                var totalAmount = 0.0
 
                 addItemViewModel.packTypeDataList.forEach {
                     if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
@@ -294,7 +294,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 }
 
                 val hashMap: HashMap<String, RequestBody?> = HashMap()
+                println("PLACING_ORDER 3 ${Gson().toJson(hashMap)}")
                 hashMap["SalePartyId"] = salePartyId.toRequestBody()
+                println("PLACING_ORDER 2 ${salePartyId}")
                 hashMap["SubPartyId"] = subPartyId.toRequestBody()
                 hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
                 hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
@@ -310,10 +312,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                 hashMap["OrderStatus"] = selectedStatus.toRequestBody()
                 hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
+                println("PLACING_ORDER 0 ${Gson().toJson(hashMap)}")
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
-
-                println("PLACING_ORDER 0 ${traceIdentifier}")
 
                 viewModel.placeOrder(hashMap)
             }
@@ -631,10 +632,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["TotalAmt"] = "0".toRequestBody()
                     hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                     hashMap["OrderStatus"] = "HOLD".toRequestBody()
+                    // hashMap["TraceIdentifier"] = "edit".toRequestBody()
                     if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                         (editData?.id ?: "").toRequestBody()
 
-                    println("PLACING_ORDER 1 ${schemeId}, $")
+                    println("PLACING_ORDER 1 ${Gson().toJson(hashMap)}")
 
                     viewModel.placeOrder(hashMap)
 
@@ -748,6 +750,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     binding.tvDispatchFromDate.text = it?.deliveryDateFrom
                     binding.etDiscription.setText(it?.remark)
                     binding.rgPurchaseParty.check(R.id.radioBySupplierName)
+                    binding.etTransport.setText(it?.transportName)
+                    binding.etStation.setText(it?.bstationName)
 
                     when (it?.pvtMarka ?: "") {
                         "*" -> {
@@ -883,7 +887,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         viewModel.voucherData.observe(viewLifecycleOwner) {
-            traceIdentifier = it?.traceIdentifier
+            traceIdentifier = it?.traceIdentifier ?: ""
             if (it?.voucherCode.isNullOrBlank()) {
                 showAlertMsg(
                     AlertMsg(

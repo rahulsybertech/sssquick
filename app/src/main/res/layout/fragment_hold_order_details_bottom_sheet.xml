@@ -121,29 +121,37 @@
             app:layout_constraintTop_toBottomOf="@id/tvSaleNo"
             tools:text="OMM HOSIERY : MUZAFFARPUR" />
 
+        <LinearLayout
+            android:id="@+id/llSuplier"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlSaleParty"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier">
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSupplier"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
             android:text="Supplier     : "
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@+id/lvlSaleParty" />
+             />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvSupplier"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
             android:fontFamily="@font/noto_sans_light"
             android:textColor="@color/black"
             android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvSaleParty"
             tools:text="OMM HOSIERY : MUZAFFARPUR" />
+        </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSubParty"
@@ -154,7 +162,7 @@
             android:text="Sub Party  : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@+id/lvlSupplier" />
+            app:layout_constraintTop_toBottomOf="@+id/llSuplier" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvSubParty"
@@ -165,7 +173,7 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvSupplier"
+            app:layout_constraintTop_toBottomOf="@id/llSuplier"
             tools:text="OMM HOSIERY : MUZAFFARPUR" />
 
         <com.google.android.material.textview.MaterialTextView
@@ -237,7 +245,7 @@
             android:layout_height="wrap_content"
             app:barrierDirection="end"
             app:barrierMargin="10dp"
-            app:constraint_referenced_ids="lvlSaleParty,lvlSupplier,lvlSubParty,lvlStatus" />
+            app:constraint_referenced_ids="lvlSaleParty,lvlSubParty,lvlStatus" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardView"
