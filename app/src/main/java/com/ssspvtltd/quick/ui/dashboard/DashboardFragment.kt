@@ -1,15 +1,11 @@
 package com.ssspvtltd.quick.ui.dashboard
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
-import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -64,28 +60,28 @@ class DashboardFragment : Fragment() {
         callApis()
 
 
-        if (!Environment.isExternalStorageManager()) {
-
-            SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
-                titleText = "All file access permission request!"
-                contentText = "Are you ready to grant the File access request PDFs access?"
-                setCancelable(false)
-                confirmText = "Yes, Sure"
-                cancelText =  "No"
-                confirmButtonBackgroundColor = getColor(context, R.color.error_text)
-                this.setConfirmClickListener {
-                    dismiss()
-                    val intent = Intent()
-                    intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    val uri = Uri.fromParts("package", requireContext().packageName, null)
-                    intent.setData(uri)
-                    startActivity(intent)
-                }
-                this.setCancelClickListener {
-                    requireActivity().finishAffinity()
-                }
-            }.show()
-        }
+        // if (!Environment.isExternalStorageManager()) {
+        //
+        //     SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE).apply {
+        //         titleText = "All file access permission request!"
+        //         contentText = "Are you ready to grant the File access request PDFs access?"
+        //         setCancelable(false)
+        //         confirmText = "Yes, Sure"
+        //         cancelText =  "No"
+        //         confirmButtonBackgroundColor = getColor(context, R.color.error_text)
+        //         this.setConfirmClickListener {
+        //             dismiss()
+        //             val intent = Intent()
+        //             intent.setAction(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+        //             val uri = Uri.fromParts("package", requireContext().packageName, null)
+        //             intent.setData(uri)
+        //             startActivity(intent)
+        //         }
+        //         this.setCancelClickListener {
+        //             requireActivity().finishAffinity()
+        //         }
+        //     }.show()
+        // }
     }
 
         private fun setViewModelObservers() {

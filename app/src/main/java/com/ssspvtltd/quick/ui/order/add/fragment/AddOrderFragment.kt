@@ -310,7 +310,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                 hashMap["OrderStatus"] = selectedStatus.toRequestBody()
                 hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
-                println("PLACING_ORDER 0 ${Gson().toJson(hashMap)}")
+                println("PLACING_ORDER 0 $selectedStatus)}")
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
 

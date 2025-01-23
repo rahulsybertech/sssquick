@@ -305,7 +305,6 @@ class AddOrderViewModel @Inject constructor(
 
     fun placeOrder(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Please wait..."))
-        println("GETTING_REQUEST_PLACE_ORDER ${Gson().toJson(params)}")
         params["OrderBookSecondaryList"] = gson.toJson(addItemDataList).toRequestBody()
         val documents = mutableListOf<MultipartBody.Part>()
         addImageDataList.forEach { imageModel ->
@@ -317,6 +316,7 @@ class AddOrderViewModel @Inject constructor(
                 ).let { documents.add(it) }
             }
         }
+        println("GETTING_REQUEST_PLACE_ORDER ${Gson().toJson(params)}")
         when (val response = repository.placeOrder(params, documents)) {
             is ResultWrapper.Failure -> {
                 if (response.error.islimitexceed == true) {

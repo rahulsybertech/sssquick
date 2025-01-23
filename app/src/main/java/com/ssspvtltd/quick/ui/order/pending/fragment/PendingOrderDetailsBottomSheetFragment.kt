@@ -6,23 +6,21 @@ import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
-import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -49,7 +47,6 @@ import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderImageListAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderItemAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderPDFListAdapter
-import com.ssspvtltd.quick.utils.DownloadCompleteReceiver
 import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
@@ -57,7 +54,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -77,7 +73,7 @@ class PendingOrderDetailsBottomSheetFragment :
 
     private lateinit var downloadManager: DownloadManager
     var downloadId: Long? = null
-
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,6 +96,19 @@ class PendingOrderDetailsBottomSheetFragment :
         dialog?.setCanceledOnTouchOutside(false)
         binding.recyclerView.adapter = mAdapter
         setRecyclerViewAdapters()
+
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission granted
+                downloadPdfToDownloads(requireContext(), pdfUrl)
+            } else {
+                // Permission denied
+                Toast.makeText(requireContext(), "Storage permission denied", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
 
         initViews()
         registerListeners()
@@ -243,64 +252,64 @@ class PendingOrderDetailsBottomSheetFragment :
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    private fun showPdf(url: String) {
-        val urlData = url.split("/")
-        val fileName = urlData.lastOrNull() ?: "downloaded_file.pdf"  // Extract file name from URL
-        Log.d("TaG", "showPdf: $fileName")
+    // @RequiresApi(Build.VERSION_CODES.R)
+    // private fun showPdf(url: String) {
+    //     val urlData = url.split("/")
+    //     val fileName = urlData.lastOrNull() ?: "downloaded_file.pdf"  // Extract file name from URL
+    //     Log.d("TaG", "showPdf: $fileName")
+    //
+    //     // Use the public downloads directory
+    //     val file = File(
+    //         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+    //         fileName
+    //     )
+    //     if (file.exists()) {
+    //         openPdf(file)
+    //     } else {
+    //         Log.i("TaG", "-----> Download start <--------")
+    //
+    //         println("CHECKING_THE_PERMISSION ${Environment.isExternalStorageManager()}")
+    //
+    //
+    //     }
+    // }
 
-        // Use the public downloads directory
-        val file = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileName
-        )
-        if (file.exists()) {
-            openPdf(file)
-        } else {
-            Log.i("TaG", "-----> Download start <--------")
-
-            println("CHECKING_THE_PERMISSION ${Environment.isExternalStorageManager()}")
-
-
-        }
-    }
-
-    private fun downloadPdf(url: String, fileName: String) {
-        val request = DownloadManager.Request(Uri.parse(url)).apply {
-            setTitle("Downloading PDF")
-            setDescription("Please wait while the PDF is being downloaded")
-
-            // Use the Downloads directory
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-        }
-
-        downloadManager =
-            requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadId = downloadManager.enqueue(request)
-
-        // Create an instance of the custom BroadcastReceiver
-        val receiver = DownloadCompleteReceiver(
-            downloadId = downloadId!!,
-            fileName = fileName,
-            fragmentReference = WeakReference(requireParentFragment()), // Pass a weak reference to the fragment
-            downloadManager = downloadManager,
-            openPdf = { file ->
-                openPdf(file)
-                println("FILE_NAME $file")
-            }
-        )
-
-
-        // Register the BroadcastReceiver
-        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-            // openPdf(file)
-        } else {
-            requireContext().registerReceiver(receiver, filter)
-        }
-    }
+    // private fun downloadPdf(url: String, fileName: String) {
+    //     val request = DownloadManager.Request(Uri.parse(url)).apply {
+    //         setTitle("Downloading PDF")
+    //         setDescription("Please wait while the PDF is being downloaded")
+    //
+    //         // Use the Downloads directory
+    //         setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
+    //         setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+    //     }
+    //
+    //     downloadManager =
+    //         requireActivity().getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+    //     downloadId = downloadManager.enqueue(request)
+    //
+    //     // Create an instance of the custom BroadcastReceiver
+    //     val receiver = DownloadCompleteReceiver(
+    //         downloadId = downloadId!!,
+    //         fileName = fileName,
+    //         fragmentReference = WeakReference(requireParentFragment()), // Pass a weak reference to the fragment
+    //         downloadManager = downloadManager,
+    //         openPdf = { file ->
+    //             openPdf(file)
+    //             println("FILE_NAME $file")
+    //         }
+    //     )
+    //
+    //
+    //     // Register the BroadcastReceiver
+    //     val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+    //     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    //         requireContext().registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
+    //         // openPdf(file)
+    //     } else {
+    //         requireContext().registerReceiver(receiver, filter)
+    //     }
+    // }
 
     // Function to open the PDF file
     private fun openPdf(file: File) {
@@ -358,36 +367,30 @@ class PendingOrderDetailsBottomSheetFragment :
         }
     }
 
-    override fun onResume() {
-        super.onResume()
 
-
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            STORAGE_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    downloadPdfToDownloads(requireContext(), pdfUrl)
-                }
-            }
-
-        }
-    }
+    // @RequiresApi(Build.VERSION_CODES.R)
+    // override fun onRequestPermissionsResult(
+    //     requestCode: Int,
+    //     permissions: Array<out String>,
+    //     grantResults: IntArray
+    // ) {
+    //     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    //
+    //     when (requestCode) {
+    //         STORAGE_PERMISSION_REQUEST_CODE -> {
+    //             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    //                 downloadPdfToDownloads(requireContext(), pdfUrl)
+    //             }
+    //         }
+    //
+    //     }
+    // }
 
     private fun downloadPdfToDownloads(context: Context, pdfUrl: String) {
         // Step 1: Get the Downloads directory
 
         val downloadsDir =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS)
         val fileName = pdfUrl.substringAfterLast("/")
         val pdfFile = File(downloadsDir, fileName)
 

@@ -3,7 +3,6 @@ package com.ssspvtltd.quick.ui.order.pending.fragment
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import com.google.gson.Gson
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
@@ -49,6 +48,15 @@ class PendingOrderFragment : BaseFragment<FragmentPendingOrderBinding, PendingOr
 
             mAdapter.submitList(viewModel.widgetList)
         }
+
+        viewModel.responseCodeOfPendingList.observe(this) {
+            println("GETTING_MESSAGE_RESPONSE $it, && ${viewModel.responseMessageOfPendingList}")
+            if (it.equals("204")) {
+                binding.noDataText.visibility = View.VISIBLE
+                binding.noDataText.text = viewModel.responseMessageOfPendingList.value
+            }
+        }
+
     }
 
     private fun initViews() = with(binding) {

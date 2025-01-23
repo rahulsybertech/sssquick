@@ -1,5 +1,7 @@
 package com.ssspvtltd.quick.ui.order.pending.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.data.BaseWidget
@@ -20,7 +22,13 @@ import javax.inject.Inject
 class PendingOrderViewModel @Inject constructor(
     private val gson: Gson,
     private val repository: PendingOrderRepository,
-) : RecyclerWidgetViewModel() {
+
+    ) : RecyclerWidgetViewModel() {
+
+    private val _responseCodeOfPendingList = MutableLiveData<String>()
+    val responseCodeOfPendingList: LiveData<String> get() = _responseCodeOfPendingList
+
+    val responseMessageOfPendingList = MutableLiveData<String>()
 
     private var pendingOrderList = listOf<PendingOrderData>()
     var searchValue = ""
@@ -29,6 +37,8 @@ class PendingOrderViewModel @Inject constructor(
         when (val response = repository.pendingOrderList(filterRequest)) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> {
+                _responseCodeOfPendingList.postValue(response.value.responseCode.orEmpty())
+                responseMessageOfPendingList.value = response.value.message.orEmpty()
                 pendingOrderList = response.value.data.orEmpty()
                 prepareFilteredList()
             }

@@ -9,6 +9,7 @@
 
     <style name="Theme.SSSQUICK" parent="Base.Theme.SSSQUICK" />
 
+
     <style name="Theme.Widget.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
         <item name="boxCornerRadiusBottomEnd">1dp</item>
         <item name="boxCornerRadiusBottomStart">1dp</item>
