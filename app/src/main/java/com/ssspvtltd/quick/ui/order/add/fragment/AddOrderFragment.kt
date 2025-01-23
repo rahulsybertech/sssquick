@@ -10,7 +10,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
@@ -108,7 +107,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var statusOptionsOnEdit = listOf("PENDING", "HOLD", "CANCEL")
     private var isSubPartyRadioSelect = true
     private lateinit var statusDropDownAdapter: ArrayAdapter<String>
-    private var traceIdentifier : String? = ""
+    private var traceIdentifier: String? = "00000000-0000-0000-0000-000000000000"
 
     companion object {
         const val TAG = "TaG"
@@ -281,7 +280,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         binding.placeOrder.setOnClickListener {
             if (validate()) binding.apply {
-
                 var totalQty = 0
                 var totalAmount = 0.0
 
@@ -296,7 +294,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 val hashMap: HashMap<String, RequestBody?> = HashMap()
                 println("PLACING_ORDER 3 ${Gson().toJson(hashMap)}")
                 hashMap["SalePartyId"] = salePartyId.toRequestBody()
-                println("PLACING_ORDER 2 ${salePartyId}")
+                println("PLACING_ORDER 2 ${Gson().toJson(salePartyId.toRequestBody())}")
                 hashMap["SubPartyId"] = subPartyId.toRequestBody()
                 hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
                 hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
@@ -632,7 +630,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["TotalAmt"] = "0".toRequestBody()
                     hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                     hashMap["OrderStatus"] = "HOLD".toRequestBody()
-                    // hashMap["TraceIdentifier"] = "edit".toRequestBody()
+                    hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
                     if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                         (editData?.id ?: "").toRequestBody()
 
