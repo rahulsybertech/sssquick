@@ -18,8 +18,8 @@ android {
         applicationId "com.ssspvtltd.quick"
         minSdk 26
         targetSdk 35
-        versionCode = 49
-        versionName = "3.1.6"
+        versionCode = 50
+        versionName = "3.1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -176,6 +176,9 @@ dependencies {
     implementation "androidx.room:room-ktx:$roomVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0"
     // Add Coroutine dependency
+
+
+    implementation 'com.airbnb.android:lottie:6.6.2'
 
 
 }

@@ -27,7 +27,7 @@ class HoldOrderImageListAdapter(private val imgs: List<com.ssspvtltd.quick.model
         val binding = holder.binding
 
         if((imgs?.get(position)?.url ?: "").contains(".pdf")){
-            binding.image.setImageResource(R.drawable.ic_pdf)
+            binding.image.setAnimation(R.raw.pdf_ani)
         } else {
             binding.image.setImageResource(R.drawable.ic_image)
         }

@@ -847,7 +847,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         }
                     }
 
-
                     val tempItemDetailList = mutableListOf<PackType>()
                     it?.itemDetailsList?.forEach { itemDetail ->
 
