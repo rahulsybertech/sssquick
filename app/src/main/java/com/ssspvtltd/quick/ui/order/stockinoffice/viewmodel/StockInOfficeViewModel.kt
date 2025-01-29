@@ -1,5 +1,7 @@
 package com.ssspvtltd.quick.ui.order.stockinoffice.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
@@ -20,6 +22,14 @@ import javax.inject.Inject
 class StockInOfficeViewModel @Inject constructor(private val repository: StockInOfficeRepository) :
     RecyclerWidgetViewModel() {
     private var stockInOfficeList = listOf<StockInOfficeData>()
+
+    val getMessage = MutableLiveData<String?>()
+
+    private val _responseCodeOfSIO = MutableLiveData<String>()
+    val responseCodeOfSIO: LiveData<String> get() = _responseCodeOfSIO
+
+    val responseMessageOfSIO = MutableLiveData<String>()
+
     var searchValue = ""
     fun getStockInOffice() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
@@ -39,7 +49,8 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
             }
             is ResultWrapper.Success -> {
                 stockInOfficeList = response.value.data.orEmpty()
-
+                _responseCodeOfSIO.postValue(response.value.responseCode.orEmpty())
+                getMessage.value = response.value.message.orEmpty()
                 hideProgressBar()
                 prepareFilteredList()
             }

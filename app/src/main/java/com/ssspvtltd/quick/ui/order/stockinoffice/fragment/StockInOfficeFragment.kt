@@ -42,6 +42,14 @@ class StockInOfficeFragment : BaseFragment<FragmentStockInOfficeBinding, StockIn
     private fun registerObserver() {
         viewModel.isListAvailable.observe(this) {
             mAdapter.submitList(viewModel.widgetList)
+            println("IS_LIST_AVAILABLE ${viewModel.widgetList}, && $it")
+        }
+
+        viewModel.responseCodeOfSIO.observe(this) {
+            if (it.equals("204")) {
+                binding.noDataSio.text = viewModel.getMessage.value
+                binding.noDataSio.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -59,7 +67,6 @@ class StockInOfficeFragment : BaseFragment<FragmentStockInOfficeBinding, StockIn
         mAdapter.onItemClick = {
             StockInOfficeBottomSheetFragment.newInstance(it)
                 .show(childFragmentManager, StockInOfficeBottomSheetFragment::class.simpleName)
-
         }
     }
 }

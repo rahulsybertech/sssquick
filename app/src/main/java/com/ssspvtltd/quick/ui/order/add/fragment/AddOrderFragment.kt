@@ -108,6 +108,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var isSubPartyRadioSelect = true
     private lateinit var statusDropDownAdapter: ArrayAdapter<String>
     private var traceIdentifier: String? = "00000000-0000-0000-0000-000000000000"
+    private var IS_EDITABLE: Boolean? = false
 
     companion object {
         const val TAG = "TaG"
@@ -234,12 +235,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         })
         binding.etScheme.doAfterTextChanged { data ->
-            isSchemeHasData = data?.length!! > 0
 
-            binding.radioByNickName.isChecked = true
-            if (!isSchemeHasData) {
-                viewModel.getPurchaseParty(null, true)
+            if (!IS_EDITABLE!!) {
+                isSchemeHasData = data?.length!! > 0
+
+                binding.radioByNickName.isChecked = true
+                if (!isSchemeHasData) {
+                    viewModel.getPurchaseParty(null, true)
+                }
             }
+
             // schemeId = ""
             // binding.etPurchaseParty.text.clear()
         }
@@ -535,13 +540,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             confirmText = getString(R.string.ok)
             confirmButtonBackgroundColor = getColor(context, R.color.red_2)
             setConfirmClickListener {
-                it.dismissWithAnimation()
+                println("ADD_ORDER_FRAGMENT_TO_DASHBOARD ${viewModel.pendingOrderID}")
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) {
                     val navOptions = NavOptions.Builder()
                         .setPopUpTo(R.id.addOrderFragment, true)
                         .build()
+                    println("ADD_ORDER_FRAGMENT_TO_DASHBOARD 0 ${viewModel.pendingOrderID}")
                     findNavController().navigate(R.id.dashboardFragment, null, navOptions)
                 }
+                it.dismissWithAnimation()
             }
 
         }.show()
@@ -578,7 +585,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 salePartyId = ""
                 binding.llImageCount.visibility = View.GONE
                 binding.etSubPartyRemark.text.clear()
-
+                binding.autoCompleteStatus.setText("PENDING", false)
+                addItemViewModel.packTypeDataList = emptyList()
                 subPartyData = emptyList()
                 stationData = emptyList()
                 transportData = emptyList()
@@ -738,9 +746,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     val editSchemeData =
                         schemeData?.filter { statData -> statData.schemeId == it?.schemeId }
                     if (!editSchemeData.isNullOrEmpty()) {
+                        IS_EDITABLE = true
                         binding.etScheme.setText(editSchemeData[0].schemeName)
                         schemeId = editSchemeData[0].schemeId ?: ""
                     }
+
 
 
 

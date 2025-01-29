@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseBottomDialog
 import com.ssspvtltd.quick.base.BaseViewModel
@@ -80,6 +82,10 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
         super.onCreate(savedInstanceState)
         mAdapter = HoldOrderItemAdapter(holdOrderItem.orderNo, null)
         imgAdapter = HoldOrderImageListAdapter(holdOrderItem.imagePathList, ::imageCallBack)
+        if (holdOrderItem.imagePathList != null) {
+            pdfUrl = holdOrderItem.imagePathList?.get(0)?.url.toString()
+            println("GET_MY_PDF 2 $pdfUrl")
+        }
         mAdapter.submitList(holdOrderItem.itemDetail)
 
     }
@@ -138,7 +144,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
         viewModel.fetchPdfUrl.observe(viewLifecycleOwner, Observer { pdfUrl ->
 
             println("GETTING_PDF_URL - $pdfUrl")
-            downloadPdfToDownloads(requireContext(), pdfUrl)
+            downloadPdfToDownloads(requireContext(), pdfUrl, false)
 
         })
 
@@ -150,6 +156,10 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
         viewModel.fetchHoldDeleteMessage.observe(viewLifecycleOwner, Observer {
             Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
         })
+
+        binding.sharePdf.setOnClickListener {
+            downloadPdfToDownloads(requireContext(), pdfUrl, true)
+        }
 
     }
 
@@ -367,7 +377,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 // showPdf(pdfUrl)
-                downloadPdfToDownloads(requireContext(), pdfUrl)
+                downloadPdfToDownloads(requireContext(), pdfUrl, false)
             } else {
                 ActivityCompat.requestPermissions(
                     requireActivity(),
@@ -379,7 +389,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
                 )
             }
         } else {
-            downloadPdfToDownloads(requireContext(), pdfUrl)
+            downloadPdfToDownloads(requireContext(), pdfUrl, false)
             // showPdf(pdfUrl)
         }
     }
@@ -396,24 +406,34 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
             STORAGE_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // showPdf(pdfUrl)
-                    downloadPdfToDownloads(requireContext(), pdfUrl)
-                } else {
+                    downloadPdfToDownloads(requireContext(), pdfUrl, false)
                 }
             }
 
         }
     }
 
-    fun downloadPdfToDownloads(context: Context, pdfUrl: String) {
-        // Step 1: Get the Downloads directory
-        val downloadsDir =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        val fileName = pdfUrl.substringAfterLast("/")
-        val pdfFile = File(downloadsDir, fileName)
+    private fun downloadPdfToDownloads(context: Context, pdfUrl: String, isSharing: Boolean) {
+        // Step 1:
+        // Get the Downloads directory
+
+        println("PDF_FILE_PATH 0 $pdfUrl")
+
+        val pdfFile: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            File(
+                context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                pdfUrl.substringAfterLast("/")
+            )
+        } else {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                pdfUrl.substringAfterLast("/")
+            )
+        }
 
         // Step 2: Download the file
         try {
-            StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
+            StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
             val url = URL(pdfUrl)
             val connection = url.openConnection() as HttpURLConnection
             connection.connect()
@@ -436,9 +456,32 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
             Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
             return
         }
+        println("PDF_FILE_PATH $pdfFile")
+        if (isSharing) {
+            try {
+                if (pdfFile.exists()) {
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        pdfFile
+                    )
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    intent.setType("*/*")
+                    intent.putExtra(Intent.EXTRA_STREAM, uri)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent)
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            openPdf(pdfFile)
+        }
+
 
         // Step 3: Open the PDF
-        openPdf(pdfFile)
+
         // try {
         //     val uri: Uri = FileProvider.getUriForFile(
         //         context,
