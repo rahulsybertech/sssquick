@@ -511,6 +511,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.etScheme.setOnClickListener {
             if (!binding.etScheme.isPopupShowing) {
                 binding.etScheme.showDropDown()
+
             }
         }
     }
