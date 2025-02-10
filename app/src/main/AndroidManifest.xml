@@ -66,6 +66,26 @@
             </intent-filter>
         </activity>
 
+
+
+
+        <!-- Alias with First Icon (Initially Disabled) -->
+        <activity-alias
+            android:name=".IconOneAlias"
+            android:exported="true"
+            android:targetActivity=".ui.auth.activity.LoginActivity"
+            android:icon="@drawable/hold_pending_pdf_refresh"
+            android:enabled="false">
+        </activity-alias>
+
+        <!-- Alias with Second Icon (Initially Disabled) -->
+        <activity-alias
+            android:name=".IconTwoAlias"
+            android:exported="true"
+            android:targetActivity=".ui.auth.activity.LoginActivity"
+            android:icon="@drawable/share"
+            android:enabled="false">
+        </activity-alias>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.ssspvtltd.quick.provider"

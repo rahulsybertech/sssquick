@@ -1,7 +1,9 @@
 package com.ssspvtltd.quick.ui.auth.activity
 
 import android.app.Dialog
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -52,6 +54,15 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
                 binding.next.setBackgroundResource(R.drawable.bg_btn_effect_red)
             }
         }
+
+
+       /* binding.tvDesc.setOnClickListener {
+            changeAppIcon("com.ssspvtltd.quick.IconOneAlias")
+        }
+
+        binding.mobileTxt.setOnClickListener {
+            changeAppIcon("com.ssspvtltd.quick.IconTwoAlias")
+        }*/
         viewModel.loginData.observe(this) {
             if (it == null) return@observe
             binding.llOtp.visibility = View.VISIBLE
@@ -229,5 +240,30 @@ class LoginActivity : BaseActivity<ActivityLoginBinding, LoginViewModel>() {
             val accessToken = viewModel.prefHelper.getAccessToken() ?: ""
             if (accessToken.isBlank()) viewModel.prefHelper.setUserName("")
         }
+    }
+
+
+    //Change the launcher icon by rahul
+    private fun changeAppIcon(aliasName: String) {
+        val pm = packageManager
+
+        // Disable all aliases first
+        pm.setComponentEnabledSetting(
+            ComponentName(this, "com.ssspvtltd.quick.IconOneAlias"),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+        pm.setComponentEnabledSetting(
+            ComponentName(this, "com.ssspvtltd.quick.IconTwoAlias"),
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
+
+        // Enable the selected alias (icon)
+        pm.setComponentEnabledSetting(
+            ComponentName(this, aliasName),
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 }

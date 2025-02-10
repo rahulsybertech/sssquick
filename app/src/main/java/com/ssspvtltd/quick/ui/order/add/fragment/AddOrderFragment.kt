@@ -1138,7 +1138,13 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     }
 
     private fun validate(): Boolean = with(binding) {
-        checkCleanInValidSelectedData()
+
+        if(viewModel.pendingOrderID.isNotNullOrBlank()){
+        //    viewModel.addItemDataList.clear()
+        }else{
+            checkCleanInValidSelectedData()
+        }
+
         if (etSalePartyName.text.isNullOrBlank()) {
             etSalePartyName.requestFocus()
             tilSaletParty.isErrorEnabled = true

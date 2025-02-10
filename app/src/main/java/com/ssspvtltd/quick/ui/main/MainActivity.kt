@@ -1,7 +1,9 @@
 package com.ssspvtltd.quick.ui.main
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
@@ -18,7 +20,6 @@ import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.material.navigation.NavigationBarView
-import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -39,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
 
+
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
@@ -53,9 +55,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         viewModel.autoLogout()
 
         viewModel.getCheckInStatus()
+
         registerObserver()
         registerListener()
     }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -217,7 +222,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         navigationBarView: NavigationBarView,
         navController: NavController
     ) {
-        navigationBarView.setOnItemSelectedListener { item ->//2131296328
+        navigationBarView.setOnItemSelectedListener { item ->// 2131296328
             Log.i("TaG","my nav ItemId -=-=-=> ${item.itemId}")
             if (item.itemId != R.id.addOrderFragment || runBlocking { viewModel.prefHelper.getCheckinStatus() } == true) {
                 NavigationUI.onNavDestinationSelected(item, navController, false)
@@ -235,7 +240,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
                         startActivity(intent)
                     }
                 }.show()
-                //viewModel.showMsgAlert(message = "Checkin First")
+                // viewModel.showMsgAlert(message = "Checkin First")
                 false
             }
         }
