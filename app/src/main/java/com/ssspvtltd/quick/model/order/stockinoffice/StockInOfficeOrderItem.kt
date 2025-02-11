@@ -20,6 +20,10 @@ data class StockInOfficeOrderItem(
     val subPartyName: String?,
     val supplierMob: String?,
     val supplierName: String,
+    val wayBillNo: String,
+    val wayBillPdf: String,
+    val saleBillNo: String,
+    val saleBillPdf: String,
     val type: String
 ): BaseWidget, Parcelable {
     override val viewType: BaseViewType get() = CommonViewType.DATA

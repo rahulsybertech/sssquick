@@ -14,6 +14,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +31,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseBottomDialog
 import com.ssspvtltd.quick.base.BaseViewModel
@@ -42,7 +45,10 @@ import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import java.io.FileOutputStream
 import java.lang.ref.WeakReference
+import java.net.HttpURLConnection
+import java.net.URL
 
 @AndroidEntryPoint
 class StockInOfficeBottomSheetFragment :
@@ -66,6 +72,8 @@ class StockInOfficeBottomSheetFragment :
 
     private fun registerListeners() = with(binding) {
         btnCloseDialog.setOnClickListener { dismiss() }
+
+
         tvSaleParty.text=stockInOfficeItem?.salePartyName ?: "N/A"
         tvSupplier.text=stockInOfficeItem?.supplierName ?: "N/A"
         tvQuantity.text=stockInOfficeItem?.qty.toString()
@@ -73,6 +81,22 @@ class StockInOfficeBottomSheetFragment :
          // tvStatus.text=pendingLrItem?.status ?: "N/A"
          tvPurchaseNo.text=stockInOfficeItem?.purchaseNo ?: "N/A"
          tvAmount.text=stockInOfficeItem?.amount.toString()
+
+
+        wayBillNumber.text=stockInOfficeItem?.wayBillNo ?: "N/A"
+        saleBillNumber.text=stockInOfficeItem?.saleBillNo ?: "N/A"
+        if(stockInOfficeItem?.wayBillNo!!.isNotNullOrBlank()){
+            wayWillImage.visibility=View.GONE
+        }else{
+            wayWillImage.visibility=View.VISIBLE
+        }
+        if(stockInOfficeItem?.saleBillNo!!.isNotNullOrBlank()){
+            ivDoc.visibility=View.GONE
+        }else{
+            ivDoc.visibility=View.VISIBLE
+        }
+
+
         // tvPcs.text=pendingLrItem?.qty.toString()
         //  tvRemark.text=pendingLrItem?.remark ?: "N/A"A
         //  tvSaleBillDate.text=pendingLrItem? // pass through apapter constructor
@@ -89,11 +113,38 @@ class StockInOfficeBottomSheetFragment :
         }
 
         llDoc.setOnClickListener {
-            if ((stockInOfficeItem?.imagePaths ?: "").contains(".pdf")) {
+         /*   if ((stockInOfficeItem?.imagePaths ?: "").contains(".pdf")) {
                 showPdfPreviewDialog(stockInOfficeItem?.imagePaths ?: "")
             } else {
                 showImagePreviewDialog(requireContext(), stockInOfficeItem?.imagePaths ?: "")
+            } */
+            if ((stockInOfficeItem?.saleBillPdf ?: "").contains(".pdf")) {
+                showPdfPreviewDialog(stockInOfficeItem?.saleBillPdf ?: "")
+            } else {
+                showImagePreviewDialog(requireContext(), stockInOfficeItem?.imagePaths ?: "")
             }
+        }
+
+        wayWillDocLL.setOnClickListener {
+
+            if ((stockInOfficeItem?.wayBillPdf ?: "").contains(".pdf")) {
+                showPdfPreviewDialog(stockInOfficeItem?.wayBillPdf ?: "")
+            } else {
+                showImagePreviewDialog(requireContext(), stockInOfficeItem?.imagePaths ?: "")
+            }
+        }
+        sharePdf.setOnClickListener {
+          var url=  stockInOfficeItem?.imagePaths
+            val myList = mutableListOf<String>()  // Creating an empty mutable list
+            if(stockInOfficeItem?.wayBillNo!!.isNullOrEmpty()){
+                myList.add(stockInOfficeItem!!.wayBillPdf)
+            }
+            if(stockInOfficeItem?.saleBillNo!!.isNullOrEmpty()){
+                myList.add(stockInOfficeItem!!.saleBillPdf)
+            }
+
+           // downloadPdfToDownloads(requireContext(), url!!, true)
+            downloadAndShareMultiplePdfs(requireContext(), myList, true)
         }
 
     }
@@ -279,4 +330,195 @@ class StockInOfficeBottomSheetFragment :
             }
         }
     }
+
+
+
+    private fun downloadPdfToDownloads(context: Context, pdfUrl: String, isSharing: Boolean) {
+        // Step 1:
+        // Get the Downloads directory
+
+        println("PDF_FILE_PATH 0 $pdfUrl")
+
+        val pdfFile: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            File(
+                context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                pdfUrl.substringAfterLast("/")
+            )
+        } else {
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                pdfUrl.substringAfterLast("/")
+            )
+        }
+
+        // Step 2: Download the file
+        try {
+            StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
+            val url = URL(pdfUrl)
+            val connection = url.openConnection() as HttpURLConnection
+            connection.connect()
+
+            val inputStream = connection.inputStream
+            val outputStream = FileOutputStream(pdfFile)
+
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                outputStream.write(buffer, 0, bytesRead)
+            }
+
+            inputStream.close()
+            outputStream.close()
+
+            // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
+            return
+        }
+        println("PDF_FILE_PATH $pdfFile")
+        if (isSharing) {
+            try {
+                if (pdfFile.exists()) {
+                    val uri = FileProvider.getUriForFile(
+                        context,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        pdfFile
+                    )
+                    val intent = Intent(Intent.ACTION_SEND)
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    intent.setType("*/*")
+                    intent.putExtra(Intent.EXTRA_STREAM, uri)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent)
+                }
+            } catch (e: java.lang.Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            openPdf(pdfFile)
+        }
+
+
+        // Step 3: Open the PDF
+
+        // try {
+        //     val uri: Uri = FileProvider.getUriForFile(
+        //         context,
+        //         "com.ssspvtltd.quick.fileprovider",
+        //         pdfFile
+        //     )
+        //
+        //     val intent = Intent(Intent.ACTION_VIEW)
+        //     intent.setDataAndType(uri, "application/pdf")
+        //     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        //
+        //     context.startActivity(intent)
+        // } catch (e: Exception) {
+        //     e.printStackTrace()
+        //     Toast.makeText(context, "No PDF viewer found", Toast.LENGTH_SHORT).show()
+        // }
+    }
+
+    private fun downloadAndShareMultiplePdfs(context: Context, pdfUrls: List<String>, isSharing: Boolean) {
+        val pdfFiles = mutableListOf<File>()
+
+        // Step 1: Download each PDF and store the file path
+        pdfUrls.forEach { pdfUrl ->
+            println("PDF_FILE_PATH 0 $pdfUrl")
+
+            val pdfFile: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                File(
+                    context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                    pdfUrl.substringAfterLast("/")
+                )
+            } else {
+                File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    pdfUrl.substringAfterLast("/")
+                )
+            }
+
+            // Step 2: Download the file
+            try {
+                StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
+                val url = URL(pdfUrl)
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connect()
+
+                val inputStream = connection.inputStream
+                val outputStream = FileOutputStream(pdfFile)
+
+                val buffer = ByteArray(1024)
+                var bytesRead: Int
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                }
+
+                inputStream.close()
+                outputStream.close()
+
+                // Add the downloaded file to the list
+                pdfFiles.add(pdfFile)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(context, "Failed to download PDF from $pdfUrl", Toast.LENGTH_SHORT).show()
+                return
+            }
+            println("PDF_FILE_PATH $pdfFile")
+        }
+
+        // Step 3: Share the PDFs if isSharing is true
+        if (isSharing) {
+            try {
+                val uris = pdfFiles.map { pdfFile ->
+                    FileProvider.getUriForFile(
+                        context,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        pdfFile
+                    )
+                }
+
+                // Create the intent to share multiple PDFs
+                val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = "*/*"  // Set the MIME type to handle PDF files
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                }
+
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else {
+            // Handle opening each PDF (you can modify this logic to handle multiple PDFs opening if needed)
+            pdfFiles.forEach { pdfFile ->
+                openPdfMaltipleUrl(pdfFile)
+            }
+        }
+    }
+
+    private fun openPdfMaltipleUrl(pdfFile: File) {
+        try {
+            val uri: Uri = FileProvider.getUriForFile(
+                requireContext(),
+                BuildConfig.APPLICATION_ID + ".provider",
+                pdfFile
+            )
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/pdf")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            requireContext().startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "No PDF viewer found", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }

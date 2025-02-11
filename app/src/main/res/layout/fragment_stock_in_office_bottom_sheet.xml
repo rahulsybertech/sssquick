@@ -42,6 +42,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_end="16dp" />
+        <LinearLayout
+            app:layout_constraintBottom_toTopOf="@id/lvlSaleParty"
+            android:id="@+id/testll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="-11dp"
+            android:layout_marginEnd="4dp"
+            android:orientation="horizontal">
+
+            <ImageView
+
+                android:id="@+id/btnEdit"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/hold_pending_edit"
+                android:visibility="invisible" />
+
+            <ImageView
+                android:id="@+id/sharePdf"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="4dp"
+                android:src="@drawable/share" />
+
+
+        </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlSaleParty"
@@ -98,7 +126,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Doc             : "
+            android:text="SaleBillNo: "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
             app:layout_constraintTop_toBottomOf="@+id/lvlSupplier" />
@@ -106,14 +134,25 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/llDoc"
             android:layout_width="0dp"
+            android:layout_marginTop="5dp"
             android:layout_height="20dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvSupplier">
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/saleBillNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/noto_sans_light"
+              android:textColor="@color/black"
+                android:text=""
+                android:textSize="12sp"
+                />
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/ivDoc"
+                android:layout_marginStart="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_pdf"/>
@@ -121,6 +160,44 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/wayBillM"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="WayBillNo : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlDoc" />
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/wayWillDocLL"
+            android:layout_width="0dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/lvlDoc">
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/wayBillNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/noto_sans_light"
+                android:textColor="@color/black"
+                android:text=""
+                android:textSize="12sp"
+               />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/wayWillImage"
+                android:layout_width="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_pdf"/>
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
 
         <androidx.constraintlayout.widget.Barrier
@@ -141,7 +218,7 @@
             app:cardElevation="1dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/llDoc">
+            app:layout_constraintTop_toBottomOf="@id/wayBillM">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

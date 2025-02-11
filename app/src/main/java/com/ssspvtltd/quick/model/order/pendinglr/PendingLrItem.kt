@@ -19,6 +19,9 @@ data class PendingLrItem(
     val spplierInvNo: String?,
     val subPartyName: String?,
     val supplierMob: String?,
+    val wayBillNo: String?,
+    val wayBillPdf: String?,
+    val saleBillPdf: String?,
     val supplierName: String?
 ) : BaseWidget, Parcelable {
     override val viewType: BaseViewType get() = CommonViewType.DATA

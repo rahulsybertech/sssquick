@@ -319,7 +319,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
 
-                viewModel.placeOrder(hashMap)
+             //   viewModel.placeOrder(hashMap)
             }
         }
         binding.tvAddItem.setOnClickListener {
@@ -760,7 +760,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     binding.etDiscription.setText(it?.remark)
                     binding.rgPurchaseParty.check(R.id.radioBySupplierName)
                     binding.etTransport.setText(it?.transportName)
-                    binding.etStation.setText(it?.bstationName)
+
 
                     when (it?.pvtMarka ?: "") {
                         "*" -> {
@@ -964,6 +964,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etTransport.setOnItemClickListener { parent, _, position, _ ->
                 val tId = defaultTransportAdapter.getItem(position)
                 transportId = tId?.transportId.toString()
+                binding.etStation.setText(it?.defTransport?.get(position)?.defStation?.get(0)?.stationName.orEmpty())
+                bookingStationId = it?.defTransport?.get(position)?.defStation?.get(0)?.stationId!!
                 binding.tilTransport.isErrorEnabled =
                     !(tId?.transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
             }
@@ -985,12 +987,19 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.green))
             }
 
+
+
             binding.etAvailableLimit.setText("${avlLimit}")
+         //   binding.etTransport.setText(it!!.mobileNo)
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etSubParty.setText(it?.defSubPartyName.orEmpty(), false)
-            // binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
-            bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
+
+            if(it?.defTransport?.get(0)?.transportName!!.isNotEmpty()){
+                binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
+                bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
+
+            }
             // binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
             transportId = (it?.defTransport?.get(0)?.transportId.toString())
         }
