@@ -74,6 +74,7 @@ class PendingLrBottomSheetFragment :
         btnCloseDialog.setOnClickListener { dismiss() }
         tvSaleParty.text=pendingLrItem?.salePartyName ?: "N/A"
         tvSupplier.text=pendingLrItem?.supplierName ?: "N/A"
+        tvSaleBillDate.text=pendingLrItem?.saleBillDate ?: "N/A"
         tvQuantity.text=pendingLrItem?.qty.toString()
 
 
@@ -87,6 +88,24 @@ class PendingLrBottomSheetFragment :
         }else{
             ivDoc.visibility=View.VISIBLE
         }
+
+        if (pendingLrItem?.saleBillPdf.isNullOrEmpty()) {
+            ivDoc.visibility = View.GONE
+        } else {
+            ivDoc.visibility = View.VISIBLE
+        }
+        if(pendingLrItem?.wayBillPdf.isNullOrEmpty()){
+            wayWillImage.visibility=View.GONE
+        }else{
+            wayWillImage.visibility=View.VISIBLE
+        }
+        binding.sharePdf.visibility = if (pendingLrItem?.saleBillPdf.isNullOrEmpty() &&
+            pendingLrItem?.wayBillPdf.isNullOrEmpty()) {
+            View.GONE  // Hide if both are null or empty
+        } else {
+            View.VISIBLE  // Show if at least one is not null/empty
+        }
+
          // tvItem.text=pendingLrItem?.itemName ?: "N/A"
          // tvStatus.text=pendingLrItem?.status ?: "N/A"
          tvSaleBillNo.text=pendingLrItem?.billNo ?: "N/A"
@@ -101,15 +120,25 @@ class PendingLrBottomSheetFragment :
         sharePdf.setOnClickListener {
             var url=  pendingLrItem?.imagePaths
             val myList = mutableListOf<String>()  // Creating an empty mutable list
-            if(pendingLrItem?.wayBillNo!!.isNotEmpty()){
-                myList.add(pendingLrItem!!.wayBillPdf!!)
-            }
-            if(pendingLrItem?.billNo!!.isNotEmpty()){
-                myList.add(pendingLrItem!!.saleBillPdf!!)
+
+            pendingLrItem?.wayBillPdf?.let {
+                if (it.isNotEmpty()) {
+                    myList.add(it)
+                }
             }
 
+            pendingLrItem?.saleBillPdf?.let {
+                if (it.isNotEmpty()) {
+                    myList.add(it)
+                }
+            }
+            if(myList.size>0){
+                downloadAndShareMultiplePdfs(requireContext(), myList, true)
+            }else{
+                Toast.makeText(context, "Pdf not available ", Toast.LENGTH_SHORT).show()
+            }
             // downloadPdfToDownloads(requireContext(), url!!, true)
-            downloadAndShareMultiplePdfs(requireContext(), myList, true)
+
         }
 
         llDoc.setOnClickListener {

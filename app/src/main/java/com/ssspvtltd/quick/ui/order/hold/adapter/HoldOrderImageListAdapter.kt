@@ -40,4 +40,8 @@ class HoldOrderImageListAdapter(private val imgs: List<com.ssspvtltd.quick.model
 
 
 
+
+
+
+
 }

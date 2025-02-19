@@ -4,3 +4,5 @@ data class StockInOfficeData(
     val orderDate: String,
     val orderItemList: List<StockInOfficeOrderItem>
 )
+
+

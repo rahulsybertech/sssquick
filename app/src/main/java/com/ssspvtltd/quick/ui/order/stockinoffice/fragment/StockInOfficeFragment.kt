@@ -69,4 +69,8 @@ class StockInOfficeFragment : BaseFragment<FragmentStockInOfficeBinding, StockIn
                 .show(childFragmentManager, StockInOfficeBottomSheetFragment::class.simpleName)
         }
     }
+
+
+
+
 }

@@ -10,6 +10,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
@@ -319,7 +320,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
 
-             //   viewModel.placeOrder(hashMap)
+                viewModel.placeOrder(hashMap)
             }
         }
         binding.tvAddItem.setOnClickListener {
@@ -511,7 +512,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.etScheme.setOnClickListener {
             if (!binding.etScheme.isPopupShowing) {
                 binding.etScheme.showDropDown()
-
             }
         }
     }
@@ -760,7 +760,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     binding.etDiscription.setText(it?.remark)
                     binding.rgPurchaseParty.check(R.id.radioBySupplierName)
                     binding.etTransport.setText(it?.transportName)
-
+                    binding.etStation.setText(it?.bstationName)
 
                     when (it?.pvtMarka ?: "") {
                         "*" -> {
@@ -797,7 +797,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     }
 
                     job3?.join()
-
 
                     // var job4 : Deferred<Job>? = null
 
@@ -964,8 +963,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etTransport.setOnItemClickListener { parent, _, position, _ ->
                 val tId = defaultTransportAdapter.getItem(position)
                 transportId = tId?.transportId.toString()
-                binding.etStation.setText(it?.defTransport?.get(position)?.defStation?.get(0)?.stationName.orEmpty())
-                bookingStationId = it?.defTransport?.get(position)?.defStation?.get(0)?.stationId!!
                 binding.tilTransport.isErrorEnabled =
                     !(tId?.transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
             }
@@ -987,19 +984,12 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.etAvailableLimit.setTextColor(getColor(requireContext(), R.color.green))
             }
 
-
-
             binding.etAvailableLimit.setText("${avlLimit}")
-         //   binding.etTransport.setText(it!!.mobileNo)
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etAverageDays.setText(it?.avgDays.toString())
             binding.etSubParty.setText(it?.defSubPartyName.orEmpty(), false)
-
-            if(it?.defTransport?.get(0)?.transportName!!.isNotEmpty()){
-                binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
-                bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
-
-            }
+            // binding.etStation.setText(it?.defTransport?.get(0)?.defStation?.get(0)?.stationName.orEmpty())
+            bookingStationId = it?.defTransport?.get(0)?.defStation?.get(0)?.stationId.toString()
             // binding.etTransport.setText(it?.defTransport?.get(0)?.transportName)
             transportId = (it?.defTransport?.get(0)?.transportId.toString())
         }
@@ -1148,13 +1138,11 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     }
 
     private fun validate(): Boolean = with(binding) {
-
         if(viewModel.pendingOrderID.isNotNullOrBlank()){
-        //    viewModel.addItemDataList.clear()
+            //    viewModel.addItemDataList.clear()
         }else{
             checkCleanInValidSelectedData()
         }
-
         if (etSalePartyName.text.isNullOrBlank()) {
             etSalePartyName.requestFocus()
             tilSaletParty.isErrorEnabled = true

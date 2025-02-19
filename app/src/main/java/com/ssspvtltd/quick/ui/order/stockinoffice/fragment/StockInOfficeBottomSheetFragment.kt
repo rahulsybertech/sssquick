@@ -85,15 +85,25 @@ class StockInOfficeBottomSheetFragment :
 
         wayBillNumber.text=stockInOfficeItem?.wayBillNo ?: "N/A"
         saleBillNumber.text=stockInOfficeItem?.saleBillNo ?: "N/A"
-        if(stockInOfficeItem?.wayBillNo!!.isNotNullOrBlank()){
+     /*   if(stockInOfficeItem?.wayBillNo!!.isEmpty()){
             wayWillImage.visibility=View.GONE
         }else{
             wayWillImage.visibility=View.VISIBLE
         }
-        if(stockInOfficeItem?.saleBillNo!!.isNotNullOrBlank()){
+        if(stockInOfficeItem?.saleBillNo!!.isEmpty()){
             ivDoc.visibility=View.GONE
         }else{
             ivDoc.visibility=View.VISIBLE
+        }*/
+        if (stockInOfficeItem?.saleBillPdf.isNullOrEmpty()) {
+            ivDoc.visibility = View.GONE
+        } else {
+            ivDoc.visibility = View.VISIBLE
+        }
+        if(stockInOfficeItem?.wayBillPdf.isNullOrEmpty()){
+            wayWillImage.visibility=View.GONE
+        }else{
+            wayWillImage.visibility=View.VISIBLE
         }
 
 
@@ -101,7 +111,7 @@ class StockInOfficeBottomSheetFragment :
         //  tvRemark.text=pendingLrItem?.remark ?: "N/A"A
         //  tvSaleBillDate.text=pendingLrItem? // pass through apapter constructor
 
-        if (stockInOfficeItem?.imagePaths.isNotNullOrBlank()) {
+        /*if (stockInOfficeItem?.imagePaths.isNotNullOrBlank()) {
             Log.i("TaG","-=-=-=-=-=-=-=->${stockInOfficeItem?.imagePaths}")
             if ((stockInOfficeItem?.imagePaths ?: "").contains(".pdf")) {
                 ivDoc.setImageResource(R.drawable.ic_pdf)
@@ -109,15 +119,17 @@ class StockInOfficeBottomSheetFragment :
                 ivDoc.setImageResource(R.drawable.ic_image)
             }
         } else {
-            llDoc.visibility = View.GONE
+          //  llDoc.visibility = View.GONE
+        }*/
+
+        binding.sharePdf.visibility = if (stockInOfficeItem?.saleBillPdf.isNullOrEmpty() &&
+            stockInOfficeItem?.wayBillPdf.isNullOrEmpty()) {
+            View.GONE  // Hide if both are null or empty
+        } else {
+            View.VISIBLE  // Show if at least one is not null/empty
         }
 
-        llDoc.setOnClickListener {
-         /*   if ((stockInOfficeItem?.imagePaths ?: "").contains(".pdf")) {
-                showPdfPreviewDialog(stockInOfficeItem?.imagePaths ?: "")
-            } else {
-                showImagePreviewDialog(requireContext(), stockInOfficeItem?.imagePaths ?: "")
-            } */
+        ivDoc.setOnClickListener {
             if ((stockInOfficeItem?.saleBillPdf ?: "").contains(".pdf")) {
                 showPdfPreviewDialog(stockInOfficeItem?.saleBillPdf ?: "")
             } else {
@@ -125,7 +137,7 @@ class StockInOfficeBottomSheetFragment :
             }
         }
 
-        wayWillDocLL.setOnClickListener {
+        wayWillImage.setOnClickListener {
 
             if ((stockInOfficeItem?.wayBillPdf ?: "").contains(".pdf")) {
                 showPdfPreviewDialog(stockInOfficeItem?.wayBillPdf ?: "")
@@ -136,15 +148,21 @@ class StockInOfficeBottomSheetFragment :
         sharePdf.setOnClickListener {
           var url=  stockInOfficeItem?.imagePaths
             val myList = mutableListOf<String>()  // Creating an empty mutable list
-            if(stockInOfficeItem?.wayBillNo!!.isNullOrEmpty()){
-                myList.add(stockInOfficeItem!!.wayBillPdf)
-            }
-            if(stockInOfficeItem?.saleBillNo!!.isNullOrEmpty()){
-                myList.add(stockInOfficeItem!!.saleBillPdf)
+            stockInOfficeItem?.wayBillPdf?.takeIf { it.isNotEmpty() }?.let {
+                myList.add(it)
             }
 
+            stockInOfficeItem?.saleBillPdf?.takeIf { it.isNotEmpty() }?.let {
+                myList.add(it)
+            }
+
+            if(myList.isNotEmpty()){
+                downloadAndShareMultiplePdfs(requireContext(), myList, true)
+            }else{
+                Toast.makeText(context, "Pdf not available ", Toast.LENGTH_SHORT).show()
+            }
            // downloadPdfToDownloads(requireContext(), url!!, true)
-            downloadAndShareMultiplePdfs(requireContext(), myList, true)
+
         }
 
     }

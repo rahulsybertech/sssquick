@@ -169,6 +169,35 @@ class DashboardFragment : Fragment() {
                     }
                 }.show()
             }
+
+           /* if (!latestVersion.isNullOrEmpty() && latestVersion > currentVersion) {
+                SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE).apply {
+                    titleText = "Alert! New update"
+                    contentText = "New update is required to access the application."
+                    setCancelable(false)
+                    confirmText = "Ok, Proceed!"
+                    // cancelText = "No"
+                    confirmButtonBackgroundColor = getColor(context, R.color.red_2)
+                    setConfirmClickListener {
+                        it.dismissWithAnimation()
+                        try {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("market://details?id=${context.packageName}")
+                                )
+                            )
+                        } catch (e: ActivityNotFoundException) {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
+                                )
+                            )
+                        }
+                    }
+                }.show()
+            }*/
         }
 
         private val dashBoardObserver = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
