@@ -505,6 +505,33 @@
 
                 </RadioGroup>
             </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilPVTMarka"
+                android:visibility="gone"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:hint="@string/pvt_marka"
+                app:endIconMode="clear_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tilRadioStar">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etpvtMarka"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:imeOptions="actionNext"
+                    android:inputType="text|textCapSentences"
+                    android:maxLength="200"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDiscription"
@@ -517,7 +544,7 @@
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilRadioStar">
+                app:layout_constraintTop_toBottomOf="@+id/tilPVTMarka">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/etDiscription"

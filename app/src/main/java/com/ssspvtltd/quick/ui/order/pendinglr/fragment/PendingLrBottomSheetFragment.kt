@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.order.pendinglr.fragment
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.DownloadManager
+import android.app.ProgressDialog
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -43,6 +44,10 @@ import com.ssspvtltd.quick.utils.DownloadCompleteReceiver
 import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.ref.WeakReference
@@ -118,25 +123,39 @@ class PendingLrBottomSheetFragment :
 
 
         sharePdf.setOnClickListener {
-            var url=  pendingLrItem?.imagePaths
-            val myList = mutableListOf<String>()  // Creating an empty mutable list
+            try {
+                sharePdf.isEnabled = false
+                var url=  pendingLrItem?.imagePaths
+                val myList = mutableListOf<String>()  // Creating an empty mutable list
 
-            pendingLrItem?.wayBillPdf?.let {
-                if (it.isNotEmpty()) {
-                    myList.add(it)
+                pendingLrItem?.wayBillPdf?.let {
+                    if (it.isNotEmpty()) {
+                        myList.add(it)
+                    }
                 }
+
+                pendingLrItem?.saleBillPdf?.let {
+                    if (it.isNotEmpty()) {
+                        myList.add(it)
+                    }
+                }
+                if (myList.isNotEmpty()) {
+                    val progressDialog = showLoader(requireContext()) // Show loader
+                    downloadAndShareMultiplePdfs(requireContext(), myList, true) {
+                        progressDialog.dismiss()  // Hide loader
+                        sharePdf.isEnabled = true  // Re-enable button
+                    }
+                } else {
+                    Toast.makeText(context, "Pdf not available", Toast.LENGTH_SHORT).show()
+                    sharePdf.isEnabled = true  // Re-enable if no PDFs
+                }
+            }catch (e:Exception){
+                Log.e("PDF_SHARE", "Error sharing PDF", e)
+                Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show()
+                sharePdf.isEnabled = true  // Ensure button is re-enabled in case of failure
+
             }
 
-            pendingLrItem?.saleBillPdf?.let {
-                if (it.isNotEmpty()) {
-                    myList.add(it)
-                }
-            }
-            if(myList.size>0){
-                downloadAndShareMultiplePdfs(requireContext(), myList, true)
-            }else{
-                Toast.makeText(context, "Pdf not available ", Toast.LENGTH_SHORT).show()
-            }
             // downloadPdfToDownloads(requireContext(), url!!, true)
 
         }
@@ -174,6 +193,13 @@ class PendingLrBottomSheetFragment :
                 }
             }
         }
+    }
+    private fun showLoader(context: Context): ProgressDialog {
+        val progressDialog = ProgressDialog(context)
+        progressDialog.setMessage("Downloading PDFs, please wait...")
+        progressDialog.setCancelable(false) // Prevents dismiss by user
+        progressDialog.show()
+        return progressDialog
     }
     private fun showImagePreviewDialog(context: Context, imageUrl: String) {
 
@@ -330,86 +356,84 @@ class PendingLrBottomSheetFragment :
         }
     }
 
-    private fun downloadAndShareMultiplePdfs(context: Context, pdfUrls: List<String>, isSharing: Boolean) {
+    private fun downloadAndShareMultiplePdfs(
+        context: Context,
+        pdfUrls: List<String>,
+        isSharing: Boolean,
+        onComplete: () -> Unit
+    ) {
         val pdfFiles = mutableListOf<File>()
 
-        // Step 1: Download each PDF and store the file path
-        pdfUrls.forEach { pdfUrl ->
-            println("PDF_FILE_PATH 0 $pdfUrl")
-
-            val pdfFile: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                File(
-                    context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-                    pdfUrl.substringAfterLast("/")
-                )
-            } else {
-                File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    pdfUrl.substringAfterLast("/")
-                )
-            }
-
-            // Step 2: Download the file
+        CoroutineScope(Dispatchers.IO).launch {
             try {
-                StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
-                val url = URL(pdfUrl)
-                val connection = url.openConnection() as HttpURLConnection
-                connection.connect()
-
-                val inputStream = connection.inputStream
-                val outputStream = FileOutputStream(pdfFile)
-
-                val buffer = ByteArray(1024)
-                var bytesRead: Int
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                }
-
-                inputStream.close()
-                outputStream.close()
-
-                // Add the downloaded file to the list
-                pdfFiles.add(pdfFile)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(context, "Failed to download PDF from $pdfUrl", Toast.LENGTH_SHORT).show()
-                return
-            }
-            println("PDF_FILE_PATH $pdfFile")
-        }
-
-        // Step 3: Share the PDFs if isSharing is true
-        if (isSharing) {
-            try {
-                val uris = pdfFiles.map { pdfFile ->
-                    FileProvider.getUriForFile(
-                        context,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        pdfFile
+                pdfUrls.forEach { pdfUrl ->
+                    val pdfFile = File(
+                        context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                        pdfUrl.substringAfterLast("/")
                     )
+
+                    val url = URL(pdfUrl)
+                    val connection = url.openConnection() as HttpURLConnection
+                    connection.connect()
+
+                    val inputStream = connection.inputStream
+                    val outputStream = FileOutputStream(pdfFile)
+
+                    val buffer = ByteArray(1024)
+                    var bytesRead: Int
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        outputStream.write(buffer, 0, bytesRead)
+                    }
+
+                    inputStream.close()
+                    outputStream.close()
+
+                    pdfFiles.add(pdfFile)
                 }
 
-                // Create the intent to share multiple PDFs
-                val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    type = "*/*"  // Set the MIME type to handle PDF files
-                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                // On the main thread after download completes
+                withContext(Dispatchers.Main) {
+                    if (isSharing) {
+                        sharePdfs(context, pdfFiles)
+                    } else {
+                        pdfFiles.forEach { openPdfMaltipleUrl(it) }
+                    }
+                    onComplete()  // Hide loader, Re-enable button
                 }
-
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
 
             } catch (e: Exception) {
                 e.printStackTrace()
-            }
-        } else {
-            // Handle opening each PDF (you can modify this logic to handle multiple PDFs opening if needed)
-            pdfFiles.forEach { pdfFile ->
-                openPdfMaltipleUrl(pdfFile)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed to download PDFs", Toast.LENGTH_SHORT).show()
+                    onComplete()  // Hide loader even on failure
+                }
             }
         }
     }
+
+    private fun sharePdfs(context: Context, pdfFiles: List<File>) {
+        try {
+            val uris = pdfFiles.map { pdfFile ->
+                FileProvider.getUriForFile(
+                    context,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    pdfFile
+                )
+            }
+
+            val intent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = "application/pdf"
+                putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+            }
+
+            context.startActivity(Intent.createChooser(intent, "Share PDFs"))
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 
     private fun openPdfMaltipleUrl(pdfFile: File) {
         try {

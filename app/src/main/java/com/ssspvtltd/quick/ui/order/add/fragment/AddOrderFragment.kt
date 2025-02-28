@@ -81,6 +81,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var subPartyId: String = ""
     private var purchasePartyId: String = ""
     private var pvtMarka: String = "*"
+    private var isPvtMarka: Boolean = false
     private var bookingStationId: String = ""
     private var transportId: String = ""
     private var schemeId: String = ""
@@ -174,6 +175,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.radioBySupplierName.isEnabled = false
                 binding.tilPurchaseParty.isEnabled = false
                 binding.etDiscription.isEnabled = false
+                binding.etpvtMarka.isEnabled = false
                 binding.tvDispatchFromDate.isEnabled = false
                 binding.tvDispatchToDate.isEnabled = false
                 binding.tvItemImage.isEnabled = false
@@ -205,6 +207,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etScheme.text?.clear()
             binding.etPurchaseParty.text?.clear()
             binding.etDiscription.text?.clear()
+            binding.etpvtMarka.text?.clear()
             binding.tvDispatchFromDate.text = ""
             binding.tvDispatchToDate.text = ""
         }
@@ -266,6 +269,17 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 }
             }
         }
+        binding.etpvtMarka.doAfterTextChanged {
+            when {
+                (it?.length ?: 0) > 0 -> {
+                    binding.tilPVTMarka.isErrorEnabled = false
+                }
+
+                (it?.length == 0) -> {
+                    binding.tilPVTMarka.isErrorEnabled = true
+                }
+            }
+        }
         binding.etSubPartyRemark.doAfterTextChanged {
             when {
                 (it?.length ?: 0) > 0 -> {
@@ -311,15 +325,22 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
                 hashMap["DeliveryDateTo"] = tvDispatchToDate.text.toString().toRequestBody()
                 hashMap["Remark"] = etDiscription.text.toString().toRequestBody()
+                if (isPvtMarka){
+                    hashMap["PvtMarka"] = etpvtMarka.text.toString().toRequestBody()
+                }
+
                 hashMap["TotalQty"] = "0".toRequestBody()
                 hashMap["TotalAmt"] = "0".toRequestBody()
                 hashMap["OrderTypeName"] = "TRADING".toRequestBody()
                 hashMap["OrderStatus"] = selectedStatus.toRequestBody()
                 hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
+
                 println("PLACING_ORDER 0 $selectedStatus)}")
                 if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
                     (editData?.id ?: "").toRequestBody()
 
+
+                Log.e("hashmap",hashMap.toString())
                 viewModel.placeOrder(hashMap)
             }
         }
@@ -340,9 +361,20 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         binding.rgStartype.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
-                R.id.star1 -> pvtMarka = "*"
+                R.id.star1 -> {
+                    binding.tilPVTMarka.visibility=View.GONE
+                    pvtMarka = "*"
+                    isPvtMarka=false
+
+                }
                 R.id.star2 -> pvtMarka = "**"
-                R.id.star3 -> pvtMarka = "***"
+                R.id.star3 ->{
+                    isPvtMarka=true
+                    binding.tilPVTMarka.visibility=View.VISIBLE
+                    pvtMarka = "***"
+
+                }
+
             }
         }
         binding.rgSubparty.setOnCheckedChangeListener { group, checkedId ->
@@ -575,9 +607,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.etAvailableLimit.text?.clear()
                 binding.etTransport.text.clear()
                 binding.etStation.text.clear()
+                binding.rgStartype.check(R.id.star1)
+                binding.tilPVTMarka.visibility=View.GONE
+                pvtMarka = "*"
+                isPvtMarka=false
                 binding.etScheme.text.clear()
                 binding.etPurchaseParty.text.clear()
                 binding.etDiscription.text?.clear()
+                binding.etpvtMarka.text?.clear()
+
                 binding.tvDispatchFromDate.text = ""
                 binding.tvDispatchToDate.text = ""
                 addItemViewModel.clearWidgetList()
@@ -635,6 +673,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
                     hashMap["DeliveryDateTo"] = tvDispatchToDate.text.toString().toRequestBody()
                     hashMap["Remark"] = etDiscription.text.toString().toRequestBody()
+                    if (isPvtMarka){
+                        hashMap["PvtMarka"] = etpvtMarka.text.toString().toRequestBody()
+                    }
                     hashMap["TotalQty"] = "0".toRequestBody()
                     hashMap["TotalAmt"] = "0".toRequestBody()
                     hashMap["OrderTypeName"] = "TRADING".toRequestBody()
@@ -757,18 +798,35 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
                     binding.tvDispatchToDate.text = it?.deliveryDateTo
                     binding.tvDispatchFromDate.text = it?.deliveryDateFrom
+
                     binding.etDiscription.setText(it?.remark)
                     binding.rgPurchaseParty.check(R.id.radioBySupplierName)
                     binding.etTransport.setText(it?.transportName)
                     binding.etStation.setText(it?.bstationName)
 
-                    when (it?.pvtMarka ?: "") {
+                  /*  when (it?.pvtMarka ?: "") {
                         "*" -> {
+                            binding.tilPVTMarka.visibility=View.GONE
                             binding.rgStartype.check(R.id.star1)
                         }
 
                         "***" -> {
                             binding.rgStartype.check(R.id.star3)
+                            binding.tilPVTMarka.visibility=View.VISIBLE
+                            binding.etDiscription.setText(it?.remark)
+                        }
+                    } */
+                    when (it?.orderCategary ?: "") {
+                        "*" -> {
+                            binding.tilPVTMarka.visibility=View.GONE
+                            binding.rgStartype.check(R.id.star1)
+                        }
+
+                        "***" -> {
+                            binding.rgStartype.check(R.id.star3)
+                            binding.tilPVTMarka.visibility=View.VISIBLE
+                            binding.etpvtMarka.setText(it?.pvtMarka)
+
                         }
                     }
 
@@ -914,6 +972,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
             if (it?.isVisible == false) {
                 binding.tilRadioStar.visibility = View.GONE
+
             } else {
                 binding.tilRadioStar.visibility = View.VISIBLE
             }
@@ -1143,6 +1202,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }else{
             checkCleanInValidSelectedData()
         }
+
         if (etSalePartyName.text.isNullOrBlank()) {
             etSalePartyName.requestFocus()
             tilSaletParty.isErrorEnabled = true
@@ -1185,7 +1245,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             tilPurchaseParty.isErrorEnabled = true
             tilPurchaseParty.setError("You need to select purchase party")
             return false
-        } else if (tvDispatchFromDate.text.isBlank()) {
+        }
+        else if (isPvtMarka && etpvtMarka.text?.isBlank() == true) {  // ✅ Safe null check
+            etpvtMarka.requestFocus()
+            tilPVTMarka.isErrorEnabled = true
+            tilPVTMarka.setError("Please enter PVT Marka")
+            return false
+        }
+
+        else if (tvDispatchFromDate.text.isBlank()) {
             tvDispatchFromDate.requestFocus()
             tvDispatchFromDate.setBackgroundResource(R.drawable.red_outline)
             tvDispatchFromDate.error = "Please enter From date"

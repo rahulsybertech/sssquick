@@ -40,6 +40,9 @@ data class EditOrderDataNew(
     val orderNo: String?,
     @SerializedName("orderTypeName")
     @Expose
+    val orderCategary: String?,
+    @SerializedName("ordercategary")
+    @Expose
     val orderTypeName: String?,
     @SerializedName("orderStatus")
     @Expose

@@ -113,6 +113,7 @@
     <string name="status">Status</string>
     <string name="error">Error</string>
     <string name="save">Save</string>
+    <string name="pvt_marka">PVT Marka*</string>
 
     <!--<string name="regenerate_pdf"><u>Regenerate Pdf</u></string>-->
 </resources>
