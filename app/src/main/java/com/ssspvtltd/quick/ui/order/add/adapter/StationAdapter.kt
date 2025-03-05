@@ -9,13 +9,13 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
 import com.ssspvtltd.quick.R
-import com.ssspvtltd.quick.model.order.add.salepartydetails.AllStation
+import com.ssspvtltd.quick.model.order.add.salepartyNewList.AllStation
 
 
 class StationAdapter(
     private val mContext: Context,
     private val mLayoutResourceId: Int,
-    defStationList: List<AllStation>,
+    defStationList: List<com.ssspvtltd.quick.model.order.add.salepartyNewList.AllStation>,
 ) : ArrayAdapter<AllStation>(mContext, mLayoutResourceId, defStationList) {
 
     private val defStation: MutableList<AllStation?> = ArrayList(defStationList)
@@ -26,7 +26,12 @@ class StationAdapter(
         defStation.clear()
         defStation.addAll(defStationList)
         allDefStation = ArrayList(defStationList)
-        notifyDataSetChanged()
+
+        if (defStation.isEmpty()) {
+            notifyDataSetInvalidated() // Ensure UI refreshes
+        } else {
+            notifyDataSetChanged()
+        }
     }
 
     override fun getCount(): Int {

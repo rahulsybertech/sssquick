@@ -42,6 +42,11 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
             apiService.getSalePartyDetails(accountId)
         }
     }
+    suspend fun salePartyDetailNew(accountId:String): ResultWrapper<ApiResponse<*>, ApiResponse<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.SALE_PARTY_DETAILS.ordinal) {
+            apiService.getSalePartyDetailsNew(accountId)
+        }
+    }
 
     suspend fun scheme(): ResultWrapper<ApiResponse<*>, ApiResponse<List<SchemeData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.SCHEME.ordinal) {

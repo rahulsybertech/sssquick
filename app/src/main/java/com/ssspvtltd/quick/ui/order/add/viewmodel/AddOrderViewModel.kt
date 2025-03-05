@@ -58,6 +58,9 @@ class AddOrderViewModel @Inject constructor(
     private val _salePartyDetail = MutableLiveData<Data?>()
     val salePartyDetail: MutableLiveData<Data?> get() = _salePartyDetail
 
+    private val _salePartyDetailNew = MutableLiveData<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data?>()
+    val salePartyDetailNew: MutableLiveData<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data?> get() = _salePartyDetailNew
+
     private val _scheme = MutableLiveData<List<SchemeData>>()
     val scheme: LiveData<List<SchemeData>> get() = _scheme
 
@@ -140,11 +143,11 @@ class AddOrderViewModel @Inject constructor(
 
         val salePartyDeferred       = async { getSalePartySuspend() }
         val schemeDeferred          = async { getSchemeSuspend() }
-        val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
+      //  val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
 
         val salePartyResponse       = salePartyDeferred.await()
         val schemeResponse          = schemeDeferred.await()
-        val purchasePartyResponse   = purchasePartyDeferred.await()
+       // val purchasePartyResponse   = purchasePartyDeferred.await()
 
         /*_salePartyEdit.postValue(salePartyResponse)
         _schemeEdit.postValue(schemeResponse)
@@ -152,7 +155,7 @@ class AddOrderViewModel @Inject constructor(
 
         _saleParty.postValue(salePartyResponse)
         _scheme.postValue(schemeResponse)
-        _purchaseParty.postValue(purchasePartyResponse)
+      //  _purchaseParty.postValue(purchasePartyResponse)
         _setEditOrderFields.postValue(true)
 
     }
@@ -256,6 +259,24 @@ class AddOrderViewModel @Inject constructor(
                 response.value.data?.let {
                     withContext(Dispatchers.Main) {
                         _salePartyDetail.postValue(response.value.data)
+                        hideProgressBar()
+                    }
+                }
+            }
+        }
+    }
+    fun getSalePartyDetailsNew(accountId: String) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        when (val response = repository.salePartyDetailNew(accountId)) {
+            is ResultWrapper.Failure -> {
+                apiErrorData(response.error)
+                Log.e("ersss", response.toString())
+            }
+
+            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                response.value.data?.let {
+                    withContext(Dispatchers.Main) {
+                        _salePartyDetailNew.postValue(response.value.data)
                         hideProgressBar()
                     }
                 }

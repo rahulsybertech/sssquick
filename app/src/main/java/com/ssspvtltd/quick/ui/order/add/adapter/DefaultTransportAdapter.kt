@@ -9,13 +9,13 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
 import com.ssspvtltd.quick.R
-import com.ssspvtltd.quick.model.order.add.salepartydetails.DefTransport
+import com.ssspvtltd.quick.model.order.add.salepartyNewList.DefTransport
 
 
 class DefaultTransportAdapter(
     private val mContext: Context,
     private val mLayoutResourceId: Int,
-    defTransportList : List<DefTransport?>,
+    defTransportList: List<com.ssspvtltd.quick.model.order.add.salepartyNewList.DefTransport>,
 ) : ArrayAdapter<DefTransport?>(mContext, mLayoutResourceId, defTransportList) {
 
     private val defTransport: MutableList<DefTransport?> = ArrayList(defTransportList)

@@ -123,6 +123,11 @@ interface ApiService {
         @Query("accountId") accountId: String
     ): ApiResponse<Data>
 
+    @POST("api/OrderBook/GetSalePartyDetail")
+    suspend fun getSalePartyDetailsNew(
+        @Query("accountId") accountId: String
+    ): ApiResponse<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data>
+
     @POST("api/Report/GetPendingOrderDetails")
     suspend fun pendingOrder(
         @Body filterRequest: FilterRequest?

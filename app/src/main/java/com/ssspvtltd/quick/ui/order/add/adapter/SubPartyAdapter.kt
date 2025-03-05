@@ -9,13 +9,13 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
 import com.ssspvtltd.quick.R
-import com.ssspvtltd.quick.model.order.add.salepartydetails.SubParty
+import com.ssspvtltd.quick.model.order.add.salepartyNewList.SubParty
 
 
 class SubPartyAdapter(
     private val mContext: Context,
     private val mLayoutResourceId: Int,
-    subPartyData : List<SubParty>,
+    subPartyData: List<SubParty>,
 ) : ArrayAdapter<SubParty>(mContext, mLayoutResourceId, subPartyData) {
 
     private var subParty: MutableList<SubParty> = ArrayList(subPartyData)

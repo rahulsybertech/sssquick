@@ -8,5 +8,6 @@ data class Data(
     val defTransport: List<DefTransport>?,
     val emailId: String,
     val mobileNo: String,
-    val subPartyList: List<SubParty>?
+    val subPartyList: List<com.ssspvtltd.quick.model.order.add.salepartyNewList.SubParty>
+  /*  val subPartyList: List<SubParty>?*/
 )
