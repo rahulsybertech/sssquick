@@ -70,6 +70,8 @@
     <string name="station_ats">Booking Station*</string>
     <string name="purchase_party">Purchase Party</string>
     <string name="purchase_party_ats">Purchase Party*</string>
+    <string name="purchase_party_atss">Purchase Partynew*</string>
+    <string name="nichkpurchase_party_ats">Nick Name Party</string>
     <string name="discription">Description</string>
     <string name="discription_ats">Description*</string>
     <string name="to_date">To Date</string>
@@ -114,6 +116,7 @@
     <string name="error">Error</string>
     <string name="save">Save</string>
     <string name="pvt_marka">PVT Marka*</string>
+    <string name="dispatch_type">Dispatch Type*</string>
 
     <!--<string name="regenerate_pdf"><u>Regenerate Pdf</u></string>-->
 </resources>

@@ -8,6 +8,8 @@ import com.ssspvtltd.quick.model.auth.LoginData
 import com.ssspvtltd.quick.model.auth.VerifyOtpData
 import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
+import com.ssspvtltd.quick.model.order.add.DispatchTypeList
+import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
 import com.ssspvtltd.quick.model.order.add.PackTypeData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
@@ -93,14 +95,30 @@ interface ApiService {
     suspend fun saleParty(
     ): ApiResponse<List<SalepartyData>>
 
+    @POST("api/OrderBook/GetDispatchTypeList")
+    suspend fun dispatchType(
+    ): ApiResponse<List<DispatchTypeList>>
+
     @POST("api/OrderBook/GetSchemeName")
     suspend fun schemeList(
     ): ApiResponse<List<SchemeData>>
 
     @POST("api/OrderBook/GetPurchasePartyList")
     suspend fun purchasePartyList(
+        @Query("nickNameId ") nickNameId : String?,
         @Query("schemeId") schemeId: String?,
         @Query("nickNameWise") nickNameWise: Boolean
+    ): ApiResponse<List<PurchasePartyData>>
+
+    @POST("api/OrderBook/GetPurchasePartyList")
+    suspend fun purchasePartyListWithNickName(
+        @Query("schemeId") schemeId: String?,
+        @Query("nickNameWise") nickNameWise: Boolean
+    ): ApiResponse<List<PurchasePartyData>>
+
+    @POST("api/OrderBook/GetAccountIdByNickName")
+    suspend fun purchasePartyListByNickName(
+        @Query("nickNameId") nickName: String?,
     ): ApiResponse<List<PurchasePartyData>>
 
     @POST("api/OrderBook/GetItemList")

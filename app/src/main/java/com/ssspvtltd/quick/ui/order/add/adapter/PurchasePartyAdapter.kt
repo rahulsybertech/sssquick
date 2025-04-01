@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 
@@ -67,11 +68,24 @@ class PurchasePartyAdapter(
         println("CHECKING_DATA $str")
         // Display nickName or accountName based on `type'
 
+        purchaseParty?.eInvoiceStatus?.let { status ->
+            val color = if (status) {
+                ContextCompat.getColor(context, R.color.color_A5DC86)
+            } else {
+                ContextCompat.getColor(context, R.color.white)
+            }
+            saleAutoCompleteView?.setBackgroundColor(color)
+        } ?: run {
+            // If eInvoiceStatus is null, set white as default
+            saleAutoCompleteView?.setBackgroundColor(ContextCompat.getColor(context, R.color.white))
+        }
 
         saleAutoCompleteView.text = if (type){
             purchaseParty.nickName
         } else{
+
             purchaseParty.accountName
+
         }
         return rowView
     }

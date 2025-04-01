@@ -8,6 +8,9 @@ data class EditOrderDataNew(
     @SerializedName("bstationId")
     @Expose
     val bstationId: String?,
+    @SerializedName("nickName")
+    @Expose
+    val nickName: String?,
     @SerializedName("bstationName")
     @Expose
     val bstationName: String?,
@@ -74,9 +77,23 @@ data class EditOrderDataNew(
     @SerializedName("subPartyId")
     @Expose
     val subPartyId: Any?,
+
+
     @SerializedName("subPartyName")
     @Expose
     val subPartyName: String?,
+
+    @SerializedName("dispatchType")
+    @Expose
+    val dispatchType: String?,
+
+    @SerializedName("dispatchTypeID")
+    @Expose
+    val dispatchTypeID: String?,
+
+
+
+
     @SerializedName("subPartyasRemark")
     @Expose
     val subPartyasRemark: String?,

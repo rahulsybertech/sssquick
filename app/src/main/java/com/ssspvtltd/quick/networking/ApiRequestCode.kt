@@ -13,6 +13,9 @@ enum class ApiRequestCode {
     SALE_PARTY,
     All_STATION,
     PURCHASE_PARTY,
+    PURCHASE_PARTYWITHSUPLIER,
+    NICK_NAME_LIST,
+    PURCHASE_PARTY_WITH_NICKNAME,
     ITEM_LIST,
     PACK_TYPE,
     SCHEME,
@@ -28,5 +31,6 @@ enum class ApiRequestCode {
     DASHBOARD_DATA,
     DASHBOARD_SALE_DATA,
     ORDER_PDF_REGENERATE,
-    CHECK_VERSION
+    CHECK_VERSION,
+    DispatchType,
 }

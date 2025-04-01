@@ -204,7 +204,14 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
                 is ResultWrapper.Success -> {
                     hideProgressBar()
                     println("ERROR_IN_RESPONSE 2 ${response.value.body()?.data}")
-                    getPDfURL.value = response.value.body()?.data!!
+                //    getPDfURL.value = response.value.body()?.data!!
+                    val pdfUrl = response.value.body()?.data
+                    pdfUrl?.let {
+                        getPDfURL.value = it
+                    } ?: run {
+                        println("ERROR: PDF URL is null")
+                       // apiErrorData(response.er)
+                    }
                 }
             }
         }

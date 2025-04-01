@@ -1,5 +1,7 @@
 package com.ssspvtltd.quick.ui.order.add.repositry
 
+import com.ssspvtltd.quick.model.order.add.DispatchTypeList
+import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
 import com.ssspvtltd.quick.model.order.add.PackTypeData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
@@ -30,6 +32,11 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
             apiService.saleParty()
         }
     }
+ suspend fun getGetDispatchTypeListList(): ResultWrapper<ApiResponse<*>, ApiResponse<List<DispatchTypeList>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DispatchType.ordinal) {
+            apiService.dispatchType()
+        }
+    }
 
     suspend fun allStationList(salePartyId:String,subPartyId:String): ResultWrapper<ApiResponse<*>, ApiResponse<List<AllStation>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.All_STATION.ordinal) {
@@ -54,9 +61,24 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
         }
     }
 
-    suspend fun purchasePartyList(schemeId:String?, type : Boolean): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
+    suspend fun purchasePartyList(nickNameId :String?,schemeId:String?, type : Boolean): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY.ordinal) {
-            apiService.purchasePartyList(schemeId, type)
+            apiService.purchasePartyList(nickNameId,schemeId, type)
+        }
+    }
+    suspend fun purchasePartyListWithSuplier(nickNameId :String?,schemeId:String?, type : Boolean): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.NICK_NAME_LIST.ordinal) {
+            apiService.purchasePartyList(nickNameId,schemeId, type)
+        }
+    }
+    suspend fun purchasePartyListWithNichName(schemeId:String?, type : Boolean): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY.ordinal) {
+            apiService.purchasePartyListWithNickName(schemeId, type)
+        }
+    }
+    suspend fun purchasePartyListByNickName(nickNameId:String?): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY_WITH_NICKNAME.ordinal) {
+            apiService.purchasePartyListByNickName(nickNameId)
         }
     }
 
