@@ -265,6 +265,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.tilNickNameList.setEndIconOnClickListener {
             //Abhinav
 
+            isNickNameSelected==false
+            binding.tilPurchasePartyNew.visibility=View.GONE
+            binding.tilPurchaseParty.visibility=View.VISIBLE
             binding.etNicName.text?.clear()
             binding.etPurchasePartyNew.text?.clear()
             binding.etPurchaseParty.text?.clear()
@@ -1442,7 +1445,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         else {
                             transportData = emptyList()
                             stationData= emptyList()
-                            stationAdapter.notifyDataSetChanged()
+                         //   stationAdapter.notifyDataSetChanged()
                             transportId = ""
                             binding.etTransport.text.clear()
                             bookingStationId = ""
@@ -1856,20 +1859,18 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             return false
         } */
 
-        else if(isNichNameSelect == true){
-            if (etPurchasePartyNew.text.isBlank()) {
+        else if(isNichNameSelect == true&&etPurchasePartyNew.text.isBlank()){
                 etPurchasePartyNew.requestFocus()
                 tilPurchasePartyNew.isErrorEnabled = true
                 tilPurchasePartyNew.setError("You need to select purchase party")
                 return false
-            }
-        }else if(isNickNameSelected==false){
-            if (etPurchaseParty.text.isBlank()) {
+
+        }else if(isNickNameSelected==false&& etPurchaseParty.text.isBlank()){
                 etPurchaseParty.requestFocus()
                 tilPurchaseParty.isErrorEnabled = true
                 tilPurchaseParty.setError("You need to select purchase party")
                 return false
-            }
+
 
         }
 
