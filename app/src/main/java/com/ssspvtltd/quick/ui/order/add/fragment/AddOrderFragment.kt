@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.order.add.fragment
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -12,6 +13,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -66,13 +68,16 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 
 @AndroidEntryPoint
-class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel>() {
+class AddOrderFragment
+
+    : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel>() {
     // private val addItemViewModel by activityViewModels<AddItemViewModel>()
     override val inflate: InflateF<FragmentAddOrderBinding> get() = FragmentAddOrderBinding::inflate
     override fun initViewModel(): AddOrderViewModel = getViewModel()
@@ -83,15 +88,22 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
     // changes
     private var subPartyId: String = ""
+    private var subPartyIdMainBranch: String = ""
+    private var transportIDdMainBranch: String = ""
+    private var stationIDdMainBranch: String = ""
     private var purchasePartyId: String = ""
     private var pvtMarka: String = "*"
     private var isPvtMarka: Boolean = false
+    private var isRgSubparty: Boolean = true
     private var bookingStationId: String = ""
     private var transportId: String = ""
     private var dispatchId: String = ""
     private var transportIdNew: String = ""
     private var schemeId: String = ""
     private var selectedStatus: String = "PENDING"
+    private var mobileNumberPurchaseParty: String? = null
+    private var mobileNumberSubParty: String? = null
+
 
     private var purchasePartyData: List<PurchasePartyData>? = emptyList()
     private var nicNaneData: List<PurchasePartyData>? = emptyList()
@@ -100,8 +112,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var subPartyData: List<SubParty>? = emptyList()
     private var dispatchTypeData: List<DispatchTypeList>? = emptyList()
     private var stationData: List<AllStation>? = emptyList()
+    private var stationDataWithRemark: ArrayList<AllStation>? = arrayListOf()
+    private var stationDataWithSubparty: ArrayList<AllStation>? = arrayListOf()
     private var schemeData: List<SchemeData>? = emptyList()
-    private var transportData: List<DefTransport>? = emptyList()
+    private var transportData: MutableList<DefTransport> = mutableListOf()
+
+   // private var transportData: List<DefTransport>? = emptyList()
+    private var transportDataWithRemark: ArrayList<DefTransport>? = arrayListOf()
+    private var transportDataWithSubparty: ArrayList<DefTransport>? = arrayListOf()
+
 
     private lateinit var subPartyAdapter: SubPartyAdapter
     private lateinit var defaultTransportAdapter: DefaultTransportAdapter
@@ -126,6 +145,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private var isNichNameSelect: Boolean? = false
     private lateinit var data: Data
     private var isApiCalled = false // Flag to track API call
+    private var isEditOrder = false // Flag to track API call
+    private var isSubPartyRemark = false
+    private var eInvoiceStatus = false
 
 
 
@@ -140,6 +162,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         lifecycleScope.launch {
             delay(1000)
             isNickNameSelected=false
+
             viewModel.initAllData(null,null, false)
             // viewModel.initAllData(schemeId, true)
 
@@ -161,6 +184,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         /* binding.tvDispatchFromDate.text = todayDate
          binding.tvDispatchToDate.text   = threeDaysLaterDate*/
 
+        remark()
 
         if (viewModel.pendingOrderID.isNotNullOrBlank()) {
             binding.star1.isEnabled = false
@@ -177,6 +201,31 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.autoCompleteStatus.setOnItemClickListener { parent, _, position, id ->
             selectedStatus = parent.getItemAtPosition(position).toString()
         }
+      binding.ivCallSaleParty.setOnClickListener {
+            val phone = binding.etNumber.text.toString()
+            if (phone.isNotEmpty()) {
+                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                it.context.startActivity(intent)
+            }
+        }
+        binding.ivCallPurchaseParty.setOnClickListener {
+            val phone = mobileNumberPurchaseParty
+            if (!phone.isNullOrBlank()) {
+                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                it.context.startActivity(intent)
+            } else {
+                Toast.makeText(it.context, "No mobile number available", Toast.LENGTH_SHORT).show()
+            }
+        }
+        binding.ivCallSubParty.setOnClickListener {
+            val phone = mobileNumberSubParty
+            if (!phone.isNullOrBlank()) {
+                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phone"))
+                it.context.startActivity(intent)
+            } else {
+                Toast.makeText(it.context, "No mobile number available", Toast.LENGTH_SHORT).show()
+            }
+        }
         binding.autoCompleteStatus.setText("PENDING", false)
 
         binding.toolbar.apply {
@@ -185,22 +234,24 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 setTitle("Edit Order")
 
                 binding.etSalePartyName.isEnabled = false
+                binding.etSubPartyRemark.isEnabled = false
+
                 binding.etPurchasePartyNew.isEnabled = false
                 binding.etNicName.isEnabled = false
                 binding.radioSubparty.isEnabled = false
                 binding.radioSubpartyRemark.isEnabled = false
-                binding.etSubParty.isEnabled = false
+              //  binding.etSubParty.isEnabled = false
                 binding.etDispatchType.isEnabled = false
-                binding.etTransport.isEnabled = false
-                binding.etStation.isEnabled = false
+            //    binding.etTransport.isEnabled = false
+            //    binding.etStation.isEnabled = false
                 binding.etScheme.isEnabled = false
                 binding.radioByNickName.isEnabled = false
                 binding.radioBySupplierName.isEnabled = false
                 binding.tilPurchaseParty.isEnabled = false
-                binding.etDiscription.isEnabled = false
+               // binding.etDiscription.isEnabled = false
                 binding.etpvtMarka.isEnabled = false
-                binding.tvDispatchFromDate.isEnabled = false
-                binding.tvDispatchToDate.isEnabled = false
+              //  binding.tvDispatchFromDate.isEnabled = false
+            //    binding.tvDispatchToDate.isEnabled = false
                 binding.tvItemImage.isEnabled = false
 
             } else {
@@ -235,6 +286,9 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             //Abhinav
             binding.etSalePartyName.text.clear()
             binding.etAvailableLimit.text?.clear()
+            binding.ivCallSaleParty.visibility=View.GONE
+            binding.ivCallSubParty.visibility=View.GONE
+            binding.etNumber.text?.clear()
             binding.etAverageDays.text?.clear()
             binding.etSubParty.text?.clear()
             binding.etNicName.text?.clear()
@@ -249,15 +303,32 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         binding.tilSubParty.setEndIconOnClickListener {
             //Abhinav
-
+            binding.ivCallSubParty.visibility=View.GONE
+            transportData.clear()
+            stationData= emptyList()
             binding.etTransport.text?.clear()
             binding.etSubParty.text?.clear()
             binding.etStation.text?.clear()
         }
 
+        binding.tilScheme.setEndIconOnClickListener{
+            isNickNameSelected==false
+            purchasePartyData= emptyList()
+            isApiCalled=false
+            binding.etScheme.text?.clear()
+            binding.etNicName.text?.clear()
+            binding.etPurchaseParty.text?.clear()
+            binding.tilPurchasePartyNew.visibility=View.GONE
+            binding.tilPurchaseParty.visibility=View.VISIBLE
+            binding.etPurchasePartyNew.text?.clear()
+            binding.etPurchaseParty.text?.clear()
+            viewModel.getNickNameList(null,null, true)
+        //    viewModel.getPurchaseParty(null,null, false)
+        }
+
         binding.tilTransport.setEndIconOnClickListener {
             //Abhinav
-
+            stationData= emptyList()
             binding.etTransport.text?.clear()
             binding.etStation.text?.clear()
         }
@@ -278,6 +349,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
             binding.etNicName.text?.clear()
             binding.etPurchaseParty.text?.clear()
+            binding.ivCallPurchaseParty.visibility=View.GONE
         }
 
 
@@ -375,7 +447,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             // }
         }
         binding.placeOrder.setOnClickListener {
-            if (validate()) binding.apply {
+            if (validate())
+                binding.apply {
                 //   binding.placeOrder.isEnabled = false
 
                 var totalQty = 0
@@ -399,17 +472,26 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
                     if(subPartyId.equals("null")){
                         hashMap["SubPartyId"] = "".toRequestBody()
-                    }else{
+                    }
+                    else{
                         hashMap["SubPartyId"] = subPartyId.toRequestBody()
                     }
 
                 }
 
+                    if(isSubPartyRemark){
+                        hashMap["SubPartyId"] = "".toRequestBody()
+                        hashMap["TransportId"] = transportId.toRequestBody()
+                        hashMap["BstationId"] = bookingStationId.toRequestBody()
+                    }else{
+                        hashMap["TransportId"] = transportId.toRequestBody()
+                        hashMap["BstationId"] = bookingStationId.toRequestBody()
+                    }
                 hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
                 hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
-                hashMap["TransportId"] = transportId.toRequestBody()
+             //   hashMap["TransportId"] = transportId.toRequestBody()
                 hashMap["DispatchTypeID"] = dispatchId.toRequestBody()
-                hashMap["BstationId"] = bookingStationId.toRequestBody()
+            //    hashMap["BstationId"] = bookingStationId.toRequestBody()
                 hashMap["SchemeId"] = schemeId.toRequestBody()
                 hashMap["OrderCategary"] = pvtMarka.toRequestBody()
                 hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
@@ -488,21 +570,51 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         binding.rgSubparty.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_subparty -> {
+                    isSubPartyRemark=false
                     binding.tilSubParty.isVisible = true
                     binding.tilSubPartyRemak.isVisible = false
+                    binding.llTransPortAndStation.visibility = View.VISIBLE
                     binding.etSubPartyRemark.text.clear()
                     binding.tilSubPartyRemak.isErrorEnabled = false
+
+                    binding.etSubParty.text.clear()
+
+                    binding.etTransport.text?.clear()
+                    binding.etStation.text?.clear()
+                    transportData.clear()
+                    transportDataWithSubparty?.let { transportData!!.addAll(it) }
+
+                    defaultTransportAdapter = DefaultTransportAdapter(
+                        requireContext(), R.layout.item_saleparty, transportData!!
+                    )
+                    binding.etTransport.threshold = 1
+                    binding.etTransport.setAdapter(defaultTransportAdapter)
+
                     //   viewModel.getSalePartyDetailsNew(salePartyId)
-                    viewModel.getSalePartyDetails(salePartyId)
+              //      viewModel.getSalePartyDetails(salePartyId)
 
                 }
 
                 R.id.radio_subparty_remark -> {
+                    isSubPartyRemark=true
                     // if (!salePartyId.isEmpty()) {
                     binding.tilSubParty.isErrorEnabled = false
+                    binding.llTransPortAndStation.visibility = View.VISIBLE
                     binding.tilSubPartyRemak.isVisible = true
                     binding.tilSubParty.isVisible = false
-                    viewModel.getSalePartyDetails(salePartyId)
+                    binding.etSubParty.text.clear()
+                    binding.etTransport.text?.clear()
+                    binding.etStation.text?.clear()
+
+                    transportData.clear()
+                    transportDataWithRemark?.let { transportData!!.addAll(it) }
+
+                    defaultTransportAdapter = DefaultTransportAdapter(
+                        requireContext(), R.layout.item_saleparty, transportData!!
+                    )
+                    binding.etTransport.threshold = 1
+                    binding.etTransport.setAdapter(defaultTransportAdapter)
+              //      viewModel.getSalePartyDetails(salePartyId)
                     //  viewModel.getSalePartyDetailsNew(salePartyId)
                     // } else viewModel.showMsgAlert("Please Select Sale Party")
                 }
@@ -510,30 +622,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         binding.rgPurchaseParty.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
-        /*        R.id.radioByNickName -> {
-
-                    binding.etPurchaseParty.text.clear()
-                    if (isSchemeHasData) {
-                        viewModel.getInitialPurchaseParty(null,schemeId, true)
-                    } else {
-                        viewModel.getPurchaseParty(null,null, true)
-                    }
-                    if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(true)
-                    isNickNameSelected = true
-                }
-
-                R.id.radioBySupplierName -> {
-                    binding.llNicName.visibility=View.GONE
-                    binding.etPurchaseParty.text.clear()
-
-                    if (isSchemeHasData) {
-                        viewModel.getInitialPurchaseParty(null,schemeId, false)
-                    } else {
-                        viewModel.getPurchaseParty(null,null, false)
-                    }
-                    if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(false)
-                    isNickNameSelected = false
-                }*/
             }
         }
         binding.recyclerViewAddItem.adapter = addItemAdapter
@@ -572,8 +660,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
         }
         binding.etSubParty.setOnClickListener {
-            if (!binding.etSubParty.isPopupShowing) {
-                binding.etSubParty.showDropDown()
+
+
+            binding.etSubParty?.let { subParty ->
+                if (!subParty.isPopupShowing) {
+                    if (!binding.etSalePartyName.text.isNullOrEmpty()) {
+                        subParty.showDropDown()
+                    } else {
+                        showToast("Please select saleparty first!")
+                    }
+                }
             }
         }
 
@@ -603,35 +699,96 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
 
         binding.etTransport.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                if (transportData.isNullOrEmpty() || transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
-                    binding.etTransport.text.clear()
+            if (isSubPartyRemark){
+                if (!hasFocus) {
+                    if (transportData.isNullOrEmpty() || transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
+                        binding.etTransport.text.clear()
+                    }
+                }
+                if (!binding.etTransport.isPopupShowing) {
+                    binding.etTransport.showDropDown()
+                }
+            }else{
+                if(binding.etSubParty.text.toString().isNotEmpty()){
+                    if (!hasFocus) {
+                        if (transportData.isNullOrEmpty() || transportData?.any { it.transportName == binding.etTransport.text.toString() } == false) {
+                     //       binding.etTransport.text.clear()
+                        }
+                    }
+                    if (!binding.etTransport.isPopupShowing) {
+                        binding.etTransport.showDropDown()
+                    }
+                }else{
+                    Toast.makeText(context, "Please first you select subparty", Toast.LENGTH_SHORT).show()
                 }
             }
-            if (!binding.etTransport.isPopupShowing) {
-                binding.etTransport.showDropDown()
-            }
+
+
+
         }
         binding.etTransport.setOnClickListener {
-            if (!binding.etTransport.isPopupShowing) {
-                binding.etTransport.showDropDown()
+            if (isSubPartyRemark){
+                if (!binding.etTransport.isPopupShowing) {
+                    binding.etTransport.showDropDown()
+                }
+            }else{
+                if(binding.etSubParty.text.toString().isNotEmpty()){
+                    if (!binding.etTransport.isPopupShowing) {
+                        binding.etTransport.showDropDown()
+                    }
+                }else{
+                    Toast.makeText(context, "Please first you select subparty", Toast.LENGTH_SHORT).show()
+                }
             }
+
+
         }
 
         binding.etStation.setOnFocusChangeListener { v, hasFocus ->
-            if (!hasFocus) {
-                if (stationData?.any { it -> it.stationName == binding.etStation.text.toString() } == false) {
-                    binding.etStation.text.clear()
+            if (isSubPartyRemark){
+                if (!hasFocus) {
+                    if (stationData?.any { it -> it.stationName == binding.etStation.text.toString() } == false) {
+                        binding.etStation.text.clear()
+                    }
+                }
+                if (!binding.etStation.isPopupShowing) {
+                    binding.etStation.showDropDown()
+                }
+            }else{
+                if(binding.etTransport.text.toString().isNotEmpty()){
+                    if (!hasFocus) {
+                        if (stationData?.any { it -> it.stationName == binding.etStation.text.toString() } == false) {
+                            binding.etStation.text.clear()
+                        }
+                    }
+                    if (!binding.etStation.isPopupShowing) {
+                        binding.etStation.showDropDown()
+                    }
+                }else{
+                    Toast.makeText(context, "Please first you select Transport", Toast.LENGTH_SHORT).show()
                 }
             }
-            if (!binding.etStation.isPopupShowing) {
-                binding.etStation.showDropDown()
-            }
+
+
         }
         binding.etStation.setOnClickListener {
-            if (!binding.etStation.isPopupShowing) {
-                binding.etStation.showDropDown()
+
+            if (isSubPartyRemark){
+                if (!binding.etStation.isPopupShowing) {
+                    binding.etStation.showDropDown()
+                }
+            }else{
+                if(binding.etTransport.text.toString().isNotEmpty()){
+                    if (!binding.etStation.isPopupShowing) {
+                        binding.etStation.showDropDown()
+                    }
+                }else{
+                    Toast.makeText(context, "Please first you select Transport", Toast.LENGTH_SHORT).show()
+                }
+
             }
+
+
         }
 
      //   private var isApiCalled = false // Flag to track API call
@@ -640,7 +797,12 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             if (hasFocus) {
                 // Call API only if it hasn't been called before
                 if (!isApiCalled) {
-                    viewModel.getPurchaseParty(null,null, false)
+                    if(binding.etScheme.text.isNotEmpty()){
+                        viewModel.getPurchaseParty(null,schemeId, false)
+                    }else{
+                        viewModel.getPurchaseParty(null,null, false)
+                    }
+
                     if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(false)
                     isNickNameSelected = false
                  //   callPurchasePartyApi()
@@ -675,16 +837,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
         binding.etPurchasePartyNew.setOnFocusChangeListener { v, hasFocus ->
             if (!hasFocus) {
-            /*    isNickNameSelected=false
-                if (isNickNameSelected) {
-                    if (purchasePartyDataWithNicName?.any { it ->
-                            it.nickName.equals(
-                                binding.etPurchasePartyNew.text.trim().toString()
-                            )
-                        } == false) {
-                        binding.etPurchasePartyNew.text.clear()
-                    }
-                }*/
                     if (purchasePartyDataWithNicName?.any { it ->
                             it.accountName.equals(
                                 binding.etPurchasePartyNew.text.trim().toString()
@@ -709,11 +861,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
         binding.etNicName.setOnFocusChangeListener { v, hasFocus ->
-
-
-            /* if (purchasePartyData!!.size>1){
-
-             }*/
                 if (!hasFocus) {
                     isNickNameSelected=true
                     if (isNickNameSelected) {
@@ -741,20 +888,15 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 }
 
             if (!binding.etNicName.isPopupShowing) {
-                binding.etNicName.showDropDown()
+                    binding.etNicName.showDropDown()
             }
         }
-        // binding.etNicName.setOnClickListener {
-        //     if (!binding.etNicName.isPopupShowing) {
-        //         binding.etNicName.showDropDown()
-        //     }
-        // }
+
 
         binding.etNicName.setOnClickListener {
-
             if (!binding.etNicName.isPopupShowing) {
-                        binding.etNicName.showDropDown()
-                     }else{
+                binding.etNicName.showDropDown()
+            }else{
                // clickOnNickNameList()
             }
 
@@ -806,6 +948,25 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
     }
 
+//not use
+    private fun remark(){
+      binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbSubparty ->{
+                    isSubPartyRemark =false
+                    binding.tilSubParty.visibility = View.VISIBLE
+                    binding.tilSubPartyRemak.visibility = View.GONE
+                }
+
+                R.id.rbRemark ->{
+                    isSubPartyRemark =true
+                    binding.tilSubParty.visibility = View.GONE
+                    binding.tilSubPartyRemak.visibility = View.VISIBLE
+                }
+
+            }
+        }
+    }
     fun List<PurchasePartyData>.filterNonEmptyFields(): List<PurchasePartyData> {
         return this.filter { item ->
             item.id?.isNotEmpty() == true &&
@@ -825,7 +986,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
     private fun openAddBottomSheet(index: Int = -1) {
         addItemViewModel.bottomSheetIndex = index
-        AddItemBottomSheetFragment.newInstance()
+        AddItemBottomSheetFragment.newInstance(false)
             .show(childFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 
@@ -843,9 +1004,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             if(purchasePartyDataWithNicName!!.isNotEmpty()){
 
                 if(purchasePartyDataWithNicName!!.size==1){
-
-
                     binding.etPurchasePartyNew.clearFocus()
+
                     binding.etPurchasePartyNew.hideKeyBoard()
                     binding.etPurchasePartyNew.setText(purchasePartyDataWithNicName!!.get(0).accountName)
                     purchasePartyId = purchasePartyDataWithNicName!!.get(0).id.toString()
@@ -877,7 +1037,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
                     Log.i("TaG", "selected purchase party --------->${purPartyItem}")
 
-
+                    eInvoiceStatus = purPartyItem.eInvoiceStatus == true
+                    apiResponseDispatchType()
                     binding.etPurchasePartyNew.setText(purPartyItem.accountName)
                     binding.etPurchasePartyNew.clearFocus()
                     binding.etPurchasePartyNew.hideKeyBoard()
@@ -914,7 +1075,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         .setPopUpTo(R.id.addOrderFragment, true)
                         .build()
                     println("ADD_ORDER_FRAGMENT_TO_DASHBOARD 0 ${viewModel.pendingOrderID}")
-                    findNavController().navigate(R.id.dashboardFragment, null, navOptions)
+                    findNavController().popBackStack()
+                   // findNavController().navigate(R.id.dashboardFragment, null, navOptions)
                 }
                 it.dismissWithAnimation()
             }
@@ -941,16 +1103,21 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
             if (it == true) {
                 binding.etSalePartyName.text.clear()
+
                 binding.etSubParty.text.clear()
                 binding.etDispatchType.text.clear()
                 binding.etAverageDays.text?.clear()
                 binding.etAvailableLimit.text?.clear()
+                binding.etNumber.text?.clear()
                 binding.etNicName.text?.clear()
                 binding.etPurchaseParty.text?.clear()
                 binding.etTransport.text.clear()
                 binding.etStation.text.clear()
                 binding.rgStartype.check(R.id.star1)
                 binding.tilPVTMarka.visibility=View.GONE
+                binding.ivCallSaleParty.visibility=View.GONE
+                binding.ivCallSubParty.visibility=View.GONE
+                binding.ivCallPurchaseParty.visibility=View.GONE
                 pvtMarka = "*"
                 isPvtMarka=false
                 binding.etScheme.text.clear()
@@ -970,7 +1137,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 addItemViewModel.packTypeDataList = emptyList()
                 subPartyData = emptyList()
                 stationData = emptyList()
-                transportData = emptyList()
+                transportData.clear()
                 /*purchasePartyData       = emptyList()
                 schemeData              = emptyList()*/
 
@@ -1019,12 +1186,23 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         }
 
                     }
+
+                    if(isSubPartyRemark){
+                        hashMap["SubPartyId"] = "".toRequestBody()
+                        hashMap["TransportId"] = transportId.toRequestBody()
+                        hashMap["BstationId"] = bookingStationId.toRequestBody()
+                    }else{
+                        hashMap["TransportId"] = transportId.toRequestBody()
+                        hashMap["BstationId"] = bookingStationId.toRequestBody()
+                    }
+
+
                     //  hashMap["SubPartyId"] = subPartyId.toRequestBody()
                     hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
                     hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
-                    hashMap["TransportId"] = transportId.toRequestBody()
+
                     hashMap["DispatchTypeID"] = dispatchId.toRequestBody()
-                    hashMap["BstationId"] = bookingStationId.toRequestBody()
+
                     hashMap["SchemeId"] = schemeId.toRequestBody()
                     hashMap["OrderCategary"] = pvtMarka.toRequestBody()
                     hashMap["DeliveryDateFrom"] = tvDispatchFromDate.text.toString().toRequestBody()
@@ -1057,7 +1235,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         viewModel.editOrderData.observe(viewLifecycleOwner) {
             lifecycleScope.launch {
                 try {
-
+                    isEditOrder=true
                     editData = it
 
                     println("GETTING_EDIT_DATA $editData")
@@ -1128,6 +1306,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     val editSaleParty =
                         salePartyData?.filter { saleData -> saleData.accountID == it?.salePartyId }
                     if (!editSaleParty.isNullOrEmpty()) {
+
                         binding.etSalePartyName.setText(editSaleParty[0].accountName)
                         salePartyId = editSaleParty[0].accountID ?: ""
                         job1 = async {
@@ -1169,22 +1348,18 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     binding.rgPurchaseParty.check(R.id.radioBySupplierName)
                     binding.etTransport.setText(it?.transportName)
                     binding.etStation.setText(it?.bstationName)
-                    bookingStationId=it?.bstationId!!
-                    transportId=it?.transportId!!
+                    it?.let { data ->
+                        data.bstationId?.let { id ->
+                            bookingStationId = id
+                            stationIDdMainBranch = id
+                        }
 
+                        data.transportId?.let { tid ->
+                            transportId = tid
+                            transportIDdMainBranch = tid
+                        }
+                    }
 
-                    /*  when (it?.pvtMarka ?: "") {
-                          "*" -> {
-                              binding.tilPVTMarka.visibility=View.GONE
-                              binding.rgStartype.check(R.id.star1)
-                          }
-
-                          "***" -> {
-                              binding.rgStartype.check(R.id.star3)
-                              binding.tilPVTMarka.visibility=View.VISIBLE
-                              binding.etDiscription.setText(it?.remark)
-                          }
-                      } */
                     when (it?.orderCategary ?: "") {
                         "*" -> {
                             binding.tilPVTMarka.visibility=View.GONE
@@ -1210,7 +1385,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         println("GETTING_VALUE_OF_SUB_PARTY 0 ${editSubPartyData[0].subPartyName}")
                         binding.etSubParty.setText(editSubPartyData[0].subPartyName)
                         subPartyId = editSubPartyData[0].subPartyId
-                        job3 = async { viewModel.getStation(salePartyId, subPartyId) }
+                     //   job3 = async { viewModel.getStation(salePartyId, subPartyId) }
                     }
 
                     println("GETTING_VALUE_OF_SUB_PARTY 0 ${it?.subPartyId }")
@@ -1229,13 +1404,17 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     if (it?.subPartyasRemark.isNotNullOrBlank()) {
                         binding.rgSubparty.check(R.id.radio_subparty_remark)
                         binding.tilSubPartyRemak.visibility = View.VISIBLE
+                        binding.llTransPortAndStation.visibility = View.VISIBLE
                         binding.etSubPartyRemark.setText(it?.subPartyasRemark)
                         subPartyId = it.subPartyId.toString()
 
+                        isSubPartyRemark=true
                         isSubPartyRadioSelect = false
                     } else {
+                        isSubPartyRemark=false
                         binding.rgSubparty.check(R.id.radio_subparty)
                         binding.tilSubPartyRemak.visibility = View.GONE
+                        binding.llTransPortAndStation.visibility = View.VISIBLE
                         isSubPartyRadioSelect = true
                     }
 
@@ -1248,8 +1427,12 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     if (!editTransportData.isNullOrEmpty()) {
                         binding.etTransport.setText(editTransportData[0].transportName)
                         transportId = editTransportData[0].transportId
+                        transportIDdMainBranch = editTransportData[0].transportId
                         // job4 = async { viewModel.getTra }
                     }
+
+                    binding.etTransport.setText(it.transportName)
+                    transportId = it.transportId.toString()
 
 
                     val editStationData =
@@ -1257,7 +1440,13 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     if (!editStationData.isNullOrEmpty()) {
                         binding.etStation.setText(editStationData[0].stationName)
                         bookingStationId = editStationData[0].stationId
+                        stationIDdMainBranch = editStationData[0].stationId
                     }
+                    binding.etStation.setText(it.bstationName)
+                    bookingStationId = it.bstationId.toString()
+                  /*  binding.etStation.setText(editStationData[0].stationName)
+                    bookingStationId = editStationData[0].stationId*/
+
 
 
                     val editPurchasePartyData =
@@ -1267,10 +1456,25 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         purchasePartyId = editPurchasePartyData[0].id ?: ""
                         addItemViewModel.getItemsList(purchasePartyId)
                     }
+
+
                     if (it?.purchasePartyId!!.isNotEmpty()) {
                         binding.etPurchaseParty.setText(it!!.purchasePartyName)
                         purchasePartyId = it!!.purchasePartyId ?: ""
                         addItemViewModel.getItemsList(purchasePartyId)
+                        it!!.purchasePartyMobileNo?.let { number ->
+                            if (number.isNotBlank()) {
+                                binding.ivCallPurchaseParty.visibility = View.VISIBLE
+                                mobileNumberPurchaseParty = number
+                            } else {
+                                binding.ivCallPurchaseParty.visibility = View.GONE
+                                mobileNumberPurchaseParty = null
+                            }
+                        } ?: run {
+                            binding.ivCallPurchaseParty.visibility = View.GONE
+                            mobileNumberPurchaseParty = null
+                        }
+
                     }
 
 
@@ -1393,14 +1597,13 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
 
             if (viewModel.pendingOrderID.isNotNullOrBlank()){
-
-            }else{
                 // Ensure subPartyList is not null or empty
                 if (!apiResponseNew.subPartyList.isNullOrEmpty()) {
                     // Set subpart data
                     val firstSubParty = apiResponseNew.subPartyList[0]
-                    transportData = firstSubParty.transportList ?: emptyList()
+                    transportData = firstSubParty.transportList.toMutableList()
                     subPartyId = firstSubParty.subPartyId
+
 
                     subPartyAdapter = SubPartyAdapter(
                         requireContext(), R.layout.item_saleparty, apiResponseNew.subPartyList
@@ -1414,10 +1617,20 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         val subPartyItem = subPartyAdapter.getItem(position) ?: return@setOnItemClickListener
                         subPartyId = subPartyItem.subPartyId
 
+                        subPartyItem?.mobileNo?.takeIf { it.isNotBlank() }?.let { phone ->
+                            // ✅ Case: mobile number exists & not blank
+                            binding.ivCallSubParty.visibility = View.VISIBLE
+                            mobileNumberSubParty = phone
+                        } ?: run {
+                            // ❌ Case: null or blank → reset
+                            binding.ivCallSubParty.visibility = View.GONE
+                            mobileNumberSubParty = null
+                        }
+
                         val selectedTransportList = subPartyItem.transportList ?: emptyList()
 
                         if (selectedTransportList.isNotEmpty()) {
-                            transportData=selectedTransportList;
+                            transportData= selectedTransportList.toMutableList();
                             val firstTransport = selectedTransportList[0]
                             val stationList = firstTransport.stationList ?: emptyList()
 
@@ -1443,7 +1656,219 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                             transportId = firstTransport.transportId
                         }
                         else {
-                            transportData = emptyList()
+                            transportData.clear()
+                            stationData= emptyList()
+                            //   stationAdapter.notifyDataSetChanged()
+                            transportId = ""
+                            binding.etTransport.text.clear()
+                            bookingStationId = ""
+                            binding.etStation.text.clear()
+                        }
+
+                        defaultTransportAdapter = DefaultTransportAdapter(
+                            requireContext(), R.layout.item_saleparty, selectedTransportList
+                        )
+                        binding.etTransport.threshold = 1
+                        binding.etTransport.setAdapter(defaultTransportAdapter)
+
+                        binding.etTransport.setOnItemClickListener { _, _, transportPosition, _ ->
+                            val transportItem = defaultTransportAdapter.getItem(transportPosition) ?: return@setOnItemClickListener
+                            transportId = transportItem.transportId
+
+                            val transportStations = transportItem.stationList ?: emptyList()
+                            stationAdapter = StationAdapter(
+                                requireContext(), R.layout.item_saleparty, transportStations
+                            )
+
+                            binding.tilTransport.isErrorEnabled =
+                                !(transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
+
+                            stationData = transportStations
+                            binding.etStation.threshold = 1
+                            binding.etStation.setAdapter(stationAdapter)
+                            stationAdapter.setdefStationList(transportStations)
+                            stationAdapter.notifyDataSetChanged()
+
+                            binding.etStation.setOnItemClickListener { parent, _, position, _ ->
+                                val stationId = stationAdapter.getItem(position)
+
+                                binding.tilStation.isErrorEnabled =
+                                    !(stationId?.stationId.isNotNullOrBlank() || binding.tilStation.isErrorEnabled)
+                                bookingStationId = stationId?.stationId.toString()
+                            }
+                            if (transportStations.isNotEmpty()) {
+                                binding.etStation.setText(transportStations[0].stationName, false)
+                                bookingStationId = transportStations[0].stationId
+
+
+                            } else {
+                                bookingStationId = ""
+                                binding.etStation.text.clear()
+                            }
+                        }
+
+
+                        stationAdapter = StationAdapter(
+                            requireContext(), R.layout.item_saleparty, stationData!!
+                        )
+                        stationData = stationData
+                        binding.etStation.threshold = 1
+                        binding.etStation.setAdapter(stationAdapter)
+                        stationAdapter.setdefStationList(stationData!!)
+                        stationAdapter.notifyDataSetChanged()
+                    }
+
+                    // Set transport data
+                    if (!transportData.isNullOrEmpty()) {
+                        transportDataWithRemark!!.clear()
+                        transportDataWithRemark!!.addAll(transportData!!)
+                        transportDataWithSubparty!!.clear()
+                        transportDataWithSubparty!!.addAll(transportData!!)
+                        defaultTransportAdapter = DefaultTransportAdapter(
+                            requireContext(), R.layout.item_saleparty, transportData!!
+                        )
+                        binding.etTransport.threshold = 1
+                        binding.etTransport.setAdapter(defaultTransportAdapter)
+
+                        binding.etTransport.setOnItemClickListener { _, _, position, _ ->
+                            val transportItem = defaultTransportAdapter.getItem(position) ?: return@setOnItemClickListener
+                            transportId = transportItem.transportId
+                            binding.tilTransport.isErrorEnabled =
+                                !(transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
+
+                            val stationList = transportItem.stationList ?: emptyList()
+                            stationAdapter = StationAdapter(
+                                requireContext(), R.layout.item_saleparty, stationList
+                            )
+                            stationData = stationList
+                            binding.etStation.threshold = 1
+                            binding.etStation.setAdapter(stationAdapter)
+                            stationAdapter.setdefStationList(stationList)
+                            stationAdapter.notifyDataSetChanged()
+
+                            if (stationList.isNotEmpty()) {
+                                binding.etStation.setText(stationList[0].stationName, false)
+                                bookingStationId = stationList[0].stationId
+                            } else {
+                                transportData.clear()
+                                bookingStationId = ""
+                                binding.etStation.text.clear()
+                            }
+                        }
+
+                        val firstTransport = transportData!![0]
+                   //     binding.etTransport.setText(firstTransport.transportName, false)
+
+                   //     transportId = firstTransport.transportId
+                   //     transportIDdMainBranch = firstTransport.transportId
+
+                        val firstStationList = firstTransport.stationList ?: emptyList()
+                        if (firstStationList.isNotEmpty()) {
+
+                            stationDataWithRemark!!.clear()
+                            stationDataWithRemark!!.addAll(stationData!!)
+                            stationDataWithSubparty!!.clear()
+                            stationDataWithSubparty!!.addAll(stationData!!)
+                            stationData = firstStationList
+                            stationAdapter = StationAdapter(
+                                requireContext(), R.layout.item_saleparty, firstStationList
+                            )
+                            binding.etStation.threshold = 1
+                            binding.etStation.setAdapter(stationAdapter)
+                            stationAdapter.setdefStationList(firstStationList)
+                            stationAdapter.notifyDataSetChanged()
+                      //      binding.etStation.setText(firstStationList[0].stationName,true)
+                       //     bookingStationId = firstStationList[0].stationId
+                     //       stationIDdMainBranch = firstStationList[0].stationId
+
+                            binding.etStation.setOnItemClickListener { parent, _, position, _ ->
+                                val stationId = stationAdapter.getItem(position)
+                                binding.tilStation.isErrorEnabled =
+                                    !(stationId?.stationId.isNotNullOrBlank() || binding.tilStation.isErrorEnabled)
+                                bookingStationId = stationId?.stationId.toString()
+                            }
+                        } else {
+                            stationData = emptyList()
+                            bookingStationId = ""
+                            binding.etStation.text.clear()
+                        }
+                    }else{
+
+                        transportData.clear()
+                    }
+
+                }
+                else {
+                    // Handle case where subPartyList is null or empty
+                    subPartyId = ""
+                    transportId = ""
+                    bookingStationId = ""
+                    binding.etSubParty.text.clear()
+                    binding.etTransport.text.clear()
+                    binding.etStation.text.clear()
+                }
+            }
+            else
+            {
+                // Ensure subPartyList is not null or empty
+                if (!apiResponseNew.subPartyList.isNullOrEmpty()) {
+                    // Set subpart data
+                    val firstSubParty = apiResponseNew.subPartyList[0]
+                    transportData = firstSubParty.transportList.toMutableList()
+                    subPartyId = firstSubParty.subPartyId
+
+                    subPartyAdapter = SubPartyAdapter(
+                        requireContext(), R.layout.item_saleparty, apiResponseNew.subPartyList
+                    )
+                    subPartyData = apiResponseNew.subPartyList
+                    binding.etSubParty.threshold = 1
+                    binding.etSubParty.setAdapter(subPartyAdapter)
+
+
+                    binding.etSubParty.setOnItemClickListener { parent, _, position, _ ->
+                        val subPartyItem = subPartyAdapter.getItem(position) ?: return@setOnItemClickListener
+                        subPartyId = subPartyItem.subPartyId
+
+                        subPartyItem?.mobileNo?.takeIf { it.isNotBlank() }?.let { phone ->
+                            // ✅ Case: mobile number exists & not blank
+                            binding.ivCallSubParty.visibility = View.VISIBLE
+                            mobileNumberSubParty = phone
+                        } ?: run {
+                            // ❌ Case: null or blank → reset
+                            binding.ivCallSubParty.visibility = View.GONE
+                            mobileNumberSubParty = null
+                        }
+
+                        val selectedTransportList = subPartyItem.transportList ?: emptyList()
+
+                        if (selectedTransportList.isNotEmpty()) {
+                            transportData= selectedTransportList.toMutableList();
+                            val firstTransport = selectedTransportList[0]
+                            val stationList = firstTransport.stationList ?: emptyList()
+
+                            stationAdapter = StationAdapter(
+                                requireContext(), R.layout.item_saleparty, stationList
+                            )
+                            stationData = firstTransport.stationList
+
+                            binding.etStation.threshold = 1
+                            binding.etStation.setAdapter(stationAdapter)
+                            stationAdapter.setdefStationList(stationList)
+                            stationAdapter.notifyDataSetChanged()
+
+                            if (stationList.isNotEmpty()) {
+                                binding.etStation.setText(stationList[0].stationName)
+                                bookingStationId = stationList[0].stationId
+                            } else {
+                                bookingStationId = ""
+                                binding.etStation.text.clear()
+                            }
+
+                            binding.etTransport.setText(firstTransport.transportName)
+                            transportId = firstTransport.transportId
+                        }
+                        else {
+                            transportData.clear()
                             stationData= emptyList()
                          //   stationAdapter.notifyDataSetChanged()
                             transportId = ""
@@ -1501,10 +1926,28 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
 
                     binding.etSubParty.setText(apiResponseNew.defSubPartyName, false)
+
+                    apiResponseNew?.mobileNo?.takeIf { it.isNotBlank() }?.let { phone ->
+                        // ✅ Case: mobile number exists & not blank
+                        binding.ivCallSaleParty.visibility = View.VISIBLE
+                        mobileNumberSubParty = phone
+                    } ?: run {
+                        // ❌ Case: null or blank → reset
+                        binding.ivCallSaleParty.visibility = View.GONE
+                        mobileNumberSubParty = null
+                    }
+
+
                     subPartyId = firstSubParty.subPartyId
+
+                    subPartyIdMainBranch=firstSubParty.subPartyId
 
                     // Set transport data
                     if (!transportData.isNullOrEmpty()) {
+                        transportDataWithRemark!!.clear()
+                        transportDataWithRemark!!.addAll(transportData!!)
+                        transportDataWithSubparty!!.clear()
+                        transportDataWithSubparty!!.addAll(transportData!!)
                         defaultTransportAdapter = DefaultTransportAdapter(
                             requireContext(), R.layout.item_saleparty, transportData!!
                         )
@@ -1529,7 +1972,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                                 binding.etStation.setText(stationList[0].stationName, false)
                                 bookingStationId = stationList[0].stationId
                             } else {
-                                transportData = emptyList()
+                                transportData.clear()
                                 bookingStationId = ""
                                 binding.etStation.text.clear()
                             }
@@ -1537,11 +1980,20 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
 
                         val firstTransport = transportData!![0]
                         binding.etTransport.setText(firstTransport.transportName, false)
+                        binding.tilTransport.isErrorEnabled =
+                            !(transportId.isNotNullOrBlank() || binding.tilTransport.isErrorEnabled)
+
+
                         transportId = firstTransport.transportId
+                        transportIDdMainBranch = firstTransport.transportId
 
                         val firstStationList = firstTransport.stationList ?: emptyList()
                         if (firstStationList.isNotEmpty()) {
 
+                            stationDataWithRemark!!.clear()
+                            stationDataWithRemark!!.addAll(stationData!!)
+                            stationDataWithSubparty!!.clear()
+                            stationDataWithSubparty!!.addAll(stationData!!)
                             stationData = firstStationList
                             stationAdapter = StationAdapter(
                                 requireContext(), R.layout.item_saleparty, firstStationList
@@ -1552,6 +2004,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                             stationAdapter.notifyDataSetChanged()
                             binding.etStation.setText(firstStationList[0].stationName,true)
                             bookingStationId = firstStationList[0].stationId
+                            stationIDdMainBranch = firstStationList[0].stationId
 
                             binding.etStation.setOnItemClickListener { parent, _, position, _ ->
                                 val stationId = stationAdapter.getItem(position)
@@ -1566,7 +2019,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                         }
                     }else{
 
-                        transportData = emptyList()
+                        transportData.clear()
                     }
 
                 }
@@ -1588,10 +2041,34 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 binding.autoCompleteStatus.setText("PENDING", false)
             }
 
+            // Indian locale for lakh/crore grouping
+            val formatter = NumberFormat.getInstance(Locale("en", "IN"))
+
+            val formattedLimit = avlLimit.toLongOrNull()?.let { formatter.format(it) } ?: avlLimit
+
             binding.etAvailableLimit.setTextColor(
-                getColor(requireContext(), if (avlLimit.contains("-") || avlLimit == "0") R.color.error_text else R.color.green)
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (avlLimit.contains("-") || avlLimit == "0") R.color.error_text else R.color.green
+                )
             )
-            binding.etAvailableLimit.setText(avlLimit)
+
+            binding.etAvailableLimit.setText(formattedLimit)
+
+            apiResponseNew.mobileNo?.let { phone ->
+                if (phone.isNotBlank()) {
+                    binding.etNumber.setText(apiResponseNew.mobileNo)
+                    binding.ivCall.visibility = View.GONE
+                    binding.tillNumber.visibility = View.GONE
+                    binding.etNumber.visibility = View.GONE
+                    binding.ivCallSaleParty.visibility = View.VISIBLE
+                } else {
+                    binding.ivCall.visibility = View.GONE
+                }
+            }
+
+
+
 
             binding.etAverageDays.setText(apiResponseNew.avgDays.toString())
         }
@@ -1618,8 +2095,27 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
 
 
-        viewModel.purchaseParty.observe(viewLifecycleOwner) {
-            purchasePartyData = it?.filterNonEmptyFields()
+        viewModel.purchaseParty_.observe(viewLifecycleOwner) {
+          //  purchasePartyData = it?.filterNonEmptyFields()
+            val finalList = it?.filterNonEmptyFields()?.toMutableList() ?: mutableListOf()
+            if (finalList.isNotEmpty()) {
+                repeat(8) { index ->
+                    finalList.add(
+                        PurchasePartyData(
+                            id = "FAKE_${index + 1}",        // special id for fake items
+                            nickName = "",
+                            mobileNo = "",
+                            nickNameId = "FAKE_ID_${index + 1}",
+                            accountName = "",
+                            nickNameStatus = null,
+                            fontColor = "#999999",           // gray text (optional)
+                            eInvoiceStatus = false
+                        )
+                    )
+                }
+            }
+
+            purchasePartyData = finalList
             isNickNameSelected=false
             //supiler list
             if (!::purchasePartyAdapter.isInitialized) {
@@ -1646,35 +2142,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
 
 
-
-          /*  //nick name list
-            if (!::nickNameAdapter.isInitialized) {
-
-                nickNameAdapter = PurchasePartyAdapter(
-                    true,
-                    requireContext(),
-                    R.layout.item_saleparty,
-                    purchasePartyData.orEmpty()
-                )
-
-                binding.etNicName.threshold = 1
-                binding.etNicName.setAdapter(nickNameAdapter)
-
-            }
-            else {
-                nickNameAdapter.updateType(false)
-                nickNameAdapter.updateData(purchasePartyData.orEmpty())
-                *//* if (isNickNameSelected) {
-                     purchasePartyAdapter.updateType(true)
-                     purchasePartyAdapter.updateData(purchasePartyData.orEmpty())
-                 } else {
-                     purchasePartyAdapter.updateType(false)
-                     purchasePartyAdapter.updateData(purchasePartyData.orEmpty())
-                 }*//*
-            }
-*/
-
-
             binding.etPurchaseParty.setOnItemClickListener { parent, v, position, l ->
 
                 isNichNameSelect=false
@@ -1683,8 +2150,24 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
 
                 Log.i("TaG", "selected purchase party --------->${purPartyItem}")
-
+                eInvoiceStatus = purPartyItem.eInvoiceStatus == true
+                apiResponseDispatchType()
                 binding.etPurchaseParty.setText(purPartyItem.accountName.toString())
+
+                // Show/hide call icon based on mobile number
+                purPartyItem.mobileNo?.let { number ->
+                    if (number.isNotBlank()) {
+                        binding.ivCallPurchaseParty.visibility = View.VISIBLE
+                        mobileNumberPurchaseParty = number
+                    } else {
+                        binding.ivCallPurchaseParty.visibility = View.GONE
+                        mobileNumberPurchaseParty = null
+                    }
+                } ?: run {
+                    binding.ivCallPurchaseParty.visibility = View.GONE
+                    mobileNumberPurchaseParty = null
+                }
+
                 binding.etPurchaseParty.clearFocus()
                 binding.etPurchaseParty.hideKeyBoard()
                 binding.tilPurchaseParty.isErrorEnabled =
@@ -1707,6 +2190,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 if (!binding.etPurchaseParty.isPopupShowing) {
                     binding.etPurchaseParty.showDropDown()
                 }
+
             }
 
 
@@ -1721,9 +2205,12 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             binding.etScheme.setOnItemClickListener { parent, _, position, _ ->
                 val schemeItem = schemeAdapter.getItem(position)
                 schemeId = schemeItem.schemeId.toString()
+                isApiCalled=false
                 binding.etPurchaseParty.text.clear()
              //   viewModel.getPurchaseParty(null,schemeItem.schemeId, true)
+                binding.etNicName.text.clear()
                 viewModel.getNickNameList(null,schemeItem.schemeId, true)
+           //     viewModel.getPurchaseParty(null,schemeId, false)
 
                 binding.tilScheme.isErrorEnabled =
                     !(schemeItem.schemeId.isNotNullOrBlank() || binding.tilScheme.isErrorEnabled)
@@ -2030,7 +2517,16 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
     private fun apiResponseDispatchType(){
         viewModel.getDispatchTypeList.observe(viewLifecycleOwner) {
 
-            dispatchAdapter = DispatchAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
+            val originalList = it.orEmpty()
+
+            val filteredList = if (!eInvoiceStatus) {
+                originalList.filter { item -> item.value != "BILL TO SHIP TO" }
+            } else {
+                originalList
+            }
+            dispatchAdapter = DispatchAdapter(requireContext(), R.layout.item_saleparty, filteredList)
+
+
             dispatchTypeData = it
             binding.etDispatchType.threshold = 1
             binding.etDispatchType.setAdapter(dispatchAdapter)
@@ -2056,14 +2552,29 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
         }
         if (::nickNameAdapter.isInitialized) nickNameAdapter.updateType(true)
         isNickNameSelected = true
-
-
-
         viewModel.nickNameList.observe(viewLifecycleOwner) {
 
 
 
             nicNaneData = it?.filterNonEmptyFields()
+            // if not empty, add 3 fake items
+            val finalList = nicNaneData?.toMutableList() ?: mutableListOf()
+            if (finalList.isNotEmpty()) {
+                repeat(8) { index ->
+                    finalList.add(
+                        PurchasePartyData(
+                            id = "FAKE_${index + 1}",         // special id for fake items
+                            nickName = "",
+                            mobileNo  = "",
+                            nickNameId = "FAKE_ID_${index+1}",
+                            accountName = "",
+                            nickNameStatus = null,
+                            fontColor = "#999999",            // gray text (optional)
+                            eInvoiceStatus = false
+                        )
+                    )
+                }
+            }
             //nick name list
             if (!::nickNameAdapter.isInitialized) {
 
@@ -2071,7 +2582,7 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     true,
                     requireContext(),
                     R.layout.item_saleparty,
-                    nicNaneData.orEmpty()
+                    finalList.orEmpty()
                 )
 
                 binding.etNicName.threshold = 1
@@ -2080,31 +2591,10 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
             }
             else {
                 nickNameAdapter.updateType(false)
-                nickNameAdapter.updateData(nicNaneData.orEmpty())
-                /* if (isNickNameSelected) {
-                     purchasePartyAdapter.updateType(true)
-                     purchasePartyAdapter.updateData(purchasePartyData.orEmpty())
-                 } else {
-                     purchasePartyAdapter.updateType(false)
-                     purchasePartyAdapter.updateData(purchasePartyData.orEmpty())
-                 }*/
+                nickNameAdapter.updateData(finalList.orEmpty())
             }
 
-          /*  binding.etPurchaseParty.setOnItemClickListener { parent, v, position, l ->
 
-
-                // val purPartyItem = parent.getItemAtPosition(position)  as PurchasePartyData
-                val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
-
-                Log.i("TaG", "selected purchase party --------->${purPartyItem}")
-                purchasePartyId = purPartyItem.id.toString()
-                addItemViewModel.getItemsList(purchasePartyId)
-                binding.etPurchaseParty.clearFocus()
-                binding.etPurchaseParty.hideKeyBoard()
-                binding.tilPurchaseParty.isErrorEnabled =
-                    !(purPartyItem.id.isNotNullOrBlank() || binding.tilPurchaseParty.isErrorEnabled)
-
-            }*/
             binding.etNicName.setOnItemClickListener { parent, v, position, l ->
 
                 isNichNameSelect=true
@@ -2113,6 +2603,8 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                 val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
 
                 Log.i("TaG", "selected purchase party --------->${purPartyItem}")
+                eInvoiceStatus = purPartyItem.eInvoiceStatus == true
+                apiResponseDispatchType()
                 binding.tilPurchasePartyNew.visibility=View.VISIBLE
                 binding.tilPurchaseParty.visibility=View.GONE
                 binding.etPurchasePartyNew.text?.clear()
@@ -2129,13 +2621,6 @@ class AddOrderFragment : BaseFragment<FragmentAddOrderBinding, AddOrderViewModel
                     !(purPartyItem.id.isNotNullOrBlank() || binding.tilNickNameList.isErrorEnabled)
 
             }
-
-
-
-
-          /*  viewModel.getPurchaseParty(null,null, false)
-            if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(false)
-            isNickNameSelected = false*/
 
         }
     }

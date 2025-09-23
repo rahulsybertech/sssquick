@@ -9,4 +9,6 @@ data class FilterRequest(
     var supplierIDs :List<SupplierData>?,
     var buyerIDs : List<BuyerData>?,
     var isSupplier : Boolean?,
+    var pageNumber : String?,
+    var pageSize : String?,
 ):Serializable

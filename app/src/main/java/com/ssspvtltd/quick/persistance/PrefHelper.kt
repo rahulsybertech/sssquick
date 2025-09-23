@@ -21,6 +21,13 @@ class PrefHelper(private val prefStore: PrefStore) {
         prefStore.setValue(PrefKeys.KEY_USER_NAME, userName.orEmpty())
     }
 
+    suspend fun setCount(userName: String?) {
+        prefStore.setValue(PrefKeys.COUNT, userName.orEmpty())
+    }
+
+    suspend fun getCount(): String? {
+        return prefStore.getValue(PrefKeys.COUNT).firstOrNull()
+    }
     suspend fun setOrderId(orderId: String?) {
         prefStore.setValue(PrefKeys.KEY_USER_NAME, orderId.orEmpty())
     }

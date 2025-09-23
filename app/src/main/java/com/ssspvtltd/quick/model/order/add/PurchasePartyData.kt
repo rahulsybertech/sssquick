@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.model.order.add
 data class PurchasePartyData(
     val id: String?,
     val nickName: String?,
+    val mobileNo: String?,
     val nickNameId : String?,
     val accountName: String?,
     val nickNameStatus: String?,

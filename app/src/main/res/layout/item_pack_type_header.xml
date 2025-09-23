@@ -13,7 +13,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
         android:id="@+id/ct1"
         android:paddingVertical="5dp"
         android:elevation="5dp"
@@ -200,6 +200,7 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/bg_gray"
         android:gravity="center"
+        android:visibility="gone"
         android:paddingHorizontal="6dp"
         android:paddingVertical="2dp"
         android:text="@string/edit"
@@ -220,6 +221,7 @@
         android:gravity="center"
         android:paddingHorizontal="6dp"
         android:paddingVertical="2dp"
+        android:visibility="gone"
         android:text="@string/delete"
         android:textAllCaps="true"
         android:textColor="@color/white"
@@ -232,5 +234,10 @@
         android:id="@+id/groupActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="btnDeleteItem,btnEditItem,recyclerView" />
+        app:constraint_referenced_ids="recyclerView" />
+ <!--   <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btnEditItem,btnDeleteItem,recyclerView" />-->
 </androidx.constraintlayout.widget.ConstraintLayout>

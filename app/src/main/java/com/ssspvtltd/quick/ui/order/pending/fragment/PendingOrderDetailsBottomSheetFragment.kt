@@ -171,11 +171,12 @@ class PendingOrderDetailsBottomSheetFragment :
             btnEdit.visibility = View.GONE
         }
         btnEdit.setOnClickListener {
+
             val bundle = Bundle().apply {
                 putString(ARG_PENDING_ORDER_ID, pendingOrderItem?.orderID)
             }
             val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.pendingorderFragment, true)
+                .setPopUpTo(R.id.pendingorderFragment, false)
                 .build()
             findNavController().navigate(R.id.addOrderFragment, bundle, navOptions)
             dismissAllowingStateLoss()
@@ -216,7 +217,7 @@ class PendingOrderDetailsBottomSheetFragment :
 
         Glide.with(context)
             .load(imageUrl)
-            .placeholder(R.drawable.ic_image)
+            .placeholder(R.drawable.ic_image1)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable,

@@ -8,6 +8,7 @@ plugins {
     id("com.google.firebase.crashlytics")
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
+    id 'com.google.firebase.appdistribution'
 }
 
 android {
@@ -18,8 +19,8 @@ android {
         applicationId "com.ssspvtltd.quick"
         minSdk 26
         targetSdk 35
-        versionCode = 57
-        versionName = "3.1.13"
+        versionCode = 66
+        versionName = "3.1.22"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -95,6 +96,7 @@ dependencies {
     implementation 'androidx.activity:activity-ktx:1.9.3'
 
 
+
     // Test
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
@@ -121,6 +123,8 @@ dependencies {
 
     // Shimmer
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    implementation("io.coil-kt:coil-compose:2.5.0") // for image loading
 
     // Dagger-Hilt
     implementation "com.google.dagger:hilt-android:$hilt_version"
@@ -168,7 +172,6 @@ dependencies {
 // DatePicker
 
     implementation 'com.github.OzcanAlasalvar:DatePicker:1.0.4'
-
 
     def roomVersion = "2.6.1" // Check for the latest version
     implementation "androidx.room:room-runtime:$roomVersion"

@@ -38,6 +38,11 @@ class HoldOrderFragment : BaseFragment<FragmentHoldOrderBinding, HoldOrderViewMo
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.getHoldOrder()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.apply {
@@ -45,12 +50,20 @@ class HoldOrderFragment : BaseFragment<FragmentHoldOrderBinding, HoldOrderViewMo
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         }
 
+
         initViews()
         registerListener()
     }
 
     private fun registerObserver() {
         viewModel.isListAvailable.observe(this) {
+            if (viewModel.widgetList.isEmpty()){
+                binding.noData.visibility = View.VISIBLE
+                binding.recyclerView.visibility=View.GONE
+            }else{
+                binding.noData.visibility = View.GONE
+                binding.recyclerView.visibility=View.VISIBLE
+            }
             mAdapter.submitList(viewModel.widgetList)
         }
     }

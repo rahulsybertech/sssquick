@@ -12,6 +12,7 @@ data class GoodsReturnItem(
     val changedQty: Int?,
     val id: String,
     val itemName: String?,
+    val grInDate: String?,
     val noChangeQty: Int?,
     val qty: Int?,
     val remark: String?,

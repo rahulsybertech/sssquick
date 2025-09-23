@@ -56,6 +56,9 @@ data class EditOrderDataNew(
     @SerializedName("purchasePartyName")
     @Expose
     val purchasePartyName: String?,
+    @SerializedName("purchasePartyMobileNo")
+    @Expose
+    val purchasePartyMobileNo: String?,
     @SerializedName("pvtMarka")
     @Expose
     val pvtMarka: String?,
@@ -109,6 +112,8 @@ data class EditOrderDataNew(
     @SerializedName("transportName")
     @Expose
     val transportName: String?,
+
+
     @SerializedName("voucherCodeId")
     @Expose
     val voucherCodeId: String?,

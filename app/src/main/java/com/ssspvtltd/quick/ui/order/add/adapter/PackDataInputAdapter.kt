@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat.getColor
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +13,7 @@ import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.recycler.adapter.BaseViewHolder
 import com.ssspvtltd.quick.databinding.ItemPackDataInputBinding
 import com.ssspvtltd.quick.model.order.add.ItemsData
+import com.ssspvtltd.quick.model.order.add.additem.PackType
 import com.ssspvtltd.quick.model.order.add.additem.PackTypeItem
 import com.ssspvtltd.quick.utils.showToast
 import tech.developingdeveloper.toaster.Toaster
@@ -30,18 +32,27 @@ class PackDataInputAdapter(val mContext: Context)  : RecyclerView.Adapter<PackDa
             .inflate(LayoutInflater.from(parent.context), parent, false)
         return PackDataInputViewHolder(binding).apply {
             this.binding.btnAddDelete.setOnClickListener {
+                // ✅ Remove focus from all views
+                this.binding.root.clearFocus()
+
+                // ✅ Hide keyboard
+                val imm = binding.root.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(binding.root.windowToken, 0)
+
+                // ✅ Business logic
                 if (list.getOrNull(bindingAdapterPosition)?.itemID.isNullOrBlank()) {
                     this.binding.etItem.text.clear()
                 }
+
                 if (bindingAdapterPosition == list.lastIndex) {
-                   if( validator(this.binding)) {
+                    if (validator(this.binding)) {
                         addNewItem()
                     }
-                }
-                else if (bindingAdapterPosition != -1) {
+                } else if (bindingAdapterPosition != -1) {
                     deleteItem(bindingAdapterPosition)
                 }
             }
+
             this.binding.etItem.setOnItemClickListener { parent, view, position, id ->
                 val suggestion = parent.getItemAtPosition(position) as? ItemsData
 
@@ -65,7 +76,12 @@ class PackDataInputAdapter(val mContext: Context)  : RecyclerView.Adapter<PackDa
     override fun onBindViewHolder(holder: PackDataInputViewHolder, position: Int) {
         holder.bind(list[position])
         myBinding = holder.binding
+        myBinding.etQuantity.isEnabled              = true
+        myBinding.tilQuantity.boxBackgroundColor    = getColor(mContext, R.color.white)
 
+        myBinding.etItem.isEnabled              = true
+        myBinding.tilItem.boxBackgroundColor    = getColor(mContext, R.color.white)
+/*
         if (position == list.lastIndex) {
             myBinding.etQuantity.isEnabled              = true
             myBinding.tilQuantity.boxBackgroundColor    = getColor(mContext, R.color.white)
@@ -78,7 +94,7 @@ class PackDataInputAdapter(val mContext: Context)  : RecyclerView.Adapter<PackDa
 
             myBinding.etItem.isEnabled              = false
             myBinding.tilItem.boxBackgroundColor    = getColor(mContext, R.color.light_gray)
-        }
+        }*/
 
 
         holder.binding.etItem.setOnFocusChangeListener { v, hasFocus ->
@@ -195,5 +211,10 @@ class PackDataInputAdapter(val mContext: Context)  : RecyclerView.Adapter<PackDa
                 }
             }
         }
+    }
+    fun setList(newList: List<PackTypeItem>) {
+        list.clear()
+        list.addAll(newList)
+        notifyDataSetChanged()
     }
 }

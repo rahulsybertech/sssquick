@@ -20,5 +20,12 @@ data class GetStockInOfficeOrderDetailsRequest(
     val supplierIDs: List<Any?>?,
     @SerializedName("toDate")
     @Expose
-    val toDate: Any?
+    val toDate: Any?,
+    @SerializedName("pageNumber")
+    @Expose
+    val pageNumber: String?,
+    @SerializedName("pageSize")
+    @Expose
+    val pageSize: String?,
+
 )

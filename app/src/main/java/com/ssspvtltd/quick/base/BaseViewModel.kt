@@ -13,14 +13,18 @@ import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.application.MainApplication
 import com.ssspvtltd.quick.commonrepo.CommonPDFRepo
+import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.alert.AlertMsg
+import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.persistance.PrefHelper
+import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
 import com.ssspvtltd.quick.ui.order.hold.repository.HoldOrderRepository
 import com.ssspvtltd.quick.utils.ApiErrorData
+import com.ssspvtltd.quick.utils.showToast
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,6 +44,9 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
 
     @Inject
     lateinit var holdOrderRepository: HoldOrderRepository
+
+    @Inject
+    lateinit var goodsReturnRepository: GoodsReturnRepository
 
 
     var loginErrorApiCallingCount = 0
@@ -232,4 +239,60 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
             }
         }
     }
+    private val _isUploading = MutableLiveData<Boolean>()
+    val isUploading: LiveData<Boolean> get() = _isUploading
+
+    private val _uploadSuccess = MutableLiveData<Boolean>()
+    val uploadSuccess: LiveData<Boolean> get() = _uploadSuccess
+
+    fun uploadGoodsReturnImages(id: String, img1: String?, img2: String?, img3: String?) {
+        viewModelScope.launch {
+            _isUploading.value = true  // ⏳ Start progress
+            val request = GoodsReturnImageUploadRequest(id, img1, img2, img3)
+
+            when (val response = goodsReturnRepository.uploadImages(request)) {
+                is ResultWrapper.Success -> {
+                    showToast("Images uploaded successfully")
+                    _uploadSuccess.postValue(true)  // ✅ Trigger success
+                }
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                }
+            }
+
+            _isUploading.value = false // ✅ Stop progress
+        }
+    }
+
+    private val _hasSelectedImages = MutableLiveData(false)
+    val hasSelectedImages: LiveData<Boolean> get() = _hasSelectedImages
+
+    fun updateSelectedImages(base64List: List<String?>) {
+        _hasSelectedImages.value = base64List.any { !it.isNullOrBlank() }
+    }
+
+    private val _editOrderDataGr = MutableLiveData<GoodsReturnDataGr?>()
+    val editOrderGr: LiveData<GoodsReturnDataGr?> get() = _editOrderDataGr
+    fun getEditOrderGr(pendingOrderID:String) = viewModelScope.launch {
+        if (pendingOrderID.isNullOrBlank()) return@launch
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        //initializeEditOrder()
+        when (val response = goodsReturnRepository.editOrderGr(pendingOrderID)) {
+            is ResultWrapper.Failure -> {
+                apiErrorData(response.error)
+                Log.e("getEditOrderDataIfNeeded", response.toString())
+            }
+
+            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                response.value.data?.let {
+                    withContext(Dispatchers.Main) {
+                        _editOrderDataGr.postValue(response.value.data)
+
+                        hideProgressBar()
+                    }
+                }
+            }
+        }
+    }
+
 }

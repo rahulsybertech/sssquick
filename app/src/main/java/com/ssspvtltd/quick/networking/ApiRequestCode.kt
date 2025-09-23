@@ -25,6 +25,7 @@ enum class ApiRequestCode {
     HOLD_DELETE_ORDER,
     GOODS_RETURN,
     PENDING_LR,
+    COUNT,
     STOCK_IN_OFFICE,
     SAVE_ORDER,
     EDIT_ORDER,
@@ -33,4 +34,5 @@ enum class ApiRequestCode {
     ORDER_PDF_REGENERATE,
     CHECK_VERSION,
     DispatchType,
+    UPLOAD_IMAGES,
 }

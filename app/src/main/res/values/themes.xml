@@ -8,6 +8,11 @@
     </style>
 
     <style name="Theme.SSSQUICK" parent="Base.Theme.SSSQUICK" />
+    <style name="Theme.SSSQUICK.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize colors -->
+     <!--   <item name="android:statusBarColor">@color/deep_orange_300</item>
+        <item name="android:windowBackground">@color/deep_orange_300</item>-->
+    </style>
 
 
     <style name="Theme.Widget.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">

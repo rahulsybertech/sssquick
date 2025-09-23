@@ -1,6 +1,8 @@
 package com.ssspvtltd.quick.ui.order.pendinglr.activity
 
+import android.graphics.Color
 import android.os.Bundle
+import androidx.core.view.WindowInsetsControllerCompat
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.BaseViewModel
 import com.ssspvtltd.quick.base.InflateA
@@ -18,6 +20,8 @@ class PendingLrActivity : BaseActivity<ActivityPendingLrBinding, BaseViewModel>(
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+  /*      window.statusBarColor = Color.parseColor("#BF4625") // your app bar color (orange/brown)
+        WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false*/
         addFragment(PendingLrFragment(),binding.fragmentContainer.id,false)
 
     }

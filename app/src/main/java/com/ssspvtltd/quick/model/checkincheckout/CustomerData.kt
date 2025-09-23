@@ -7,6 +7,7 @@ import com.ssspvtltd.quick.model.CheckInViewType
 data class CustomerData(
     val id: String?,
     val accountCode: String?,
+    val accountName: String?,
     var checkInType: String?,
     var chkStatus: Boolean?,
     val tlock:Boolean?,

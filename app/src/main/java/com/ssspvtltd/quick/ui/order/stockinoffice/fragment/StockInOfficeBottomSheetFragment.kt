@@ -42,7 +42,6 @@ import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeOrderItem
 import com.ssspvtltd.quick.utils.DownloadCompleteReceiver
 import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
-import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
@@ -190,7 +189,7 @@ class StockInOfficeBottomSheetFragment :
 
         Glide.with(context)
             .load(imageUrl)
-            .placeholder(R.drawable.ic_image)
+            .placeholder(R.drawable.ic_image1)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable,

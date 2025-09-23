@@ -26,7 +26,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding, BaseViewModel>() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            delay(1000)
+            delay(500)
             val intent = if (!viewModel.prefHelper.getAccessToken().isNullOrBlank()) {
                 Intent(this@SplashActivity, MainActivity::class.java)
             } else {

@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
 import androidx.lifecycle.lifecycleScope
@@ -25,9 +26,12 @@ import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
 import com.ssspvtltd.quick.databinding.ActivityMainBinding
 import com.ssspvtltd.quick.di.PrefHelperEntryPoint
+import com.ssspvtltd.quick.ui.PendingOrderByCustomerActivity
 import com.ssspvtltd.quick.ui.auth.activity.LoginActivity
 import com.ssspvtltd.quick.ui.auth.viewmodel.LoginViewModel
 import com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity
+import com.ssspvtltd.quick.ui.create_gr.CreateGRActivity
+import com.ssspvtltd.quick.ui.create_gr.CreateGRFragment
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
 import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
 import com.ssspvtltd.quick.ui.order.stockinoffice.activity.StockInOfficeActivity
@@ -39,10 +43,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.lang.ref.WeakReference
+import java.time.Year
 
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
+class MainActivity :
+    BaseActivity<ActivityMainBinding, LoginViewModel>() {
 
     private lateinit var navController: NavController
     override val inflate: InflateA<ActivityMainBinding> get() = ActivityMainBinding::inflate
@@ -115,9 +121,13 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
             marketerName.text = viewModel.prefHelper.getUserName()
         }
 
+
+
+
         binding.navView.setNavigationItemSelectedListener {
             closeDrawer()
             when (it.itemId) {
+
                 R.id.nav_checkinout -> {
                     val intent = Intent(this, CheckInCheckOutActivity::class.java)
                     startActivity(intent)
@@ -139,12 +149,38 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
                     startActivity(intent)
                     false
                 }
+                R.id.nav_goods_return -> {
+                    val intent = Intent(this, GoodsReturnActivity::class.java)
+                    startActivity(intent)
+                    false
+                }
 
                 R.id.nav_pending_lr -> {
                     val intent = Intent(this, PendingLrActivity::class.java)
                     startActivity(intent)
                     false
                 }
+                R.id.navCreateGR -> {
+
+                    val intent = Intent(this, CreateGRActivity::class.java)
+                    startActivity(intent)
+                    false
+                }
+                R.id.pendingOrderByCustomer2 -> {
+                    val intent = Intent(this
+                        , PendingOrderByCustomerActivity::class.java).apply {
+                        putExtra("source", "Customer")
+                    }
+                    startActivity(intent)
+            false
+                 }
+                R.id.pendingorderFragment -> {
+                    val bundle = Bundle().apply {
+                        putString("source", "Markerter")
+                    }
+                    navController.navigate(R.id.pendingorderFragment, bundle)
+            false
+                 }
 
                 R.id.nav_stockin_office -> {
                     val intent = Intent(this, StockInOfficeActivity::class.java)
@@ -273,83 +309,11 @@ class MainActivity : BaseActivity<ActivityMainBinding, LoginViewModel>() {
         runBlocking { viewModel.prefHelper.logout() }
     }
 
+
+   fun higherOrder(x:Int,y:Int,operation:(Int,Int)->Int):Int{
+       return operation(x,y);
+   }
+    val sum = higherOrder(5, 3) { a, b -> a + b }
+
 }
 
-//    private val drawerAction: (DrawerAction) -> Unit = {
-//        when (it) {
-//            DrawerAction.DASHBOARD -> {
-//                closeDrawer()
-//                if (navController.currentDestination?.id != R.id.dashboardFragment) {
-//                    navController.navigate(R.id.dashboardFragment)
-//                }
-//            }
-//
-//            DrawerAction.PENDINGORDERS -> {
-//                closeDrawer()
-//                if (navController.currentDestination?.id != R.id.pendingorderFragment) {
-//                    navController.navigate(R.id.pendingorderFragment)
-//                }
-//            }
-//
-//            DrawerAction.ADDORDER -> {
-//                closeDrawer()
-//                if (navController.currentDestination?.id != R.id.addorderFragment) {
-//                    navController.navigate(R.id.addorderFragment)
-//                }
-//            }
-//
-//            DrawerAction.PENDINGLR -> {
-//                closeDrawer()
-////                startActivity(Intent(this, PostListActivity::class.java))
-//            }
-//
-//            DrawerAction.STOCKINOFFICE -> {
-//                closeDrawer()
-////                startActivity(Intent(this, NotificationActivity::class.java))
-//            }
-//
-//            DrawerAction.HOLDORDERS -> {
-//                closeDrawer()
-//            }
-//
-//            DrawerAction.GOODRETURN -> {
-//                closeDrawer()
-//            }
-//
-//            DrawerAction.PENDINGLR -> {
-//                closeDrawer()
-//            }
-//
-//            DrawerAction.SHARE -> {
-//                val shareMessage = "SSS QUICK \nDownload the application\n\n"
-//                ShareCompat.IntentBuilder(this)
-//                    .setType("text/plain")
-//                    .setChooserTitle("Share SSS QUICK App")
-//                    .setSubject("SSS QUICK")
-//                    .setText("${shareMessage}https://play.google.com/store/apps/details?id=${this.packageName}")
-//                    .startChooser()
-//            }
-//
-//            DrawerAction.LOGOUT -> {
-//                closeDrawer()
-////                showWarningDialog(
-////                    getString(R.string.logout_title), getString(R.string.logout_msg),
-////                    getString(R.string.logout_positive_btn), getString(R.string.logout_negative_btn)
-////                ) {
-////                    mViewModel.logout()
-////                    it.dismissWithAnimation()
-////                    val intent = Intent(this, LoginActivity::class.java)
-////                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-////                    startActivity(intent)
-////                }
-//            }
-//
-//            else -> {}
-//        }
-//    }
-
-//    fun registerObserver() {
-//        mViewModel.getListDataAvailable().observe(this) {
-//            mAdapter.submitList(mViewModel.getList(), it)
-//        }
-//    }

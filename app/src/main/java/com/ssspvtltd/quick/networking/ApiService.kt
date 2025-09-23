@@ -1,13 +1,21 @@
 package com.ssspvtltd.quick.networking
 
+import com.google.gson.JsonObject
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
+import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.HoldOrderRequest
+import com.ssspvtltd.quick.model.IntResponse
+import com.ssspvtltd.quick.model.SubPartyGRData
+import com.ssspvtltd.quick.model.SubPartyGRResponse
+import com.ssspvtltd.quick.model.TransportMasterData
+import com.ssspvtltd.quick.model.TransportMasterResponse
 import com.ssspvtltd.quick.model.auth.AutoLogout
 import com.ssspvtltd.quick.model.auth.LoginData
 import com.ssspvtltd.quick.model.auth.VerifyOtpData
 import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
+import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
 import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
@@ -111,6 +119,13 @@ interface ApiService {
     ): ApiResponse<List<PurchasePartyData>>
 
     @POST("api/OrderBook/GetPurchasePartyList")
+    suspend fun purchasePartyLisInGr(
+        @Query("nickNameId ") nickNameId : String?,
+        @Query("schemeId") schemeId: String?,
+        @Query("isAllSupplier") nickNameWise: Boolean
+    ): ApiResponse<List<PurchasePartyData>>
+
+    @POST("api/OrderBook/GetPurchasePartyList")
     suspend fun purchasePartyListWithNickName(
         @Query("schemeId") schemeId: String?,
         @Query("nickNameWise") nickNameWise: Boolean
@@ -124,6 +139,10 @@ interface ApiService {
     @POST("api/OrderBook/GetItemList")
     suspend fun itemList(
         @Query("purchasePartyId") purchasePartyId: String
+    ): ApiResponse<List<ItemsData>>
+
+    @POST("api/OrderBook/ItemNameList")
+    suspend fun itemListGr(
     ): ApiResponse<List<ItemsData>>
 
     @POST("api/OrderBook/GetStationListByMainPartyId")
@@ -141,14 +160,37 @@ interface ApiService {
         @Query("accountId") accountId: String
     ): ApiResponse<Data>
 
+    @POST("api/OrderBook/GetGRSubPartyList")
+    suspend fun getSubPartyDetailsGR(
+        @Query("accountId") accountId: String
+    ): ApiResponse<List<SubPartyGRData>>
+
+
+    @POST("api/OrderBook/GetTransportCourierList")
+    suspend fun getTransportGRApi(
+        @Query("searchData") accountId: String
+    ): ApiResponse<List<TransportMasterData>>
+
     @POST("api/OrderBook/GetSalePartyDetail")
     suspend fun getSalePartyDetailsNew(
         @Query("accountId") accountId: String
     ): ApiResponse<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data>
 
-    @POST("api/Report/GetPendingOrderDetails")
+ /*   @POST("api/Report/GetPendingOrderDetails")
     suspend fun pendingOrder(
         @Body filterRequest: FilterRequest?
+    ): ApiResponse<List<PendingOrderData>>*/
+
+    @POST("api/Report/GetPendingOrderDetailsByPageNuber")
+    suspend fun pendingOrder(
+        @Body filterRequest: FilterRequest?
+    ): ApiResponse<List<PendingOrderData>>
+
+    @POST("api/Report/CustomerPendingOrderByPageNumber")
+    suspend fun pendingOrderByCustomer(
+        @Query("customerId") customerId: String,
+        @Query("pageNumber") pageNumber: String,
+        @Query("pageSize") pageSize: String
     ): ApiResponse<List<PendingOrderData>>
 
 
@@ -162,15 +204,42 @@ interface ApiService {
         @Query("orderId") orderId: String
     ): ApiResponse<HoldDeleteOrderResponse>
 
-    @POST("api/Report/GetGrReturnOrderDetails")
+/*    @POST("api/Report/GetGrReturnOrderDetails")
+    suspend fun goodsReturn(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
+    ): ApiResponse<List<GoodsReturnData>> */
+
+    @POST("api/Report/GetGrReturnOrderPrimaryDetails")
     suspend fun goodsReturn(
         @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<GoodsReturnData>>
 
-    @POST("api/Report/GetPendingLROrderDetails")
+    @POST("api/Report/GetGrReturnOrderSecDetails")
+    suspend fun goodsReturnSecondary(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
+    ): ApiResponse<List<GoodsReturnData>>
+
+   /* @POST("api/Report/GetPendingLROrderDetails")
+    suspend fun pendingLr(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
+    ): ApiResponse<List<PendingLrData>>*/
+
+     @POST("api/Report/GetPendingLROrderDetailsByPageNuber")
     suspend fun pendingLr(
         @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
     ): ApiResponse<List<PendingLrData>>
+
+
+    @POST("api/Report/GetPendingLROrderDetailsCount")
+    suspend fun countPendingLR( @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest) : ApiResponse<*>
+
+    @POST("api/Report/GetPendingOrderDetailsCount")
+    suspend fun count( @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest) : ApiResponse<*>
+
+    @POST("api/Report/CustomerPendingOrderCount")
+    suspend fun countCustomer(  @Query("customerId") orderId: String) : ApiResponse<*>
+
+
 
     @POST("api/Report/GetStockInOfficeOrderDetails")
     suspend fun stockInOffice(
@@ -184,10 +253,22 @@ interface ApiService {
         @Part documents: List<MultipartBody.Part>?
     ): ApiResponse<*>
 
+    @Multipart
+    @POST("api/OrderBook/SaveUpdateGoodsReturnData")
+    suspend fun saveOrderGr(
+        @PartMap params: HashMap<String, RequestBody?>,
+        @Part documents: List<MultipartBody.Part>?
+    ): ApiResponse<*>
+
     @POST("api/OrderBook/GetOrderBookDetailsById")
     suspend fun getEditOrderData(
         @Query("orderId") orderId: String
     ): ApiResponse<EditOrderDataNew>
+
+    @POST("api/OrderBook/GetGoodsReturnDataById")
+    suspend fun getEditOrderDataGr(
+        @Query("recordId") orderId: String
+    ): ApiResponse<GoodsReturnDataGr>
 
     @POST("api/OrderBook/GetDashboardData")
     suspend fun getDashBoardData(
@@ -210,5 +291,11 @@ interface ApiService {
     suspend fun fetchVersion(
         @Query("appName") appName: String
     ): Response<CheckVersionResponse>
+
+
+    @POST("api/OrderBook/UploadGoodsReturnBookImages")
+    suspend fun uploadGoodsReturnImages(
+        @Body request: GoodsReturnImageUploadRequest
+    ): ApiResponse<Any>
 
 }

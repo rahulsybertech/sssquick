@@ -54,6 +54,7 @@ class SalePartyAdapter(
             val saleAutoCompleteView =
                 rowView.findViewById<View>(R.id.tvAccountNo) as TextView
             saleAutoCompleteView.text = customerData.accountName
+
         } catch (e: Exception) {
             e.printStackTrace()
         }

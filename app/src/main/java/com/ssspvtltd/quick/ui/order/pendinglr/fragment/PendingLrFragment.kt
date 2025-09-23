@@ -2,10 +2,15 @@ package com.ssspvtltd.quick.ui.order.pendinglr.fragment
 
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentPendingLrBinding
+import com.ssspvtltd.quick.di.PrefHelperEntryPoint.Companion.prefHelper
+import com.ssspvtltd.quick.model.DashBoardDataResponse
+import com.ssspvtltd.quick.model.IntResponse
 import com.ssspvtltd.quick.ui.order.pendinglr.adapter.PendingLrAdapter
 import com.ssspvtltd.quick.ui.order.pendinglr.viewmodel.PendingLrViewmodel
 import com.ssspvtltd.quick.utils.extension.getViewModel
@@ -14,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class PendingLrFragment : BaseFragment<FragmentPendingLrBinding, PendingLrViewmodel>() {
@@ -25,7 +31,8 @@ class PendingLrFragment : BaseFragment<FragmentPendingLrBinding, PendingLrViewmo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getPendingLr()
+        viewModel.startFetchingPendingLr()
+     //  viewModel.getCount()
         registerObserver()
     }
 
@@ -35,8 +42,15 @@ class PendingLrFragment : BaseFragment<FragmentPendingLrBinding, PendingLrViewmo
             setTitle("Pending LR")
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         }
+
         initViews()
         registerListener()
+
+       binding.swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
+       binding.swipeRefreshLayout.setOnRefreshListener {
+           viewModel.startFetchingPendingLr()
+           binding.swipeRefreshLayout.isRefreshing = false
+        }
     }
 
     private fun registerObserver() {
@@ -47,6 +61,9 @@ class PendingLrFragment : BaseFragment<FragmentPendingLrBinding, PendingLrViewmo
 
     private fun initViews() = with(binding) {
         recyclerView.adapter = mAdapter
+        viewModel.countText.observe(viewLifecycleOwner) { countString ->
+            binding.tvCount.text = countString
+        }
         toolbar.setTitle("Pending LR")
     }
 

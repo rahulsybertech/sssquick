@@ -75,7 +75,7 @@ class   AddItemActivity : BaseActivity<ActivityAddItemBinding, AddItemViewModel>
 
     private fun openAddBottomSheet(index: Int = -1) {
         viewModel.bottomSheetIndex = index
-        AddItemBottomSheetFragment.newInstance()
+        AddItemBottomSheetFragment.newInstance(false)
             .show(supportFragmentManager, AddItemBottomSheetFragment::class.simpleName)
     }
 

@@ -5,6 +5,8 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.net.Uri
 import android.util.TypedValue
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.AttrRes
@@ -42,8 +44,13 @@ fun Context.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     if (message == null) return
     Toast.makeText(this, message, duration).show()
 }
+ fun View.showKeyboard() {
+     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+     imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+ }
 
-fun Fragment.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
+
+ fun Fragment.toast(message: String?, duration: Int = Toast.LENGTH_SHORT) {
     requireContext().toast(message, duration)
 }
 
@@ -98,3 +105,4 @@ fun Uri.isHttpUri(): Boolean {
 fun <T> Flow<T>.observe(owner: LifecycleOwner, action: (value: T) -> Unit) {
     this.asLiveData(Dispatchers.Main).observe(owner, action)
 }
+

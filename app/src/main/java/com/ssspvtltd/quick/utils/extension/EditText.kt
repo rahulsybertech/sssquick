@@ -1,8 +1,11 @@
 package com.ssspvtltd.quick.utils.extension
 
+import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.core.widget.doOnTextChanged
+import com.anychart.math.mfi.Context
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -26,4 +29,6 @@ fun EditText.textChanges(): Flow<CharSequence?> {
         val listener = doOnTextChanged { text, _, _, _ -> trySend(text) }
         awaitClose { removeTextChangedListener(listener) }
     }
+
 }
+

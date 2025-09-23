@@ -6,6 +6,7 @@ import com.ssspvtltd.quick.base.BaseViewModel
 import com.ssspvtltd.quick.base.InflateA
 import com.ssspvtltd.quick.databinding.ActivityGoodsReturnBinding
 import com.ssspvtltd.quick.ui.order.goodsreturn.fragment.GoodsReturnFragment
+import com.ssspvtltd.quick.ui.order.goodsreturn.fragment.GoodsReturnFragmentNew
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,6 +19,7 @@ class GoodsReturnActivity : BaseActivity<ActivityGoodsReturnBinding,BaseViewMode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        addFragment(GoodsReturnFragment(),binding.fragmentContainer.id,false)
+           addFragment(GoodsReturnFragment(),binding.fragmentContainer.id,false)
+     //   addFragment(GoodsReturnFragmentNew(),binding.fragmentContainer.id,false)
     }
 }

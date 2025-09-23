@@ -24,6 +24,14 @@
         android:id="@+id/holdorderFragment"
         android:name="com.ssspvtltd.quick.ui.order.hold.fragment.HoldOrderFragment"
         tools:layout="@layout/fragment_hold_order" />
+    <fragment
+        android:id="@+id/createGRFragment"
+        android:name="com.ssspvtltd.quick.ui.create_gr.CreateGRFragment"
+        android:label="@layout/fragment_create_gr" />
+    <fragment
+        android:id="@+id/pendingOrderByCustomer2"
+        android:name="com.ssspvtltd.quick.ui.order.pending.fragment.PendingOrderByCustomer"
+        android:label="PendingOrderByCustomer" />
 
     <!--    <dialog-->
     <!--        android:id="@+id/locationFragment"-->

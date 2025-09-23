@@ -1,11 +1,14 @@
 package com.ssspvtltd.quick.ui.order.goodsreturn.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentGoodsReturnBinding
+import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodReturnSecondaryActivity
+import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
 import com.ssspvtltd.quick.ui.order.goodsreturn.adapter.GoodsReturnAdapter
 import com.ssspvtltd.quick.ui.order.goodsreturn.viewmodel.GoodsReturnViewModel
 import com.ssspvtltd.quick.utils.extension.getViewModel
@@ -37,7 +40,8 @@ class GoodsReturnFragment : BaseFragment<FragmentGoodsReturnBinding, GoodsReturn
         //     else requireActivity().onBackPressed()
         // }
         binding.toolbar.apply {
-            setTitle("Goods Return")
+          //  setTitle("Goods Return")
+            setTitle("Pending GR")
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         }
         initViews()
@@ -52,7 +56,7 @@ class GoodsReturnFragment : BaseFragment<FragmentGoodsReturnBinding, GoodsReturn
 
     private fun initViews() = with(binding) {
         recyclerView.adapter = mAdapter
-        toolbar.setTitle("Goods Return")
+        toolbar.setTitle("Pending GR")
     }
 
     private fun registerListener() = with(binding) {
@@ -62,8 +66,11 @@ class GoodsReturnFragment : BaseFragment<FragmentGoodsReturnBinding, GoodsReturn
             viewModel.prepareFilteredList()
         }.launchIn(lifecycleScope)
         mAdapter.onItemClick = {
-            GoodsReturnBottomSheetFragment.newInstance(it)
-                .show(childFragmentManager, GoodsReturnBottomSheetFragment::class.simpleName)
+            val intent = Intent(requireActivity(), GoodReturnSecondaryActivity::class.java)
+            intent.putExtra("ID",it.id)
+            startActivity(intent)
+            /*GoodsReturnBottomSheetFragment.newInstance(it)
+                .show(childFragmentManager, GoodsReturnBottomSheetFragment::class.simpleName)*/
 
         }
     }

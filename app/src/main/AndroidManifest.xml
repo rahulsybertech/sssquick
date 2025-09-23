@@ -31,9 +31,11 @@
         android:screenOrientation="portrait"
         android:theme="@style/Theme.SSSQUICK"
         tools:targetApi="31">
+
         <activity
             android:name="com.ssspvtltd.quick.ui.order.stockinoffice.activity.StockInOfficeActivity"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustNothing"
+            android:exported="true" />
         <activity
             android:name="com.ssspvtltd.quick.ui.order.add.activity.AddImageActivity"
             android:exported="false" />
@@ -47,7 +49,21 @@
             android:name="com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity"
             android:exported="false" />
         <activity
+            android:name="com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodReturnSecondaryActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.ssspvtltd.quick.ui.create_gr.CreateGRActivity"
+            android:exported="false" />
+        <activity
             android:name="com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustNothing"/>
+        <activity
+            android:name=".ui.PendingOrderByCustomerActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustNothing"/>
+        <activity
+            android:name=".ui.AddOrderActctivity"
             android:exported="false"
             android:windowSoftInputMode="adjustNothing"/>
         <activity
@@ -56,7 +72,9 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name="com.ssspvtltd.quick.ui.main.MainActivity"
-            android:exported="false" />
+            android:windowSoftInputMode="adjustNothing"
+            android:exported="true"
+           />
         <activity
             android:name="com.ssspvtltd.quick.ui.splash.SplashActivity"
             android:exported="true">
@@ -66,10 +84,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
-
-
         <!-- Alias with First Icon (Initially Disabled) -->
         <activity-alias
             android:name=".IconOneAlias"
@@ -96,8 +110,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
-
     </application>
 
 </manifest>

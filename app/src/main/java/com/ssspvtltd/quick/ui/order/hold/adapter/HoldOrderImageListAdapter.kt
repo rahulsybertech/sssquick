@@ -29,7 +29,7 @@ class HoldOrderImageListAdapter(private val imgs: List<com.ssspvtltd.quick.model
         if((imgs?.get(position)?.url ?: "").contains(".pdf")){
             binding.image.setAnimation(R.raw.pdf_ani)
         } else {
-            binding.image.setImageResource(R.drawable.ic_image)
+            binding.image.setImageResource(R.drawable.ic_image1)
         }
 
         binding.llImg.setOnClickListener {

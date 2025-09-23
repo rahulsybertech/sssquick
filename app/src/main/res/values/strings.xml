@@ -13,6 +13,8 @@
     <string name="dashboard">Dashboard</string>
     <string name="add_order">Add Order</string>
     <string name="pending_order">Pending Order</string>
+    <string name="pending_order_marketer">Pending Order(Marketer)</string>
+    <string name="pending_order_customer">Pending Order(Customer)</string>
     <string name="stock_in_office">Stock In Office</string>
     <string name="hold_order">Hold Order</string>
     <string name="goods_return">Goods Return</string>
@@ -52,6 +54,7 @@
     <string name="_0">0</string>
     <string name="sale_party">Sale Party</string>
     <string name="sale_party_with_ast">Sale Party*</string>
+    <string name="customer_code_">Customer Code*</string>
     <string name="order_in_market_msg">"Market/Customer/Others" type के साथ आप Order In Office पर checkin नहीं कर सकते हैं ।</string>
     <string name="order_in_office_msg">"Order In Office" के साथ आप Market, Customer &amp; Others पर checkin नहीं कर सकते हैं ।</string>
     <string name="avg_days">Average Days</string>
@@ -117,6 +120,17 @@
     <string name="save">Save</string>
     <string name="pvt_marka">PVT Marka*</string>
     <string name="dispatch_type">Dispatch Type*</string>
+    <string name="sub_party_remark">Sub Party Remark*</string>
+    <string name="RecordGR">Create GR</string>
+    <string name="bility_courier_name">Bility/Courier Name</string>
+    <string name="customer_code">Customer Code</string>
+    <string name="supplier_">Supplier*</string>
+    <string name="parcel_qty">Parcel Qty*</string>
+    <string name="transport_courier_name">Transport/Courier Name*</string>
+    <string name="bility_courier_no">Bility/Courier No</string>
+    <string name="upload">Upload</string>
+    <string name="call">Call</string>
+
 
     <!--<string name="regenerate_pdf"><u>Regenerate Pdf</u></string>-->
 </resources>

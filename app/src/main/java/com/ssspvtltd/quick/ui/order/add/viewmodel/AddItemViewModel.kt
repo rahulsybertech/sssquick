@@ -62,6 +62,19 @@ class AddItemViewModel @Inject constructor(
         }
     }
 
+    fun getItemsListGr(purchasePartyId: String) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        when (val response = repository.itemListGr(purchasePartyId)) {
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+            is ResultWrapper.Success -> withContext(Dispatchers.Main) {
+                response.value.data?.let {
+                    packTypeItemSuggestions.postValue(it)
+                    hideProgressBar()
+                }
+            }
+        }
+    }
+
     fun getPackType() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
         when (val response = repository.packType()) {
@@ -79,68 +92,144 @@ class AddItemViewModel @Inject constructor(
         val packType = packTypeDataList.getOrNull(bottomSheetIndex)
         packType?.let { bottomSheetPrefilledPackType.postValue(it) }
     }
+    fun submitData(packTypeItems: List<PackTypeItem>,isGrMode:Boolean) = viewModelScope.launch {
+        Log.i("TaG", "add item -=-=-=-=-=-=-=-= $packTypeItems")
 
-    fun submitData(packTypeItems: List<PackTypeItem>) = viewModelScope.launch {
-        Log.i("TaG","add item -=-=-=-=-=-=-=-= ${packTypeItems}")
-        if (bottomSheetPackData?.id.isNullOrBlank() || bottomSheetPackData?.value.isNullOrBlank()) {
-            showToast("Please select a pack type")
-        } else if ((bottomSheetPackAmount ?: "0").toDouble() <= 0) { // change check
-            showToast("Please select pack type amount")
-        } else if (packTypeItems.any {
-                it.itemName.isNullOrBlank() || it.itemID.isNullOrBlank() || it.itemQuantity.isNullOrBlank()
-            })
-        {
+        // 🔸 GR mode: skip validation for pack type, amount, qty
+        if (!isGrMode) {
+            if (bottomSheetPackData?.id.isNullOrBlank() || bottomSheetPackData?.value.isNullOrBlank()) {
+                showToast("Please select a pack type")
+                return@launch
+            } else if ((bottomSheetPackAmount ?: "0").toDoubleOrNull() ?: 0.0 <= 0) {
+                showToast("Please select pack type amount")
+                return@launch
+            }
+        }
 
+        val hasAnyInput = packTypeItems.any {
+            it.itemName?.isNotBlank() == true || it.itemQuantity?.isNotBlank() == true || it.itemID?.isNotBlank() == true
+        }
+
+        val hasPartialInput = packTypeItems.any {
+            (it.itemName?.isNotBlank() == true || it.itemQuantity?.isNotBlank() == true || it.itemID?.isNotBlank() == true) &&
+                    (it.itemName.isNullOrBlank() || it.itemQuantity.isNullOrBlank() || it.itemID.isNullOrBlank())
+        }
+
+        if (hasAnyInput && hasPartialInput) {
             showToast("Please input all fields")
-        } else {
-            withContext(Dispatchers.Default) {
-                val packTypeNew = PackType(
-                    id = null,
-                    pcsId = bottomSheetPackData?.id!!,
-                    packName = bottomSheetPackData?.value,
-                    amount = bottomSheetPackAmount,
-                    qty = bottomSheetPackQuantity,
-                    itemDetail = packTypeItems
-                )
-                if (bottomSheetIndex in 0..packTypeItems.lastIndex) {
-                    val itemIndexIfExist =
-                        packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
-                    var indexToRemove: Int = -1
-                    val indexToReplace: Int
-                    if (itemIndexIfExist > -1 && bottomSheetIndex != itemIndexIfExist) {
-                        indexToRemove = bottomSheetIndex
-                        indexToReplace = itemIndexIfExist
-                    } else {
-                        indexToReplace = bottomSheetIndex
-                    }
-                    packTypeDataList = packTypeDataList.mapIndexed { index, packType ->
-                        if (index == indexToReplace) packTypeNew
-                        else packType.copy()
-                    }
-                    if (indexToRemove > -1) {
-                        packTypeDataList = packTypeDataList
-                            .filterIndexed { index, _ -> index != indexToRemove }
+            return@launch
+        }
+
+
+        withContext(Dispatchers.Default) {
+            val packTypeNew = PackType(
+                id = null,
+                pcsId = bottomSheetPackData?.id ?: "GR-MODE-ID-${System.currentTimeMillis()}",
+                packName = bottomSheetPackData?.value ?: "GR Mode Entry",
+                amount = if (isGrMode) null else bottomSheetPackAmount,
+                qty = if (isGrMode) null else bottomSheetPackQuantity,
+                itemDetail = packTypeItems
+            )
+
+            if (bottomSheetIndex in 0..packTypeItems.lastIndex) {
+                val itemIndexIfExist = packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
+                var indexToRemove: Int = -1
+                val indexToReplace: Int
+
+                if (itemIndexIfExist > -1 && bottomSheetIndex != itemIndexIfExist) {
+                    indexToRemove = bottomSheetIndex
+                    indexToReplace = itemIndexIfExist
+                } else {
+                    indexToReplace = bottomSheetIndex
+                }
+
+                packTypeDataList = packTypeDataList.mapIndexed { index, packType ->
+                    if (index == indexToReplace) packTypeNew else packType.copy()
+                }
+
+                if (indexToRemove > -1) {
+                    packTypeDataList = packTypeDataList.filterIndexed { index, _ -> index != indexToRemove }
+                }
+            } else {
+                val itemIndexIfExist = packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
+                packTypeDataList = if (itemIndexIfExist > -1) {
+                    packTypeDataList.mapIndexed { index, packType ->
+                        if (index == itemIndexIfExist) packTypeNew else packType.copy()
                     }
                 } else {
-                    val itemIndexIfExist =
-                        packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
-                    packTypeDataList = if (itemIndexIfExist > -1) {
-                        packTypeDataList.mapIndexed { index, packType ->
-                            if (index == itemIndexIfExist) packTypeNew
-                            else packType.copy()
-                        }
-                    } else {
-                        packTypeDataList + packTypeNew
-                    }
+                    packTypeDataList + packTypeNew
                 }
+            }
 
-                withContext(Dispatchers.Main) {
-                    bottomSheetSubmitted.postValue(true)
-                    getPackDataList()
-                }
+            withContext(Dispatchers.Main) {
+                bottomSheetSubmitted.postValue(true)
+                getPackDataList()
             }
         }
     }
+
+
+    /* fun submitData(packTypeItems: List<PackTypeItem>, isGrMode: Boolean) = viewModelScope.launch {
+         Log.i("TaG","add item -=-=-=-=-=-=-=-= ${packTypeItems}")
+         if (bottomSheetPackData?.id.isNullOrBlank() || bottomSheetPackData?.value.isNullOrBlank()) {
+             showToast("Please select a pack type")
+         } else if ((bottomSheetPackAmount ?: "0").toDouble() <= 0) { // change check
+             showToast("Please select pack type amount")
+         } else if (packTypeItems.any {
+                 it.itemName.isNullOrBlank() || it.itemID.isNullOrBlank() || it.itemQuantity.isNullOrBlank()
+             })
+         {
+
+             showToast("Please input all fields")
+         } else {
+             withContext(Dispatchers.Default) {
+                 val packTypeNew = PackType(
+                     id = null,
+                     pcsId = bottomSheetPackData?.id!!,
+                     packName = bottomSheetPackData?.value,
+                     amount = bottomSheetPackAmount,
+                     qty = bottomSheetPackQuantity,
+                     itemDetail = packTypeItems
+                 )
+                 if (bottomSheetIndex in 0..packTypeItems.lastIndex) {
+                     val itemIndexIfExist =
+                         packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
+                     var indexToRemove: Int = -1
+                     val indexToReplace: Int
+                     if (itemIndexIfExist > -1 && bottomSheetIndex != itemIndexIfExist) {
+                         indexToRemove = bottomSheetIndex
+                         indexToReplace = itemIndexIfExist
+                     } else {
+                         indexToReplace = bottomSheetIndex
+                     }
+                     packTypeDataList = packTypeDataList.mapIndexed { index, packType ->
+                         if (index == indexToReplace) packTypeNew
+                         else packType.copy()
+                     }
+                     if (indexToRemove > -1) {
+                         packTypeDataList = packTypeDataList
+                             .filterIndexed { index, _ -> index != indexToRemove }
+                     }
+                 } else {
+                     val itemIndexIfExist =
+                         packTypeDataList.indexOfFirst { it.pcsId == packTypeNew.pcsId }
+                     packTypeDataList = if (itemIndexIfExist > -1) {
+                         packTypeDataList.mapIndexed { index, packType ->
+                             if (index == itemIndexIfExist) packTypeNew
+                             else packType.copy()
+                         }
+                     } else {
+                         packTypeDataList + packTypeNew
+                     }
+                 }
+
+                 withContext(Dispatchers.Main) {
+                     bottomSheetSubmitted.postValue(true)
+                     getPackDataList()
+                 }
+             }
+         }
+     }*/
 
     fun deletePackTypeData(packType: PackType) {
         packTypeDataList = packTypeDataList.filter { it.pcsId != packType.pcsId }

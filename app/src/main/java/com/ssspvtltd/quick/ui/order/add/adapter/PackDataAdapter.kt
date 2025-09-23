@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick.ui.order.add.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import com.ssspvtltd.quick.R
@@ -40,13 +41,24 @@ class PackDataAdapter : MultiViewAdapter() {
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         when (holder) {
             is PackDataViewHolder -> {
+                val item = getItemOrNull<PackType>(position)
+                if (item!!.amount.isNullOrEmpty()){
+                    expandedPosition=0;
+                }else{
+
+                }
                 holder.binding.groupActionButton.isVisible  = position == expandedPosition
                 holder.binding.clSubTitle.isVisible         = position == expandedPosition
 
+
                 if (holder.binding.groupActionButton.isVisible){
+                      holder.binding.btnDeleteItem.visibility = View.VISIBLE
+                    holder.binding.btnEditItem.visibility = View.VISIBLE
                     holder.binding.tvAmount.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_up_arrow, 0)
                     holder.itemView.setBackgroundResource(R.color.grey_100)
                     }else{
+                    holder.binding.btnDeleteItem.visibility = View.INVISIBLE
+                    holder.binding.btnEditItem.visibility = View.INVISIBLE
                     holder.binding.tvAmount.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_drop_arrow, 0)
                     holder.itemView.setBackgroundResource(R.color.white)
                 }
@@ -75,8 +87,30 @@ class PackDataViewHolder(val binding: ItemPackTypeHeaderBinding) : BaseViewHolde
     fun bind(packType: PackType) = with(binding) {
         tvType.text     = packType.packName
         tvQuantity.text = packType.qty
-        tvAmount.text   = packType.amount.toString()
 
+        if (!packType.amount.isNullOrEmpty()) {
+           // tvAmount.visibility = View.VISIBLE
+
+            ct1.visibility=View.VISIBLE
+            tvAmountTitle.visibility = View.VISIBLE
+            tvQtyTitle.visibility = View.VISIBLE
+            tvQuantity.visibility = View.VISIBLE
+          //  btnDeleteItem.visibility = View.VISIBLE
+          //  btnEditItem.visibility = View.VISIBLE
+            tvType.visibility = View.VISIBLE
+            tvAmount.text   = packType.amount.toString()
+        } else {
+          //  tvAmount.visibility = View.GONE
+            ct1.visibility=View.GONE
+            tvAmountTitle.visibility = View.INVISIBLE
+            btnDeleteItem.visibility = View.GONE
+            btnEditItem.visibility = View.VISIBLE
+            tvQtyTitle.visibility = View.INVISIBLE
+            tvQuantity.visibility = View.INVISIBLE
+            tvType.visibility = View.INVISIBLE
+        }
+
+       //tvAmount.text   = packType.amount.toString()
         tvQtyTitle.text         = "Qty:"
         tvAmountTitle.text      = "Amt:"
         tvItem.text             = "Items"

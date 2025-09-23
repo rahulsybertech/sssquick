@@ -73,7 +73,20 @@
                       app:layout_constraintEnd_toEndOf="parent"
                       tools:itemCount="2"
                       tools:listitem="@layout/item_hold_order" />
+                  <TextView
+                      android:id="@+id/noData"
+
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="No Data Exists!"
+                      android:textColor="@color/black"
+                      android:visibility="gone"
+                      app:layout_constraintBottom_toBottomOf="parent"
+                      app:layout_constraintEnd_toEndOf="parent"
+                      app:layout_constraintStart_toStartOf="parent"
+                      app:layout_constraintTop_toBottomOf="@+id/etSearch" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
       </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -114,7 +114,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
                 putString(ARG_PENDING_ORDER_ID, holdOrderItem.orderID)
             }
             val navOptions = NavOptions.Builder()
-                .setPopUpTo(R.id.holdorderFragment, true)
+                .setPopUpTo(R.id.holdorderFragment, false)
                 .build()
             findNavController().navigate(R.id.addOrderFragment, bundle, navOptions)
             dismissAllowingStateLoss()
@@ -238,7 +238,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
 
         Glide.with(context)
             .load(imageUrl)
-            .placeholder(R.drawable.ic_image)
+            .placeholder(R.drawable.ic_image1)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable,

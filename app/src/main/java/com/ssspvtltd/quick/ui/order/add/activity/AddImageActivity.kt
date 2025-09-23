@@ -6,10 +6,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
 import com.ssspvtltd.quick.base.recycler.decoration.GridSpacingItemDecoration
@@ -43,7 +45,18 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
     private fun registerObserver() {
         viewModel.isListAvailable.observe(this) {
             if (it) mAdapter.submitList(viewModel.widgetList)
+            if(viewModel.widgetList.size>1){
+                binding.btnUploadImages.isEnabled = true
+                binding.btnUploadImages.alpha = 1f
+            }else{
+                binding.btnUploadImages.isEnabled = false
+                binding.btnUploadImages.alpha = 0.5f
+            }
+
         }
+
+
+
     }
     private fun setImageUri() {
         val uris = SharedEditImageUriList.imageUris
@@ -56,14 +69,18 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
 
     private fun initViews() = with(binding) {
         recyclerView.adapter = mAdapter
-        recyclerView.addItemDecoration(GridSpacingItemDecoration(3, 16.dp, 16.dp))
+        recyclerView.addItemDecoration(GridSpacingItemDecoration(3, 5.dp, 5.dp))
     }
 
     private fun registerListener() {
         mAdapter.addImageListener = {
             // imageUri = MediaUtils.getBlankImageUri(this@AddImageActivity)
             // getCameraImage.launch(imageUri)
-            getGalleryImage.launch("image/*")
+            if (viewModel.getImageModelList().size >= 5) {
+                Toast.makeText(this, "You can select a maximum of 5 images.", Toast.LENGTH_SHORT).show()
+            } else {
+                getGalleryImage.launch("image/*")
+            }
         }
         mAdapter.deleteImageListener = { image, position ->
             if(SharedEditImageUriList.imageUris?.contains(Uri.parse(image.filePath)) == true) {
@@ -76,7 +93,16 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
                 sendResultBack()
             }
         })
+
+        binding.btnUploadImages.isEnabled = false
+        binding.btnUploadImages.alpha = 0.5f
+
+        binding.btnUploadImages.setOnClickListener {
+            sendResultBack()
+
+        }
     }
+
 
     private fun sendResultBack() {
         setResult(Activity.RESULT_OK, Intent().apply {
@@ -87,6 +113,8 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
 
     private val getGalleryImage = registerForActivityResult(GetMultipleContents()) { uris ->
         if (uris?.isNotEmpty() == true) {
+            binding.btnUploadImages.isEnabled = true
+            binding.btnUploadImages.alpha = 1f
             val fileLimit = 5 - viewModel.getImageModelList().size
             val validUris = uris.take(fileLimit).filter { uri ->
                 val fileSize = getFileSize(uri)
@@ -135,4 +163,6 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
             }
         }
     }
+
+
 }

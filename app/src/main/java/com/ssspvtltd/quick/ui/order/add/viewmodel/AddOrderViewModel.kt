@@ -8,9 +8,15 @@ import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick.constants.ButtonType
+import com.ssspvtltd.quick.constants.CheckInType
 import com.ssspvtltd.quick.model.ARG_PENDING_ORDER_ID
+import com.ssspvtltd.quick.model.GoodsReturnItem
+import com.ssspvtltd.quick.model.SubPartyGRData
+import com.ssspvtltd.quick.model.TransportMasterData
+import com.ssspvtltd.quick.model.checkincheckout.CustomerData
+import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
-import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
 import com.ssspvtltd.quick.model.order.add.SchemeData
@@ -20,12 +26,20 @@ import com.ssspvtltd.quick.model.order.add.additem.PackType
 import com.ssspvtltd.quick.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick.model.order.add.salepartydetails.Data
+import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.ui.order.add.repositry.AddOrderRepositry
+import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -60,7 +74,8 @@ class AddOrderViewModel @Inject constructor(
     private val _salePartyDetail = MutableLiveData<Data?>()
     val salePartyDetail: MutableLiveData<Data?> get() = _salePartyDetail
 
-    private val _salePartyDetailNew = MutableLiveData<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data?>()
+    private val _salePartyDetailNew =
+        MutableLiveData<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data?>()
     val salePartyDetailNew: MutableLiveData<com.ssspvtltd.quick.model.order.add.salepartyNewList.Data?> get() = _salePartyDetailNew
 
     private val _scheme = MutableLiveData<List<SchemeData>>()
@@ -103,16 +118,21 @@ class AddOrderViewModel @Inject constructor(
 
     // Added Item List
     var addItemDataList = ArrayList<PackType>()
+    val addItemDataList1= mutableListOf<GoodsReturnItem>()
     var addImageDataList = ArrayList<ImageModel>()
+    private var mainList = listOf<CustomerData>()
+
+    private val _customerDataResp = MutableLiveData<List<CustomerData>>()
+    val customerDataResp: LiveData<List<CustomerData>> get() = _customerDataResp
 
     /**
      * Initializes all data required for adding an order.
      * Determines whether to start a new order or edit an existing one based on the pendingOrderID.
      */
-    fun initAllData(nickNameId :String?,schemeId: String?, type: Boolean) {
+    fun initAllData(nickNameId: String?, schemeId: String?, type: Boolean) {
 
         if (pendingOrderID.isNullOrBlank()) {
-            initializeNewOrder(nickNameId,schemeId, type)
+            initializeNewOrder(nickNameId, schemeId, type)
         } else {
             initializeEditOrder(schemeId, type)
         }
@@ -122,57 +142,127 @@ class AddOrderViewModel @Inject constructor(
      * Starts the initialization process for a new order.
      * Fetches voucher, sale party, scheme, and purchase party data asynchronously.
      */
-    private fun initializeNewOrder(nickNameId :String?,schemeId: String?, type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
+    private fun initializeNewOrder(nickNameId: String?, schemeId: String?, type: Boolean) =
+        viewModelScope.launch(Dispatchers.Default) {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+
+            val voucherDeferred = async { getVoucherSuspend() }
+            val salePartyDeferred = async { getSalePartySuspend() }
+            val dispatchTypeListDeferred = async { getGetDispatchTypeListSuspend() }
+            val schemeDeferred = async { getSchemeSuspend() }
+
+            // Await responses of faster APIs
+            val voucherResponse = voucherDeferred.await()
+            val salePartyResponse = salePartyDeferred.await()
+            val schemeResponse = schemeDeferred.await()
+            val dispatchTypeListResponse = dispatchTypeListDeferred.await()
+
+            _voucherData.postValue(voucherResponse)
+            _saleParty.postValue(salePartyResponse)
+            _scheme.postValue(schemeResponse)
+            _getDispatchTypeList.postValue(dispatchTypeListResponse)
+
+
+            hideProgressBar()
+        }
+
+
+    fun initAllDataGr(pendingOrderId: String?) {
+
+        if (pendingOrderId.isNullOrBlank()) {
+            initializeCreateGR()
+        } else {
+            initializeEditOrderGr("schemeId", true)
+        }
+    }
+    fun initializeCreateGR() = viewModelScope.launch(Dispatchers.Default) {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        val voucherDeferred = async { getVoucherSuspend() }
 
-        val voucherDeferred   = async { getVoucherSuspend() }
-        val salePartyDeferred = async { getSalePartySuspend() }
-        val dispatchTypeListDeferred = async { getGetDispatchTypeListSuspend() }
-        val schemeDeferred    = async { getSchemeSuspend() }
+        val voucherResponse = voucherDeferred.await()
 
-        // Await responses of faster APIs
-        val voucherResponse   = voucherDeferred.await()
-        val salePartyResponse = salePartyDeferred.await()
-        val schemeResponse    = schemeDeferred.await()
-        val dispatchTypeListResponse    = dispatchTypeListDeferred.await()
 
         _voucherData.postValue(voucherResponse)
-        _saleParty.postValue(salePartyResponse)
-        _scheme.postValue(schemeResponse)
-        _getDispatchTypeList.postValue(dispatchTypeListResponse)
 
-        // Launch purchaseParty API in a separate coroutine so that it does not delay others
-     /*   launch(Dispatchers.Default) {
-            val purchasePartyResponse = getPurchasePartySuspend(nickNameId,schemeId, type)
-            _purchaseParty.postValue(purchasePartyResponse)
-        }*/
 
         hideProgressBar()
     }
 
-    private fun initializeEditOrder(schemeId: String?, type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
+    fun getCustomer(isProgressVisible: Boolean) = viewModelScope.launch {
+        if (isProgressVisible)
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        else {
+            hideProgressBar()
+        }
+        // Log.e("respo", repository.customerList().toString())
+        when (val response = repository.customerList()) {
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                response.value.data?.let {
+                    val tabType = when {
+                        it.any { data -> data.checkInType == CheckInType.ORDER_IN_MARKET.value } -> CheckInType.ORDER_IN_MARKET
+                        it.any { data -> data.checkInType == CheckInType.WITH_MARKETER.value } -> CheckInType.WITH_MARKETER
+                        it.any { data -> data.checkInType == CheckInType.ORDER_IN_OFFICE.value } -> CheckInType.ORDER_IN_OFFICE
+                        else -> if (response.value.remark != null) {
+                            CheckInType.OTHER
+                        } else {
+                            CheckInType.ORDER_IN_OFFICE
+                        }
+                    }
+                    mainList = it.filter { it.accountCode.isNotNullOrBlank() }
+                    //   unmodifiedMainList = ArrayList(mainList)
+                    // _isListModified.postValue(false)
+                    //  validateUpdateButton()
+                    // selectedItem = it.filter { it.chkStatus == true }
+                    prefHelper.setCheckinStatus(response.value.checkinStatus ?: false)
+                    val btnType =
+                        if (response.value.checkinStatus == true) ButtonType.CHECK_OUT else ButtonType.CHECK_IN
+                    // val btnType = if (selectedItem.isEmpty()) ButtonType.CHECK_IN else ButtonType.CHECK_OUT
+                    _customerDataResp.postValue(mainList)
+                    clearWidgetList()
+                    addItemToWidgetList(mainList)
+                    withContext(Dispatchers.Main) {
+                        /*  _selectedTab.postValue(tabType)
+                        _buttonType.postValue(btnType)
+                        _setRemark.postValue(response.value.remark.toString())
+                        remark = response.value.remark.toString()
+                        apiRemark = remark*/
+                        listDataChanged()
+                        hideProgressBar()
+                    }
+                }
+            }
+        }
+    }
 
-        val salePartyDeferred       = async { getSalePartySuspend() }
-        val schemeDeferred          = async { getSchemeSuspend() }
-      //  val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
+    private fun initializeEditOrder(schemeId: String?, type: Boolean) =
+        viewModelScope.launch(Dispatchers.Default) {
 
-        val salePartyResponse       = salePartyDeferred.await()
-        val schemeResponse          = schemeDeferred.await()
-       // val purchasePartyResponse   = purchasePartyDeferred.await()
+       //     val salePartyDeferred = async { getSalePartySuspend() }
+            val schemeDeferred = async { getSchemeSuspend() }
+            //  val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
 
-        /*_salePartyEdit.postValue(salePartyResponse)
+         //   val salePartyResponse = salePartyDeferred.await()
+            val schemeResponse = schemeDeferred.await()
+            // val purchasePartyResponse   = purchasePartyDeferred.await()
+
+            /*_salePartyEdit.postValue(salePartyResponse)
         _schemeEdit.postValue(schemeResponse)
         _purchasePartyEdit.postValue(purchasePartyResponse)*/
 
-        _saleParty.postValue(salePartyResponse)
-        _scheme.postValue(schemeResponse)
-      //  _purchaseParty.postValue(purchasePartyResponse)
-        _setEditOrderFields.postValue(true)
+       //     _saleParty.postValue(salePartyResponse)
+            _scheme.postValue(schemeResponse)
+            //  _purchaseParty.postValue(purchasePartyResponse)
+            _setEditOrderFields.postValue(true)
 
-    }
+        }
+    private fun initializeEditOrderGr(schemeId: String?, type: Boolean) =
+        viewModelScope.launch(Dispatchers.Default) {
+            _setEditOrderFields.postValue(true)
 
+        }
     fun getVoucher() = viewModelScope.launch {
-      //  showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        //  showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
         getVoucherSuspend()?.let {
             _voucherData.postValue(it)
             hideProgressBar()
@@ -184,6 +274,7 @@ class AddOrderViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 response.value.data
             }
+
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)
                 null
@@ -225,26 +316,40 @@ class AddOrderViewModel @Inject constructor(
             }
         }
     }
-
-    fun getPurchaseParty(nickNameId :String?,schemeId: String?, type: Boolean) = viewModelScope.launch {
-        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        getPurchasePartySuspend(nickNameId,schemeId, type).let {
-            _purchaseParty.postValue(it)
-            hideProgressBar()
+    private val _purchaseParty_ = MutableLiveData<List<PurchasePartyData>?>()
+    val purchaseParty_: LiveData<List<PurchasePartyData>?> get() = _purchaseParty_
+    fun getPurchaseParty(nickNameId: String?, schemeId: String?, type: Boolean) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            getPurchasePartySuspend(nickNameId, schemeId, type).let {
+                _purchaseParty_.postValue(it)
+                hideProgressBar()
+            }
         }
-    }
+
+
+    fun getPurchasePartyInGr(nickNameId: String?, schemeId: String?, type: Boolean) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            getPurchasePartySuspendInGr(nickNameId, schemeId, type).let {
+                _purchaseParty_.postValue(it)
+                hideProgressBar()
+            }
+        }
 
     private val _nickNameList = MutableLiveData<List<PurchasePartyData>?>()
     val nickNameList: LiveData<List<PurchasePartyData>?> get() = _nickNameList
 
-    fun getNickNameList(nickNameId :String?,schemeId: String?, type: Boolean) = viewModelScope.launch {
-     //   showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        getPurchasePartyListWithSuplierSuspend(nickNameId,schemeId, type).let {
-            _nickNameList.postValue(it)
-            hideProgressBar()
+    fun getNickNameList(nickNameId: String?, schemeId: String?, type: Boolean) =
+        viewModelScope.launch {
+            //   showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            getPurchasePartyListWithSuplierSuspend(nickNameId, schemeId, type).let {
+                _nickNameList.postValue(it)
+                hideProgressBar()
+            }
         }
-    }
 
+    
     private val _purchasePartyByNickName = MutableLiveData<List<PurchasePartyData>?>()
     val purchasePartyByNickName: LiveData<List<PurchasePartyData>?> get() = _purchasePartyByNickName
 
@@ -255,32 +360,67 @@ class AddOrderViewModel @Inject constructor(
             hideProgressBar()
         }
     }
-    fun getInitialPurchaseParty(nickNameId :String?,schemeId: String?, type: Boolean) = viewModelScope.launch(Dispatchers.Default) {
-        val purchasePartyDeferred = async {
-            getPurchasePartySuspend(nickNameId,schemeId, type)
+
+    fun getInitialPurchaseParty(nickNameId: String?, schemeId: String?, type: Boolean) =
+        viewModelScope.launch(Dispatchers.Default) {
+            val purchasePartyDeferred = async {
+                getPurchasePartySuspend(nickNameId, schemeId, type)
+            }
+            val purchasePartyResponse = purchasePartyDeferred.await()
+            _purchaseParty.postValue(purchasePartyResponse)
         }
-        val purchasePartyResponse = purchasePartyDeferred.await()
-        _purchaseParty.postValue(purchasePartyResponse)
+
+    private suspend fun getPurchasePartySuspend(
+        nickNameId: String?,
+        schemeId: String?,
+        type: Boolean
+    ): List<PurchasePartyData> {
+        return withContext(Dispatchers.Default) {
+            return@withContext when (val response =
+                repository.purchasePartyList(nickNameId, schemeId, type)) {
+                is ResultWrapper.Success -> {
+                    response.value.data.orEmpty()
+                }
+
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                    listOf() // return empty list
+                }
+            }
+        }
+    }
+    private suspend fun getPurchasePartySuspendInGr(
+        nickNameId: String?,
+        schemeId: String?,
+        type: Boolean
+    ): List<PurchasePartyData> {
+        return withContext(Dispatchers.Default) {
+            return@withContext when (val response =
+                repository.purchasePartyListInGr(nickNameId, schemeId, type)) {
+                is ResultWrapper.Success -> {
+                    response.value.data.orEmpty()
+                }
+
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                    listOf() // return empty list
+                }
+            }
+        }
     }
 
-    private suspend fun getPurchasePartySuspend(nickNameId :String?,schemeId: String?, type : Boolean): List<PurchasePartyData> {
+    private suspend fun getPurchasePartyListWithSuplierSuspend(
+        nickNameId: String?,
+        schemeId: String?,
+        type: Boolean
+    ): List<PurchasePartyData> {
         return withContext(Dispatchers.Default) {
-            return@withContext when (val response = repository.purchasePartyList(nickNameId,schemeId, type)) {
+            return@withContext when (val response =
+                repository.purchasePartyListWithSuplier(nickNameId, schemeId, type)) {
                 is ResultWrapper.Success -> {
-                response.value.data.orEmpty()
-            }
-                is ResultWrapper.Failure -> {
-                    apiErrorData(response.error)
-                    listOf() // return empty list
+                    response.value.data.orEmpty()
                 }
-            }
-        }
-    }private suspend fun getPurchasePartyListWithSuplierSuspend(nickNameId :String?,schemeId: String?, type : Boolean): List<PurchasePartyData> {
-        return withContext(Dispatchers.Default) {
-            return@withContext when (val response = repository.purchasePartyListWithSuplier(nickNameId,schemeId, type)) {
-                is ResultWrapper.Success -> {
-                response.value.data.orEmpty()
-            }
+
                 is ResultWrapper.Failure -> {
                     apiErrorData(response.error)
                     listOf() // return empty list
@@ -288,12 +428,15 @@ class AddOrderViewModel @Inject constructor(
             }
         }
     }
+
     private suspend fun getPurchasePartyByNickNameSuspend(nickNameId: String?): List<PurchasePartyData> {
         return withContext(Dispatchers.Default) {
-            return@withContext when (val response = repository.purchasePartyListByNickName(nickNameId)) {
+            return@withContext when (val response =
+                repository.purchasePartyListByNickName(nickNameId)) {
                 is ResultWrapper.Success -> {
-                response.value.data.orEmpty()
-            }
+                    response.value.data.orEmpty()
+                }
+
                 is ResultWrapper.Failure -> {
                     apiErrorData(response.error)
                     listOf() // return empty list
@@ -304,7 +447,7 @@ class AddOrderViewModel @Inject constructor(
 
 
     fun getStation(salePartyId: String, subPartyId: String) = viewModelScope.launch {
-        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        /*      showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
         when (val response = repository.allStationList(salePartyId, subPartyId)) {
             is ResultWrapper.Failure -> apiErrorData(response.error)
             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
@@ -315,7 +458,7 @@ class AddOrderViewModel @Inject constructor(
                     }
                 }
             }
-        }
+        }*/
     }
 
     fun getSalePartyDetails(accountId: String) = viewModelScope.launch {
@@ -336,6 +479,7 @@ class AddOrderViewModel @Inject constructor(
             }
         }
     }
+
     fun getSalePartyDetailsNew(accountId: String) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
         when (val response = repository.salePartyDetailNew(accountId)) {
@@ -355,28 +499,29 @@ class AddOrderViewModel @Inject constructor(
         }
     }
 
-    fun getSalePartyAndStationData(accountId: String, salePartyId: String, subPartyId: String ) = viewModelScope.launch {
-        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-        val job1  = viewModelScope.launch (Dispatchers.IO) {
-                        when (val response = repository.salePartyDetail(accountId)) {
-                            is ResultWrapper.Failure -> {
-                                apiErrorData(response.error)
-                                Log.e("ersss", response.toString())
-                            }
-
-                            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                                response.value.data?.let {
-                                    withContext(Dispatchers.Main) {
-                                        _salePartyDetail.postValue(response.value.data)
-                                    }
-                                }
-                            }
-                        }
-
+    fun getSalePartyAndStationData(accountId: String, salePartyId: String, subPartyId: String) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            val job1 = viewModelScope.launch(Dispatchers.IO) {
+                when (val response = repository.salePartyDetail(accountId)) {
+                    is ResultWrapper.Failure -> {
+                        apiErrorData(response.error)
+                        Log.e("ersss", response.toString())
                     }
 
+                    is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                        response.value.data?.let {
+                            withContext(Dispatchers.Main) {
+                                _salePartyDetail.postValue(response.value.data)
+                            }
+                        }
+                    }
+                }
 
-        val job2 = viewModelScope.launch (Dispatchers.IO) {
+            }
+
+
+            /*    val job2 = viewModelScope.launch (Dispatchers.IO) {
                         when (val response = repository.allStationList(salePartyId, subPartyId)) {
                             is ResultWrapper.Failure -> apiErrorData(response.error)
                             is ResultWrapper.Success -> withContext(Dispatchers.Default) {
@@ -387,13 +532,134 @@ class AddOrderViewModel @Inject constructor(
                                 }
                             }
                         }
+                    }*/
+
+
+            job1.join()
+            //  job2.join()
+            hideProgressBar()
+        }
+
+
+    private val _subPartyDetailGR = MutableLiveData<List<SubPartyGRData>?>()
+    val subPartyDetailGR: MutableLiveData<List<SubPartyGRData>?> get() = _subPartyDetailGR
+    fun getSubPartyGR(accountId: String) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        val job1 = viewModelScope.launch(Dispatchers.IO) {
+            when (val response = repository.subPartyDetailGR(accountId)) {
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                    Log.e("ersss", response.toString())
+                }
+
+                is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                    response.value.data?.let {
+                        withContext(Dispatchers.Main) {
+                            _subPartyDetailGR.postValue(response.value.data)
+                        }
                     }
+                }
+            }
+
+        }
+
+
+        /*    val job2 = viewModelScope.launch (Dispatchers.IO) {
+                            when (val response = repository.allStationList(salePartyId, subPartyId)) {
+                                is ResultWrapper.Failure -> apiErrorData(response.error)
+                                is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                                    response.value.data?.let {
+                                        withContext(Dispatchers.Main) {
+                                            _station.postValue(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }*/
 
 
         job1.join()
-        job2.join()
+        //  job2.join()
         hideProgressBar()
     }
+
+
+    /*    private val _transPortDetailGR = MutableLiveData<List<TransportMasterData>?>()
+    val transPortDetailGR: MutableLiveData<List<TransportMasterData>?> get() = _transPortDetailGR
+    fun getTransportGRParam(text: String ) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        val job1  = viewModelScope.launch (Dispatchers.IO) {
+            when (val response = repository.tranportDetailsGRReq(text)) {
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                    Log.e("ersss", response.toString())
+                }
+
+                is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                    response.value.data?.let {
+                        withContext(Dispatchers.Main) {
+                            _transPortDetailGR.postValue(response.value.data)
+                        }
+                    }
+                }
+            }
+
+        }
+        job1.join()
+        //  job2.join()
+        hideProgressBar()
+    }*/
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    private val _transPortDetailGR = MutableStateFlow<List<TransportMasterData>>(emptyList())
+    val transPortDetailGR: StateFlow<List<TransportMasterData>> = _transPortDetailGR
+
+    fun onSearchQueryChanged(query: String) {
+        _searchQuery.value = query
+    }
+
+    init {
+        // Load default data (e.g., top 10 or all transport data)
+        viewModelScope.launch {
+            fetchTransportData("") // empty query for default
+        }
+
+        viewModelScope.launch {
+            searchQuery
+                .debounce(300)
+               /* .filt
+               er { it.length >= 1 }*/
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    fetchTransportData(query)
+                }
+        }
+    }
+
+
+
+    private suspend fun fetchTransportData(query: String) {
+       // showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+
+        when (val response = repository.tranportDetailsGRReq(query)) {
+            is ResultWrapper.Failure -> {
+                apiErrorData(response.error)
+                Log.e("API_ERROR", response.toString())
+            }
+
+            is ResultWrapper.Success -> {
+                response.value.data?.let {
+                    _transPortDetailGR.value = it
+                }
+            }
+        }
+    }
+
+
+
+
     fun placeOrder(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Please wait...")) // ✅ Show progress before API call
 
@@ -444,6 +710,70 @@ class AddOrderViewModel @Inject constructor(
         }
     }
 
+    fun placeOrderGr(params: HashMap<String, RequestBody?>) = viewModelScope.launch {
+        showProgressBar(ProgressConfig("Please wait..."))
+        _isOrderPlaced.postValue(true)
+        try {
+            // ✅ Convert addItemDataList to GoodsReturnItemList
+            val addItemDataList1 = mutableListOf<GoodsReturnItem>()
+            addItemDataList.forEach { pack ->
+                pack.itemDetail?.forEach { item ->
+                    if (!item.itemID.isNullOrBlank() && !item.itemName.isNullOrBlank() && !item.itemQuantity.isNullOrBlank()) {
+                        addItemDataList1.add(
+                            GoodsReturnItem(
+                                id = pack.id,
+                                itemId = item.itemID!!,
+                                itemName = item.itemName!!,
+                                itemQty = item.itemQuantity!!.toIntOrNull() ?: 0
+                            )
+                        )
+                    }
+                }
+            }
+
+            // ✅ Add JSON to params
+            params["StrGoodsReturnItemList"] = gson
+                .toJson(addItemDataList1)
+                .toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // ✅ Attach documents
+            val documents = mutableListOf<MultipartBody.Part>()
+            addImageDataList.forEach { imageModel ->
+                val file = imageModel.filePath?.let { File(it) }
+                if (file?.exists() == true) {
+                    val part = MultipartBody.Part.createFormData(
+                        "ItemDetailFiles", file.name,
+                        file.asRequestBody("image/*".toMediaTypeOrNull())
+                    )
+                    documents.add(part)
+                }
+            }
+
+            // ✅ Send API request
+            val response = withContext(Dispatchers.IO) {
+                repository.placeOrderGr(params, documents)
+            }
+
+            when (response) {
+                is ResultWrapper.Failure -> {
+                    hideProgressBar()
+                    apiErrorData(response.error, "Error")
+                }
+                is ResultWrapper.Success -> {
+                    hideProgressBar()
+                    _isOrderPlaced.postValue(true)
+                    _isOrderPlacedSuccess.postValue(response.value.message ?: "Success")
+                }
+            }
+
+        } catch (e: Exception) {
+            hideProgressBar()
+            Log.e("API_ERROR", "placeOrderGr Exception: ${e.message}")
+        }
+    }
+
+
+
 
     fun getEditOrderDataIfNeeded() = viewModelScope.launch {
         if (pendingOrderID.isNullOrBlank()) return@launch
@@ -462,6 +792,30 @@ class AddOrderViewModel @Inject constructor(
                     withContext(Dispatchers.Main) {
 
                         _editOrderData.postValue(response.value.data)
+                        hideProgressBar()
+                    }
+                }
+            }
+        }
+    }
+
+
+    private val _editOrderDataGr = MutableLiveData<GoodsReturnDataGr?>()
+    val editOrderDataGr: LiveData<GoodsReturnDataGr?> get() = _editOrderDataGr
+    fun getEditOrderDataIfNeededGr(pendingOrderID:String) = viewModelScope.launch {
+        if (pendingOrderID.isNullOrBlank()) return@launch
+        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+        //initializeEditOrder()
+        when (val response = repository.editOrderGr(pendingOrderID)) {
+            is ResultWrapper.Failure -> {
+                apiErrorData(response.error)
+                Log.e("getEditOrderDataIfNeeded", response.toString())
+            }
+
+            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                response.value.data?.let {
+                    withContext(Dispatchers.Main) {
+                        _editOrderDataGr.postValue(response.value.data)
                         hideProgressBar()
                     }
                 }

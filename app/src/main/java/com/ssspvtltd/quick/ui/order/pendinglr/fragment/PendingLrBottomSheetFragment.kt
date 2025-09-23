@@ -15,8 +15,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -224,7 +222,7 @@ class PendingLrBottomSheetFragment :
 
         Glide.with(context)
             .load(imageUrl)
-            .placeholder(R.drawable.ic_image)
+            .placeholder(R.drawable.ic_image1)
             .listener(object : RequestListener<Drawable> {
                 override fun onResourceReady(
                     resource: Drawable,

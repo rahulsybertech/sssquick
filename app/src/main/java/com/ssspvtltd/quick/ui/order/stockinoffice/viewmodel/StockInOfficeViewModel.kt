@@ -39,7 +39,7 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
                 fromDate = null,
                 isSupplier = true,
                 supplierIDs = listOf(),
-                toDate = null
+                toDate = null,"1","50"
         )
         )) {
             is ResultWrapper.Failure -> {
