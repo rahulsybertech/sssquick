@@ -26,6 +26,7 @@ import com.ssspvtltd.quick.ui.order.add.adapter.SalePartyAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderByCustomerAdapter
 import com.ssspvtltd.quick.ui.order.pending.viewmodel.PendingOrderViewModel
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import com.ssspvtltd.quick.utils.extension.showKeyboard
@@ -168,6 +169,12 @@ class PendingOrderFragment : BaseFragment<FragmentPendingOrderBinding, PendingOr
             binding.tvCount.text = countString
         }
 
+
+        viewModel.totalAmountLiveData.observe(viewLifecycleOwner) { countString ->
+          //  getString(R.string.netAmt, CommaSparateAmount.formatIndianAmount(item.netAmt))
+          //  binding.tvPendingAmt.text = "Total Amt "+getString(R.string.amount_format,countString.toString())
+            binding.tvPendingAmt.text = "Total Amt "+getString(R.string.amount_format, CommaSparateAmount.formatIndianAmount(countString))
+        }
         binding.etCustomerCode.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 

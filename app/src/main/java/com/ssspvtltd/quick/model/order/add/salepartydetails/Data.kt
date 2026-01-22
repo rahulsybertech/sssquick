@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.model.order.add.salepartydetails
 
 data class Data(
     val avgDays: Int,
+    val partyType: String,
     var avlLimit: String,
     val defSubPartyId: Any?,
     val defSubPartyName: String,

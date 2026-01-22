@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.order.goodsreturn.repository
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
+import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.networking.ApiRequestCode
 import com.ssspvtltd.quick.networking.ApiResponse
@@ -34,6 +35,11 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
     suspend fun editOrderGr(orderId:String): ResultWrapper<ApiResponse<*>, ApiResponse<GoodsReturnDataGr>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.EDIT_ORDER.ordinal) {
             apiService.getEditOrderDataGr(orderId)
+        }
+    }
+    suspend fun getMailBox(getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest): ResultWrapper<ApiResponse<*>, ApiResponse<List<MailData>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.MAIL_BOX.ordinal) {
+            apiService.mailBoxApi(getStockInOfficeOrderDetailsRequest)
         }
     }
 }

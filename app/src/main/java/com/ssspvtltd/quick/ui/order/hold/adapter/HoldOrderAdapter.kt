@@ -70,7 +70,7 @@ class HoldOrderHeaderViewHolder(private val binding: ItemHoldOrderHeaderBinding)
 class HoldOrderViewHolder(private val binding: ItemHoldOrderBinding) :
     BaseViewHolder(binding) {
     fun bind(item: HoldOrderItem) = with(binding) {
-        tvSaleBillNo.text = getString(R.string.sale_bill_no_format, item.orderNo)
+        tvSaleBillNo.text = getString(R.string.orderNo, item.orderNo)
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
         tvSubParty.text = "Qty: " + (item.qty ?: "").toString()

@@ -14,14 +14,20 @@ import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.databinding.FragmentDashboardBinding
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
+import com.ssspvtltd.quick.ui.PendingOrderByCustomerActivity
+import com.ssspvtltd.quick.ui.create_gr.CreateGRActivity
 import com.ssspvtltd.quick.ui.main.MainActivity
 import com.ssspvtltd.quick.ui.order.add.viewmodel.DashBoardViewmodel
+import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
+import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
 import com.ssspvtltd.quick.utils.amountFormat
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDate
@@ -37,7 +43,7 @@ class DashboardFragment : Fragment() {
     private val viewModel: DashBoardViewmodel by viewModels()
     private val dateFormat = java.text.SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
 
-
+    private lateinit var navController: NavController
     companion object {
         const val TAG = "TaG"
     }
@@ -53,11 +59,28 @@ class DashboardFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        navController = findNavController()
         setViewModelObservers()
         setClickListeners()
         setMyView()
         callApis()
+
+        binding.rlPendingOrder.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("source", "Markerter")
+            }
+            navController.navigate(R.id.pendingorderFragment, bundle)
+        }
+
+        binding.rlHoldOrder.setOnClickListener {
+            val bundle = Bundle().apply {
+            }
+            navController.navigate(R.id.holdorderFragment, bundle)
+        }
+        binding.rlPendiingGr.setOnClickListener {
+            val intent = Intent(requireActivity(), GoodsReturnActivity::class.java)
+            startActivity(intent)
+        }
 
 
         // if (!Environment.isExternalStorageManager()) {

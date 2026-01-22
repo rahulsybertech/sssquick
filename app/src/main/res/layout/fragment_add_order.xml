@@ -142,20 +142,19 @@
 
 
 
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAvailableLimit"
                 style="@style/Theme.Widget.TextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="4dp"
                 android:enabled="false"
                 android:hint="@string/avail_limit_ats"
-                app:layout_constraintEnd_toStartOf="@id/tilAverageDays"
-                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tilAverageDays"
+                app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintTop_toBottomOf="@id/ContilSaletParty">
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -164,24 +163,23 @@
                     android:layout_height="45dp"
                     android:inputType="text|textCapSentences"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- 2️⃣ Average Days -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAverageDays"
                 style="@style/Theme.Widget.TextInputLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginTop="10dp"
                 android:enabled="false"
                 android:hint="@string/avg_days_ats"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintStart_toEndOf="@id/tilAvailableLimit"
+                app:layout_constraintEnd_toStartOf="@id/tilCreditType"
                 app:layout_constraintTop_toBottomOf="@id/ContilSaletParty">
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -190,16 +188,39 @@
                     android:layout_height="45dp"
                     android:inputType="text|textCapSentences"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="0dp"
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- 3️⃣ Credit Type -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCreditType"
+                style="@style/Theme.Widget.TextInputLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="16dp"
+                android:enabled="false"
+                android:layout_marginTop="10dp"
+                android:hint="@string/party_type"
+                app:layout_constraintStart_toEndOf="@id/tilAverageDays"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ContilSaletParty">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:id="@+id/etCreditType"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:inputType="text|textCapSentences"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/dark_gray"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
             <!-- Number + Call Button -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/phoneNumber"
                 android:layout_width="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"

@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.ui.order.pending.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -92,35 +93,7 @@ class PendingOrderViewModel @Inject constructor(
 
 
 
-    fun prepareFilteredList() = viewModelScope.launch(Dispatchers.Default) {
-        val list = mutableListOf<BaseWidget>()
-        var count = 0
 
-        for (order in pendingOrderList) {
-            val filteredItems = if (searchValue.isBlank()) {
-                order.orderItemList
-            } else {
-                order.orderItemList?.filter {
-                    it.orderNo?.contains(searchValue, true) == true ||
-                            it.salePartyName?.contains(searchValue, true) == true ||
-                            it.supplierName?.contains(searchValue, true) == true
-                }
-            }
-
-            if (!filteredItems.isNullOrEmpty()) {
-                list.add(TitleSubtitleWrapper(id = order.orderDate, title = order.orderDate))
-                list.addAll(filteredItems)
-                count += filteredItems.size
-            }
-        }
-
-        withContext(Dispatchers.Main) {
-            clearWidgetList()
-            addItemToWidgetList(list)
-            listDataChanged()
-            hideProgressBar()
-        }
-    }
 
 
     private var totalCount: Int? = null
@@ -170,7 +143,45 @@ class PendingOrderViewModel @Inject constructor(
 
 
 
+    private val _totalAmountLiveData = MutableLiveData<Double>()
+    val totalAmountLiveData: LiveData<Double> get() = _totalAmountLiveData
 
+    fun prepareFilteredList() = viewModelScope.launch(Dispatchers.Default) {
+        val list = mutableListOf<BaseWidget>()
+        var count = 0
+        var totalAmount = 0.0 // 👈 initialize total amount
+
+        for (order in pendingOrderList) {
+            val filteredItems = if (searchValue.isBlank()) {
+                order.orderItemList
+            } else {
+                order.orderItemList?.filter {
+                    it.orderNo?.contains(searchValue, true) == true ||
+                            it.salePartyName?.contains(searchValue, true) == true ||
+                            it.supplierName?.contains(searchValue, true) == true
+                }
+            }
+
+            if (!filteredItems.isNullOrEmpty()) {
+                list.add(TitleSubtitleWrapper(id = order.orderDate, title = order.orderDate))
+                list.addAll(filteredItems)
+                count += filteredItems.size
+                // 👇 Add up the amounts
+                totalAmount += filteredItems.sumOf {
+                    it.amount?.toDoubleOrNull() ?: 0.0
+                }
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            clearWidgetList()
+            addItemToWidgetList(list)
+            listDataChanged()
+            hideProgressBar()
+            Log.d("PendingOrder", "Total Amount: ₹$totalAmount")
+            _totalAmountLiveData.postValue(totalAmount)
+        }
+    }
 
     private val _countText = MutableLiveData<String>()
     val countText: LiveData<String> = _countText
@@ -278,198 +289,6 @@ class PendingOrderViewModel @Inject constructor(
     }
 
 
-
-    fun fetchOrdersPageByCustomer(
-        customerId: String,
-        accumulatedList: MutableList<PendingOrderData>
-    ) = viewModelScope.launch {
-        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-
-        var page = 1
-        val pageSize = 10
-        var shouldContinue = true
-
-        while (shouldContinue) {
-            val response = repository.pendingOrderListByCustomer(customerId, page.toString(), pageSize.toString())
-
-            when (response) {
-                is ResultWrapper.Failure -> {
-                    apiErrorData(response.error)
-                    hideProgressBar()
-                    shouldContinue = false
-                }
-
-                is ResultWrapper.Success -> {
-                    _responseCodeOfPendingList.postValue(response.value.responseCode.orEmpty())
-                    responseMessageOfPendingList.value = response.value.message.orEmpty()
-
-                    val data = response.value.data.orEmpty()
-                    accumulatedList.addAll(data)
-                    pendingOrderList = accumulatedList
-
-                    withContext(Dispatchers.Default) {
-                        prepareFilteredList()
-                    }
-
-                    // Stop if less than pageSize items are returned
-                    if (data.size < pageSize) {
-                        shouldContinue = false
-                    } else {
-                        page++ // Go to next page
-                    }
-                }
-            }
-        }
-
-        hideProgressBar()
-        hasFetchedPage1 = true
-    }
-
-
-    fun fetchOrdersPageByCustomerWithCount(customerId: String) = viewModelScope.launch {
-        showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
-
-        // Step 1: Get total count first
-        val countResponse = repository.countCustomer(customerId)
-        var totalCount = 0
-
-        when (countResponse) {
-            is ResultWrapper.Failure -> {
-                apiErrorData(countResponse.error)
-                hideProgressBar()
-                return@launch
-            }
-            is ResultWrapper.Success -> {
-                totalCount = when (val data = countResponse.value.data) {
-                    is Int -> data
-                    is Double -> data.toInt()
-                    is Float -> data.toInt()
-                    is String -> data.toDoubleOrNull()?.toInt() ?: 0
-                    else -> 0
-                }
-                prefHelper.setCount(totalCount.toString())
-                _mCountLiveData.postValue(countResponse.value)
-            }
-        }
-
-        if (totalCount <= 0) {
-            hideProgressBar()
-            return@launch
-        }
-
-        // Step 2: Fetch all pages based on totalCount
-        val pageSize = 10
-        val fullPages = totalCount / pageSize
-        val remainder = totalCount % pageSize
-        val maxPage = if (remainder == 0) fullPages else fullPages + 1
-
-        val accumulatedList = mutableListOf<PendingOrderData>()
-
-        for (page in 1..maxPage) {
-            val isLastPage = page == maxPage
-            val thisPageSize = if (isLastPage && remainder != 0) remainder else pageSize
-
-            val response = repository.pendingOrderListByCustomer(
-                customerId,
-                page.toString(),
-                thisPageSize.toString()
-            )
-
-            when (response) {
-                is ResultWrapper.Failure -> {
-                    apiErrorData(response.error)
-                    break
-                }
-                is ResultWrapper.Success -> {
-                    val data = response.value.data.orEmpty()
-                    accumulatedList.addAll(data)
-                    pendingOrderList = accumulatedList
-                    prepareFilteredList()
-                }
-            }
-        }
-
-        hideProgressBar()
-    }
-
-
-
-    // Step 2:
-    fun fetchCustomerToPendingDataInBackground() = viewModelScope.launch {
-        val response = repository.count(
-            GetStockInOfficeOrderDetailsRequest(
-                buyerIDs = listOf(),
-                fromDate = null,
-                isSupplier = true,
-                supplierIDs = listOf(),
-                toDate = null,
-                pageNumber = "1",
-                pageSize = "10"
-            )
-        )
-
-        when (response) {
-            is ResultWrapper.Failure -> apiErrorData(response.error)
-            is ResultWrapper.Success -> {
-                val count: Int = when (val data = response.value.data) {
-                    is Int -> data
-                    is Double -> data.toInt()
-                    is Float -> data.toInt()
-                    is String -> data.toDoubleOrNull()?.toInt() ?: 10
-                    else -> 10
-                }
-
-                totalCount = count
-                prefHelper.setCount(count.toString())
-                _countText.postValue("$count records")
-                _mCountLiveData.postValue(response.value)
-                if (hasFetchedPage1) {
-                    fetchRemainingPagesbyCustomer(2, count, pendingOrderList.toMutableList())
-                }
-            }
-        }
-    }
-
-
-    // Step 3:
-    private suspend fun fetchRemainingPagesbyCustomer(
-        startPage: Int,
-        totalCount: Int,
-        accumulatedList: MutableList<PendingOrderData>
-    ) {
-        val fullPages = totalCount / itemsPerCall
-        val remainder = totalCount % itemsPerCall
-        val maxPage = if (remainder == 0) fullPages else fullPages + 1
-
-        for (page in startPage..maxPage) {
-            val isLastPage = page == maxPage
-            val pageSize = if (isLastPage && remainder != 0) remainder else itemsPerCall
-
-            val request = FilterRequest(
-                buyerIDs = null,
-                fromDate = null,
-                supplierIDs = null,
-                toDate = null,
-                isSupplier = true,
-                pageNumber = page.toString(),
-                pageSize = pageSize.toString()
-            )
-
-            when (val response = repository.pendingOrderList(request)) {
-                is ResultWrapper.Failure -> {
-                    apiErrorData(response.error)
-                    return
-                }
-                is ResultWrapper.Success -> {
-                    val data = response.value.data.orEmpty()
-                    accumulatedList.addAll(data)
-
-                    pendingOrderList = accumulatedList
-                    prepareFilteredList()
-                }
-            }
-        }
-    }
 
 
     fun clearPendingListData() {

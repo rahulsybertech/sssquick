@@ -24,6 +24,7 @@ object DateTimeUtils {
 
 enum class DateTimeFormat(val value: String) {
     DATE_TIME_FORMAT1("yyyy-MM-dd'T'HH:mm:ss"),
-    DATE_TIME_FORMAT2("dd-MM-yyyy"),
+    DATE_TIME_FORMAT2("dd MMM yyyy, hh:mm a"),
     DATE_TIME_FORMAT3("dd-MM-yyyy"),
+
 }

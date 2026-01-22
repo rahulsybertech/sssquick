@@ -291,6 +291,7 @@ class AddOrderFragment
             binding.etNumber.text?.clear()
             binding.etAverageDays.text?.clear()
             binding.etSubParty.text?.clear()
+            binding.etCreditType.text?.clear()
             binding.etNicName.text?.clear()
             binding.etTransport.text?.clear()
             binding.etStation.text?.clear()
@@ -1108,6 +1109,7 @@ class AddOrderFragment
                 binding.etDispatchType.text.clear()
                 binding.etAverageDays.text?.clear()
                 binding.etAvailableLimit.text?.clear()
+                binding.etCreditType.text?.clear()
                 binding.etNumber.text?.clear()
                 binding.etNicName.text?.clear()
                 binding.etPurchaseParty.text?.clear()
@@ -2071,6 +2073,7 @@ class AddOrderFragment
 
 
             binding.etAverageDays.setText(apiResponseNew.avgDays.toString())
+            binding.etCreditType.setText(apiResponseNew.partyType.toString())
         }
 
         viewModel.station.observe(viewLifecycleOwner) {

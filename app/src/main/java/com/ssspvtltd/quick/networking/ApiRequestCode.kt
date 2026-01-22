@@ -27,7 +27,7 @@ enum class ApiRequestCode {
     PENDING_LR,
     COUNT,
     STOCK_IN_OFFICE,
-    SAVE_ORDER,
+    SAVE_ORDER,MAIL_BOX,
     EDIT_ORDER,
     DASHBOARD_DATA,
     DASHBOARD_SALE_DATA,

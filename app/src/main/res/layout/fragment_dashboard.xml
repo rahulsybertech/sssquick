@@ -82,6 +82,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rlHoldOrder"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_margin="5dp"
@@ -136,6 +137,7 @@
                       android:layout_marginTop="10dp">
 
                         <RelativeLayout
+                            android:id="@+id/rlPendingOrder"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_margin="5dp"
@@ -183,6 +185,7 @@
                         </RelativeLayout>
 
                         <RelativeLayout
+                            android:id="@+id/rlPendiingGr"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_margin="5dp"

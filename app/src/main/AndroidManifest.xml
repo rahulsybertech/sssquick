@@ -67,6 +67,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustNothing"/>
         <activity
+            android:name=".ui.mailboxremark.MailBoxRemarkActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustNothing"/>
+        <activity
             android:name="com.ssspvtltd.quick.ui.auth.activity.LoginActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustNothing" />

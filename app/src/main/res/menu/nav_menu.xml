@@ -38,6 +38,10 @@
         android:id="@+id/nav_goods_return"
         android:icon="@drawable/good_return"
         android:title="Pending GR" />
+    <item
+        android:id="@+id/nav_mail_box"
+        android:icon="@drawable/good_return"
+        android:title="Pending Mails" />
 
     <item
         android:id="@+id/nav_pending_lr"

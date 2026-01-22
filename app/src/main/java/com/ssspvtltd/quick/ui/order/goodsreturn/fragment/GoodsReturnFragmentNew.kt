@@ -39,7 +39,7 @@ class GoodsReturnFragmentNew : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.loadDummyJson() // Or actual API call
+      //  viewModel.loadDummyJson() // Or actual API call
     //    viewModel.getGoodsReturn()
 
         binding.toolbar.apply {

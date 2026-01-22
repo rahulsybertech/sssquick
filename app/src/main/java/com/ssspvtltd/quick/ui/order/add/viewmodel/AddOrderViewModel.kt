@@ -118,7 +118,7 @@ class AddOrderViewModel @Inject constructor(
 
     // Added Item List
     var addItemDataList = ArrayList<PackType>()
-    val addItemDataList1= mutableListOf<GoodsReturnItem>()
+
     var addImageDataList = ArrayList<ImageModel>()
     private var mainList = listOf<CustomerData>()
 

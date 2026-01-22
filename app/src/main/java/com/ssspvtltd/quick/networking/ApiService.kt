@@ -16,6 +16,7 @@ import com.ssspvtltd.quick.model.auth.VerifyOtpData
 import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
+import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
 import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
@@ -269,6 +270,11 @@ interface ApiService {
     suspend fun getEditOrderDataGr(
         @Query("recordId") orderId: String
     ): ApiResponse<GoodsReturnDataGr>
+
+    @POST("api/Report/GetMailBoxRemark")
+    suspend fun mailBoxApi(
+        @Body getStockInOfficeOrderDetailsRequest: GetStockInOfficeOrderDetailsRequest
+    ): ApiResponse<List<MailData>>
 
     @POST("api/OrderBook/GetDashboardData")
     suspend fun getDashBoardData(
