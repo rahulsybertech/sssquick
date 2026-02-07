@@ -1,4 +1,4 @@
-name: Android CI
+name: Android CI/CD
 
 on:
   push:
@@ -41,11 +41,12 @@ jobs:
 
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
-          # 8️⃣ Upload APK to Firebase App Distribution
-               - name: Upload APK to Firebase App Distribution
-               uses: wzieba/Firebase-Distribution-Github-Action@v1
-               with:
-                 appId: ${{ secrets.FIREBASE_APP_ID }}
-                 token: ${{ secrets.FIREBASE_TOKEN }}
-                 groups: testers
-                 file: app/build/outputs/apk/debug/app-debug.apk
+
+      # Distribute the APK to Firebase
+      - name: Upload APK to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ 1:268121410227:android:d3989034219d96538b3ec6 }}
+          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          groups: testers
+          file: app/build/outputs/apk/debug/app-debug.apk
