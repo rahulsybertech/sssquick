@@ -158,6 +158,7 @@ class CheckInCheckOutFragment :
         orderInMarket.setOnClickListener {
             viewModel.setTabSelection(CheckInType.ORDER_IN_MARKET)
         }
+
         withCustomer.setOnClickListener { viewModel.setTabSelection(CheckInType.WITH_MARKETER) }
         other.setOnClickListener { viewModel.setTabSelection(CheckInType.OTHER) }
         checkIn.setOnClickListener { viewModel.addUpdateCustomer(::navToHome) }
