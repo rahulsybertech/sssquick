@@ -20,9 +20,6 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -36,17 +33,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
-
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
-      # Distribute the APK to Firebase
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
       - name: Upload APK to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
-          appId: ${{ 1:268121410227:android:d3989034219d96538b3ec6 }}
-          serviceCredentialsFileContent: ${{ secrets.CREDENTIAL_FILE_CONTENT }}
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: testers
           file: app/build/outputs/apk/debug/app-debug.apk
