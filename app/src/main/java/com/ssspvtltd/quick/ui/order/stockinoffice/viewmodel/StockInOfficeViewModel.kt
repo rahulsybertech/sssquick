@@ -29,6 +29,10 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
     val responseCodeOfSIO: LiveData<String> get() = _responseCodeOfSIO
 
     val responseMessageOfSIO = MutableLiveData<String>()
+    private val _totalAmountLiveData = MutableLiveData<Int>()
+    val totalAmountLiveData: LiveData<Int> get() = _totalAmountLiveData
+    private val _isAmountLoading = MutableLiveData<Boolean>()
+    val isAmountLoading: LiveData<Boolean> get() = _isAmountLoading
 
     var searchValue = ""
     fun getStockInOffice() = viewModelScope.launch {
@@ -52,6 +56,7 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
                 _responseCodeOfSIO.postValue(response.value.responseCode.orEmpty())
                 getMessage.value = response.value.message.orEmpty()
                 hideProgressBar()
+                _isAmountLoading.postValue(true)
                 prepareFilteredList()
             }
         }
@@ -60,25 +65,37 @@ class StockInOfficeViewModel @Inject constructor(private val repository: StockIn
     fun prepareFilteredList() = viewModelScope.launch(Dispatchers.Default) {
         val list = mutableListOf<BaseWidget>()
         var count = 0
-        stockInOfficeList.forEach {
-            val orderItemList = if (searchValue.isBlank()) it.orderItemList
-            else it.orderItemList?.filter {
-                it.supplierName?.contains(searchValue, true) == true || it.salePartyName?.contains(
-                    searchValue,
-                    true
-                ) == true || it.supplierMob?.contains(searchValue, true) == true
-            }
-            if (orderItemList?.isNotEmpty() == true) {
-                list.add(TitleSubtitleWrapper(id = it.orderDate, title = it.orderDate))
+        var totalAmount = 0   // 👈 total amount
+
+        stockInOfficeList.forEach { stock ->
+            val orderItemList =
+                if (searchValue.isBlank()) stock.orderItemList
+                else stock.orderItemList.filter {
+                    it.supplierName.contains(searchValue, true) ||
+                            it.salePartyName.contains(searchValue, true) ||
+                            (it.supplierMob?.contains(searchValue, true) == true)
+                }
+
+            if (orderItemList.isNotEmpty()) {
+                list.add(TitleSubtitleWrapper(id = stock.orderDate, title = stock.orderDate))
                 list.addAll(orderItemList)
+
                 count += orderItemList.size
+
+                // 👇 ADD AMOUNT
+                totalAmount += orderItemList.sumOf { it.amount }
             }
         }
-        clearWidgetList()
-        addItemToWidgetList(list)
+
         withContext(Dispatchers.Main) {
+            clearWidgetList()
+            addItemToWidgetList(list)
             listDataChanged()
-            //hideProgressBar()
+
+            // 🔥 publish total amount
+            _totalAmountLiveData.value = totalAmount
+            _isAmountLoading.value = false
         }
     }
+
 }

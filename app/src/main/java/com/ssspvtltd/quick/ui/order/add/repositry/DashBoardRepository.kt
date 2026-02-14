@@ -22,8 +22,8 @@ class DashBoardRepository @Inject constructor(private val apiService: ApiService
 
     suspend fun callGetDashBoardSaleCountDetails(
         marketerId: String,
-        fromDate: String,
-        toDate: String
+        fromDate: String?,
+        toDate: String?
     ): ResultWrapper<ApiResponse<*>, Response<DashBoardDataResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_SALE_DATA.ordinal) {
             apiService.getDashBoardSaleCountData(

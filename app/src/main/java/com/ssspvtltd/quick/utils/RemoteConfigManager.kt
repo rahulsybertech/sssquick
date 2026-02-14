@@ -1,5 +1,10 @@
 package com.ssspvtltd.quick.utils
 
+import android.util.Log
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
+
 object RemoteConfigManager {
     private const val TAG = "RemoteConfigManager"
     private const val BASE_URL_KEY = "base_url"

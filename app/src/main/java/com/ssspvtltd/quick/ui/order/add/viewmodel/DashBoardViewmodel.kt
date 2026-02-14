@@ -54,25 +54,35 @@ class DashBoardViewmodel @Inject constructor(
 
 
     }
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> = _loading
+    fun getDashBoardSaleCountDetails(fromDate: String?, toDate: String?) =
+        viewModelScope.launch {
 
-    fun getDashBoardSaleCountDetails(fromDate: String, toDate: String) = viewModelScope.launch {
+            _loading.value = true   // Show progress
 
-        when (val response = repository.callGetDashBoardSaleCountDetails(
-            prefHelper.getAccountId() ?: "",
-            fromDate,
-            toDate
-        )) {
-            is ResultWrapper.Failure -> apiErrorData(response.error)
-            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
-                val dashBoardData: DashBoardDataResponse.Data? = response.value.body()?.data
-                Log.i(TAG, "getDashBoardSaleCountDetails: $dashBoardData")
-                withContext(Dispatchers.Main) {
-                    _dashBoardSaleCountDetailsLiveData.postValue(dashBoardData)
+            val response = withContext(Dispatchers.IO) {
+                repository.callGetDashBoardSaleCountDetails(
+                    prefHelper.getAccountId() ?: "",
+                    fromDate,
+                    toDate
+                )
+            }
+
+            _loading.value = false  // Hide progress
+
+            when (response) {
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
                 }
 
+                is ResultWrapper.Success -> {
+                    _dashBoardSaleCountDetailsLiveData.value =
+                        response.value.body()?.data
+                }
             }
         }
-    }
+
 
     fun checkVersionAPI(appName: String) = viewModelScope.launch {
         showProgressBar(ProgressConfig("Checking Version..."))

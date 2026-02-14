@@ -284,9 +284,10 @@ interface ApiService {
     @POST("api/OrderBook/GetDashboardSaleCountData")
     suspend fun getDashBoardSaleCountData(
         @Query("marketerId") marketerId: String,
-        @Query("fromDate") fromDate: String,
-        @Query("toDate") toDate: String
+        @Query("fromDate") fromDate: String? = null,
+        @Query("toDate") toDate: String? = null
     ): Response<DashBoardDataResponse>
+
 
     @POST("api/OrderBook/OrderBookGeneratePdf")
     suspend fun getOrderBookGeneratePdf(

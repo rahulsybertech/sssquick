@@ -10,6 +10,7 @@ import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick.databinding.ItemStockInOfficeBinding
 import com.ssspvtltd.quick.databinding.ItemStockInOfficeHeaderBinding
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeOrderItem
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.DateTimeFormat
 import com.ssspvtltd.quick.utils.DateTimeUtils
 
@@ -59,10 +60,7 @@ class StockInOfficeAdapter : MultiViewAdapter() {
 class StockInOfficeHeaderViewHolder(private val binding: ItemStockInOfficeHeaderBinding) :
     BaseViewHolder(binding) {
     fun bind(item: TitleSubtitleWrapper) = with(binding) {
-        tvOrderDate.text = DateTimeUtils.formatDate(
-            item.title, DateTimeFormat.DATE_TIME_FORMAT1,
-            DateTimeFormat.DATE_TIME_FORMAT3
-        )
+        tvOrderDate.text = DateTimeUtils.format(item.title, "dd-MM-yyyy")
     }
 }
 
@@ -72,6 +70,6 @@ class StockInOfficeViewHolder(private val binding: ItemStockInOfficeBinding) :
         tvSaleParty.text = getString(R.string.sale_party_format, item.salePartyName)
         tvSupplier.text = getString(R.string.supplier_format, item.supplierName)
         tvSubparty.text = getString(R.string.subparty_format, item.subPartyName) ?: "Self"
-        tvOrderAmount.text = getString(R.string.amount_format, item.amount)
+        tvOrderAmount.text = getString(R.string.amount_format, CommaSparateAmount.formatIndianAmount(item.amount.toString()))
     }
 }

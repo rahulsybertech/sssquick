@@ -964,7 +964,6 @@ class CreateGRFragment : BaseFragment<FragmentCreateGrBinding, AddOrderViewModel
         }
 
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
-
             if (it == true) {
                 binding.placeOrder.isEnabled=true
                 binding.etCustomerCode.text.clear()
@@ -1740,24 +1739,36 @@ class CreateGRFragment : BaseFragment<FragmentCreateGrBinding, AddOrderViewModel
 
         }
 
-        viewModel.scheme.observe(viewLifecycleOwner) {
-            schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
-            schemeData = it
+        viewModel.scheme.observe(viewLifecycleOwner) { list ->
+
+            val activeList = list.orEmpty().filter { it.activeStatus }
+
+            schemeAdapter = SchemeAdapter(
+                requireContext(),
+                R.layout.item_saleparty,
+                activeList
+            )
+
+            schemeData = activeList
+
             binding.etScheme.threshold = 1
             binding.etScheme.setAdapter(schemeAdapter)
+
             binding.etScheme.setOnItemClickListener { parent, _, position, _ ->
+
                 val schemeItem = schemeAdapter.getItem(position)
-                schemeId = schemeItem.schemeId.toString()
+
+                schemeId = schemeItem?.schemeId.toString()
+
                 binding.etPurchaseParty.text.clear()
-                //   viewModel.getPurchaseParty(null,schemeItem.schemeId, true)
-                viewModel.getNickNameList(null,schemeItem.schemeId, true)
+
+                viewModel.getNickNameList(null, schemeItem?.schemeId, true)
 
                 binding.tilScheme.isErrorEnabled =
-                    !(schemeItem.schemeId.isNotNullOrBlank() || binding.tilScheme.isErrorEnabled)
+                    !(schemeItem?.schemeId.isNullOrBlank())
             }
-
-
         }
+
 
         addItemViewModel.isListAvailable.observe(viewLifecycleOwner) {
             addItemAdapter.submitList(addItemViewModel.widgetList)

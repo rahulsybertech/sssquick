@@ -170,10 +170,20 @@ class PendingOrderFragment : BaseFragment<FragmentPendingOrderBinding, PendingOr
         }
 
 
-        viewModel.totalAmountLiveData.observe(viewLifecycleOwner) { countString ->
+     /*   viewModel.totalAmountLiveData.observe(viewLifecycleOwner) { countString ->
           //  getString(R.string.netAmt, CommaSparateAmount.formatIndianAmount(item.netAmt))
           //  binding.tvPendingAmt.text = "Total Amt "+getString(R.string.amount_format,countString.toString())
             binding.tvPendingAmt.text = "Total Amt "+getString(R.string.amount_format, CommaSparateAmount.formatIndianAmount(countString))
+        }*/
+
+        viewModel.isAmountLoading.observe(viewLifecycleOwner) { loading ->
+            binding.pbPendingAmt.visibility = if (loading) View.VISIBLE else View.GONE
+            binding.tvPendingAmt.visibility = if (loading) View.GONE else View.VISIBLE
+        }
+
+        viewModel.totalAmountLiveData.observe(viewLifecycleOwner) { amount ->
+            binding.tvPendingAmt.text =
+                "Total Amt  ₹ ${CommaSparateAmount.formatIndianAmount(amount)}"
         }
         binding.etCustomerCode.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

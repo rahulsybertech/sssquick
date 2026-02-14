@@ -362,106 +362,158 @@
 
                   </LinearLayout>
 
-                  <LinearLayout
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:id="@+id/ll_4"
-                      android:layout_below="@+id/ll_3">
 
-                        <RelativeLayout
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ll_5"
+                    android:layout_below="@+id/ll_3">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/gray_200_bg">
+
+                        <ImageView
+                            android:id="@+id/icon_total_sale_amount1"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/gray_300_bg"
+                            android:padding="10dp"
+                            android:rotation="180"
+                            android:src="@drawable/pending_lr"
+                            app:tint="?attr/colorPrimaryDark" />
+
+                        <TextView
+                            android:id="@+id/previous"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+
+                            android:layout_toEndOf="@id/icon_total_sale_amount1"
+                            android:text="Previous Sale Amt."
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:id="@+id/tvTotalPrevious"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/previous"
+                            android:layout_toEndOf="@id/icon_total_sale_amount1"
+                            android:text="-"
+                            android:fontFamily="@font/helvetica_bold"
+                            android:textSize="25sp"
+                            android:textColor="@color/black" />
+
+                        <!-- 🔥 Growth Icon -->
+                        <!--<ImageView
+                            android:id="@+id/ivGrowth"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_alignBaseline="@id/tvTotalPrevious"
+                            android:layout_toEndOf="@id/tvTotalPrevious"
+                            android:layout_marginStart="6dp"
+                            android:visibility="gone"
+                            android:src="@drawable/up_arrow" />-->
+
+                    </RelativeLayout>
+
+                </LinearLayout>
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_centerInParent="true"
+                    android:visibility="visible"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ll_4"
+                    android:layout_below="@+id/ll_5">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/gray_200_bg">
+
+                        <ImageView
+                            android:id="@+id/icon_total_sale_amount"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/gray_300_bg"
+                            android:padding="10dp"
+                            android:rotation="180"
+                            android:src="@drawable/pending_lr"
+                            app:tint="?attr/colorPrimaryDark" />
+
+                        <LinearLayout
+                            android:layout_toRightOf="@+id/icon_total_sale_amount"
+                            android:orientation="vertical"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_margin="5dp"
-                            android:layout_weight="1"
-                            android:background="@drawable/gray_200_bg">
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:id="@+id/txt_total_sale_amt"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_toEndOf="@+id/icon_total_sale_amount"
+                                android:fontFamily="@font/helvetica_regular"
+                                android:text="Total Sale Amt."
+                                android:textColor="@color/black" />
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:id="@+id/tvTotalSaleAmount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/helvetica_bold"
+                                    android:text="-"
+                                    android:textColor="@color/black"
+                                    android:textSize="25dp" />
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:id="@+id/ivGrowth"
+                                    android:layout_width="12dp"
+                                    android:layout_height="12dp"
+                                    android:layout_gravity="center_vertical"
+                                    android:layout_marginStart="15dp"
+                                    android:visibility="gone"
+                                    android:src="@drawable/down_arrow_new" />
+                                <TextView
+                                    android:id="@+id/tvGrowth"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:fontFamily="@font/helvetica_regular"
+                                    android:text=""
+                                    android:layout_marginStart="5dp"
+                                    android:textColor="@color/black"
+                                    android:textSize="18dp" />
+                            </LinearLayout>
 
-                              <ImageView
-                                  android:id="@+id/icon_total_sale_amount"
-                                  android:layout_width="60dp"
-                                  android:layout_height="60dp"
-                                  android:layout_alignParentStart="true"
-                                  android:layout_centerInParent="true"
-                                  android:layout_marginStart="10dp"
-                                  android:layout_marginTop="10dp"
-                                  android:layout_marginEnd="10dp"
-                                  android:layout_marginBottom="10dp"
-                                  android:background="@drawable/gray_300_bg"
-                                  android:padding="10dp"
-                                  android:rotation="180"
-                                  android:src="@drawable/pending_lr"
-                                  app:tint="?attr/colorPrimaryDark" />
+                        </LinearLayout>
 
-                              <TextView
-                                  android:id="@+id/txt_total_sale_amt"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:layout_marginTop="10dp"
-                                  android:layout_marginEnd="5dp"
-                                  android:layout_toEndOf="@+id/icon_total_sale_amount"
-                                  android:fontFamily="@font/helvetica_regular"
-                                  android:text="Total Sale Amt."
-                                  android:textColor="@color/black" />
 
-                              <TextView
-                                  android:id="@+id/tvTotalSaleAmount"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:layout_below="@+id/txt_total_sale_amt"
-                                  android:layout_toEndOf="@+id/icon_total_sale_amount"
-                                  android:fontFamily="@font/helvetica_bold"
-                                  android:text="-"
-                                  android:textColor="@color/black"
-                                  android:textSize="25dp" />
 
-                        </RelativeLayout>
-                      <RelativeLayout
-                          android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:layout_margin="5dp"
-                          android:layout_weight="1"
-                          android:background="@drawable/gray_200_bg">
+                    </RelativeLayout>
 
-                          <ImageView
-                              android:id="@+id/icon_total_privious_amount"
-                              android:layout_width="60dp"
-                              android:layout_height="60dp"
-                              android:layout_alignParentStart="true"
-                              android:layout_centerInParent="true"
-                              android:layout_marginStart="10dp"
-                              android:layout_marginTop="10dp"
-                              android:layout_marginEnd="10dp"
-                              android:layout_marginBottom="10dp"
-                              android:background="@drawable/gray_300_bg"
-                              android:padding="10dp"
-                              android:rotation="180"
-                              android:src="@drawable/pending_lr"
-                              app:tint="?attr/colorPrimaryDark" />
 
-                          <TextView
-                              android:id="@+id/ll"
-                              android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-                              android:layout_marginTop="10dp"
-                              android:layout_marginEnd="5dp"
-                              android:layout_toEndOf="@+id/icon_total_privious_amount"
-                              android:fontFamily="@font/helvetica_regular"
-                              android:text="Privious Sale Amt."
-                              android:textColor="@color/black" />
-
-                          <TextView
-                              android:id="@+id/tvTotalPrivioisAmount"
-                              android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-                              android:layout_below="@+id/ll"
-                              android:layout_toEndOf="@+id/icon_total_privious_amount"
-                              android:fontFamily="@font/helvetica_bold"
-                              android:text="-"
-                              android:textColor="@color/black"
-                              android:textSize="25dp" />
-
-                      </RelativeLayout>
-
-                  </LinearLayout>
+                </LinearLayout>
 
             </RelativeLayout>
 

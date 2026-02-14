@@ -72,6 +72,8 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.collections.filter
+import kotlin.collections.orEmpty
 
 
 @AndroidEntryPoint
@@ -2201,8 +2203,9 @@ class AddOrderFragment
         }
 
         viewModel.scheme.observe(viewLifecycleOwner) {
-            schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, it.orEmpty())
-            schemeData = it
+            val activeList = it.orEmpty().filter { it.activeStatus }
+            schemeAdapter = SchemeAdapter(requireContext(), R.layout.item_saleparty, activeList.orEmpty())
+            schemeData = activeList
             binding.etScheme.threshold = 1
             binding.etScheme.setAdapter(schemeAdapter)
             binding.etScheme.setOnItemClickListener { parent, _, position, _ ->

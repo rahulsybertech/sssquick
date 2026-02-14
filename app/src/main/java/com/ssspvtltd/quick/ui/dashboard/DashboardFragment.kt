@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,14 +23,13 @@ import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.databinding.FragmentDashboardBinding
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
-import com.ssspvtltd.quick.ui.PendingOrderByCustomerActivity
-import com.ssspvtltd.quick.ui.create_gr.CreateGRActivity
 import com.ssspvtltd.quick.ui.main.MainActivity
 import com.ssspvtltd.quick.ui.order.add.viewmodel.DashBoardViewmodel
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
-import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
 import com.ssspvtltd.quick.utils.amountFormat
+import com.ssspvtltd.quick.utils.amountFormatNew
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -42,7 +42,11 @@ class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
     private val viewModel: DashBoardViewmodel by viewModels()
     private val dateFormat = java.text.SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    private val apiDateFormat =
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 
+    private val displayDateFormat =
+        SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
     private lateinit var navController: NavController
     companion object {
         const val TAG = "TaG"
@@ -64,6 +68,10 @@ class DashboardFragment : Fragment() {
         setClickListeners()
         setMyView()
         callApis()
+        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility =
+                if (isLoading) View.VISIBLE else View.GONE
+        }
 
         binding.rlPendingOrder.setOnClickListener {
             val bundle = Bundle().apply {
@@ -119,8 +127,8 @@ class DashboardFragment : Fragment() {
         private fun callApis() {
             viewModel.getDashBoardDetails()
             viewModel.getDashBoardSaleCountDetails(
-                binding.txtTotalSaleFromDate.text.toString(),
-                binding.txtTotalSaleToDate.text.toString()
+                null,
+                null
             )// one week from current
 
         }
@@ -130,8 +138,11 @@ class DashboardFragment : Fragment() {
             val currentDate = LocalDate.now()
             val oneWeekBeforeDate = currentDate.minusWeeks(1L)
 
-            binding.txtTotalSaleFromDate.text = oneWeekBeforeDate.format(formatter)
-            binding.txtTotalSaleToDate.text = currentDate.format(formatter)
+          /*  binding.txtTotalSaleFromDate.text = oneWeekBeforeDate.format(formatter)
+            binding.txtTotalSaleToDate.text = currentDate.format(formatter)*/
+
+            binding.txtTotalSaleFromDate.text = ""
+            binding.txtTotalSaleToDate.text = ""
 
         }
 
@@ -231,15 +242,76 @@ class DashboardFragment : Fragment() {
                 tvPendingGR.text = (dashBoardData?.totalGRCount ?: 0).toString()
             }
         }
+
         private val dashBoardObserver2 = Observer<DashBoardDataResponse.Data?> { dashBoardData ->
             with(binding) {
+
                 tvTotalSale.text = (dashBoardData?.totalSaleCount ?: 0).toString()
                 println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
-                if (dashBoardData?.totalSaleAmt == null) {
-                    tvTotalSaleAmount.text = "0.0"
-                } else {
-                    tvTotalSaleAmount.text = amountFormat((dashBoardData.totalSaleAmt).toString())
+                val totalAmount = dashBoardData?.totalSaleAmt
+                    ?.toString()
+                    ?.toDoubleOrNull() ?: 0.0
+
+                tvTotalSaleAmount.text = amountFormatNew(totalAmount)
+                val totalAmt = dashBoardData?.totalSaleAmt?.toDouble() ?: 0.0
+                val previousAmt = dashBoardData?.pTotalSaleAmt?.toDouble() ?: 0.0
+                val previousAmount = dashBoardData?.pTotalSaleAmt
+                    ?.toString()
+                    ?.toDoubleOrNull() ?: 0.0
+
+                tvTotalPrevious.text = amountFormatNew(previousAmount)
+
+                dashBoardData?.fromDate?.let { fromDate ->
+                    val date = apiDateFormat.parse(fromDate)
+                    binding.txtTotalSaleFromDate.text =
+                        date?.let { displayDateFormat.format(it) } ?: "-"
                 }
+
+                dashBoardData?.toDate?.let { toDate ->
+                    val date = apiDateFormat.parse(toDate)
+                    binding.txtTotalSaleToDate.text =
+                        date?.let { displayDateFormat.format(it) } ?: "-"
+                }
+
+
+
+                val growth = dashBoardData?.growthPer
+                    ?.toString()
+                    ?.toDoubleOrNull() ?: 0.0
+
+                tvGrowth.text=growth.toString()+"%"
+                when {
+                    growth > 0 -> {
+                        ivGrowth.visibility = View.VISIBLE
+                        tvGrowth.visibility = View.VISIBLE
+                        ivGrowth.setImageResource(R.drawable.up_arrow_new)
+                        ivGrowth.setColorFilter(
+                            ContextCompat.getColor(requireContext(), R.color.green)
+                        )
+                        tvGrowth.setTextColor(
+                            ContextCompat.getColor(requireContext(), R.color.green)
+                        )
+                    }
+
+                    growth < 0 -> {
+                        ivGrowth.visibility = View.VISIBLE
+                        tvGrowth.visibility = View.VISIBLE
+                        ivGrowth.setImageResource(R.drawable.down_arrow_new)
+                        ivGrowth.setColorFilter(
+                            ContextCompat.getColor(requireContext(), R.color.red_2)
+                        )
+                        tvGrowth.setTextColor(
+                            ContextCompat.getColor(requireContext(), R.color.red_2)
+                        )
+                    }
+
+                    else -> {
+
+                        ivGrowth.visibility = View.GONE
+                        tvGrowth.visibility = View.GONE
+                    }
+                }
+
             }
         }
 

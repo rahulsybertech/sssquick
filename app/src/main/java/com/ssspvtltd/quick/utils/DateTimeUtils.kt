@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.utils
 
+import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -19,6 +20,26 @@ object DateTimeUtils {
         } catch (_: Throwable) {
             ""
         }
+    }
+    fun format(
+        dateStr: String?,
+        outputFormat: String
+    ): String {
+        if (dateStr.isNullOrBlank()) return ""
+
+        val inputFormats = arrayOf(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ss"
+        )
+
+        inputFormats.forEach { pattern ->
+            try {
+                val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+                val date = sdf.parse(dateStr) ?: return@forEach
+                return SimpleDateFormat(outputFormat, Locale.getDefault()).format(date)
+            } catch (_: Exception) { }
+        }
+        return ""
     }
 }
 

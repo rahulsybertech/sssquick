@@ -190,8 +190,21 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="12dp"
                 android:fontFamily="@font/roboto_medium"
+                android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/searchContainer" />
+
+            <ProgressBar
+                android:id="@+id/pbPendingAmt"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="70dp"
+                android:layout_marginTop="10dp"
+                android:indeterminate="true"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="@+id/tvPendingAmt"
+                app:layout_constraintTop_toBottomOf="@id/searchContainer" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="0dp"

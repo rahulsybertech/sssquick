@@ -8,6 +8,7 @@ import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentStockInOfficeBinding
 import com.ssspvtltd.quick.ui.order.stockinoffice.adapter.StockInOfficeAdapter
 import com.ssspvtltd.quick.ui.order.stockinoffice.viewmodel.StockInOfficeViewModel
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +35,16 @@ class StockInOfficeFragment : BaseFragment<FragmentStockInOfficeBinding, StockIn
         binding.toolbar.apply {
             setTitle("Stock In Office")
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
+        }
+
+        viewModel.isAmountLoading.observe(viewLifecycleOwner) { loading ->
+            binding.pbPendingAmt.visibility = if (loading) View.VISIBLE else View.GONE
+            binding.tvPendingAmt.visibility = if (loading) View.GONE else View.VISIBLE
+        }
+
+        viewModel.totalAmountLiveData.observe(viewLifecycleOwner) { amount ->
+            binding.tvPendingAmt.text =
+                "Total Amt  ₹ ${CommaSparateAmount.formatIndianAmount(amount.toString())}"
         }
         initViews()
         registerListener()
@@ -69,8 +80,5 @@ class StockInOfficeFragment : BaseFragment<FragmentStockInOfficeBinding, StockIn
                 .show(childFragmentManager, StockInOfficeBottomSheetFragment::class.simpleName)
         }
     }
-
-
-
 
 }

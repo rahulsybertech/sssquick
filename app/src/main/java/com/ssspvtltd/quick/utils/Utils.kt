@@ -31,6 +31,10 @@ fun amountFormat(amt: String): String {
         amt
     }
 }
+fun amountFormatNew(amount: Double): String {
+    val formatter = DecimalFormat("#,##,###.##")
+    return formatter.format(amount)
+}
 
 fun versionName(): String {
     return "Version ${BuildConfig.VERSION_NAME}"

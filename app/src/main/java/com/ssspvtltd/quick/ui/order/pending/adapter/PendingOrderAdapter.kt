@@ -11,6 +11,7 @@ import com.ssspvtltd.quick.databinding.ItemPendingOrderBinding
 import com.ssspvtltd.quick.databinding.ItemPendingOrderHeaderBinding
 import com.ssspvtltd.quick.di.PrefHelperEntryPoint.Companion.prefHelper
 import com.ssspvtltd.quick.model.order.pending.PendingOrderItem
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.DateTimeFormat
 import com.ssspvtltd.quick.utils.DateTimeUtils
 import java.time.LocalDateTime
@@ -89,6 +90,6 @@ class PendingOrderViewHolder(private val binding: ItemPendingOrderBinding) :
         tvSubParty.text = """Qty: ${(item.qty ?: "--")}"""
         tvItemName.text = item.type ?: ""
         tvOrderStatus.text = (item.qty ?: "--").toString()
-        tvOrderAmount.text = getString(R.string.amount_format,item.amount)
+        tvOrderAmount.text = getString(R.string.amount_format,CommaSparateAmount.formatIndianAmount(item.amount.toString()))
     }
 }

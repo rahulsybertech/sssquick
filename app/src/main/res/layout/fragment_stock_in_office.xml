@@ -39,6 +39,31 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
+    <TextView
+        android:id="@+id/tvPendingAmt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Amt"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="12dp"
+        android:fontFamily="@font/roboto_medium"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etSearch" />
+
+    <ProgressBar
+        android:id="@+id/pbPendingAmt"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="70dp"
+        android:layout_marginTop="10dp"
+        android:indeterminate="true"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="@+id/tvPendingAmt"
+        app:layout_constraintTop_toBottomOf="@id/etSearch" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -52,9 +77,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etSearch"
+        app:layout_constraintTop_toBottomOf="@+id/tvPendingAmt"
         tools:itemCount="2"
         tools:listitem="@layout/item_pending_order" />
+
 
     <TextView
         android:id="@+id/noData_sio"

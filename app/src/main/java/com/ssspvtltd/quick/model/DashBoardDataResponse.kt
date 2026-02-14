@@ -16,6 +16,10 @@ data class DashBoardDataResponse(
         @SerializedName("totalHoldOrderCount") val totalHoldOrderCount: Int?,
         @SerializedName("totalPendingOrderCount") val totalPendingOrderCount: Int?,
         @SerializedName("totalSaleCount") val totalSaleCount: Int?,
-        @SerializedName("totalSaleAmt") val totalSaleAmt: String?
+        @SerializedName("totalSaleAmt") val totalSaleAmt: String?,
+        @SerializedName("pTotalSaleAmt") val pTotalSaleAmt: String?,
+        @SerializedName("fromDate") val fromDate: String?,
+        @SerializedName("toDate") val toDate: String?,
+        @SerializedName("growthPer") val growthPer: String?
     )
 }
