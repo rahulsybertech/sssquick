@@ -18,28 +18,19 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentCustomerDetailsBinding
-import com.ssspvtltd.quick.model.checkincheckout.CustomerData
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.model.customer.NickName
-
 import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.ui.customerDetails.adapter.PersonAdapter
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.Person
 import com.ssspvtltd.quick.ui.customerDetails.viewmodel.CustomerDetailsViewModel
-
 import com.ssspvtltd.quick.utils.extension.getViewModel
-import com.ssspvtltd.quick.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.ByteArrayOutputStream
 import java.util.Date
