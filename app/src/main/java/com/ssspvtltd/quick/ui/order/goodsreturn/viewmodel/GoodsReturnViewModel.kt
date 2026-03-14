@@ -8,6 +8,7 @@ import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.data.BaseWidget
 import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
+
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.grNew.GoodsReturnDataNew
@@ -16,6 +17,7 @@ import com.ssspvtltd.quick.model.grNew.GoodsReturnResponse
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.mailbox.MailDetail
 import com.ssspvtltd.quick.model.mailbox.MailResponse
+import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.progress.ProgressConfig
@@ -33,7 +35,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GoodsReturnViewModel @Inject constructor(
     private val repository: GoodsReturnRepository
-) : RecyclerWidgetViewModel() {
+) : RecyclerWidgetViewModel()
+{
     private var goodsReturnList = listOf<GoodsReturnData>()
     private var goodsReturnDetailList = listOf<GoodsReturnDataNew>()
 
@@ -61,6 +64,7 @@ class GoodsReturnViewModel @Inject constructor(
             }
         }
     }
+
 
     fun getMailBox() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
@@ -205,10 +209,4 @@ class GoodsReturnViewModel @Inject constructor(
             hideProgressBar()
         }
     }
-
-
-
-
-
-
 }

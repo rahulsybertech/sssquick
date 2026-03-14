@@ -126,6 +126,7 @@ class DashboardFragment : Fragment() {
 
         private fun callApis() {
             viewModel.getDashBoardDetails()
+         //   viewModel.getAccountNameList()
             viewModel.getDashBoardSaleCountDetails(
                 null,
                 null

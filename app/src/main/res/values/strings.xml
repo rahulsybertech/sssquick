@@ -140,6 +140,7 @@
     <string name="upload">Upload</string>
     <string name="call">Call</string>
     <string name="party_type">Party Type</string>
+    <string name="customer_fair_details">Customer fair details</string>
 
 
     <!--<string name="regenerate_pdf"><u>Regenerate Pdf</u></string>-->

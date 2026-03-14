@@ -24,6 +24,7 @@ enum class ApiRequestCode {
     HOLD_ORDER,
     HOLD_DELETE_ORDER,
     GOODS_RETURN,
+    ACCOUNT_NAME,
     PENDING_LR,
     COUNT,
     STOCK_IN_OFFICE,
