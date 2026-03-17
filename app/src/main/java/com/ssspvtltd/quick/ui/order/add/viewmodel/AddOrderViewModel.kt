@@ -241,16 +241,12 @@ class AddOrderViewModel @Inject constructor(
        //     val salePartyDeferred = async { getSalePartySuspend() }
             val schemeDeferred = async { getSchemeSuspend() }
             //  val purchasePartyDeferred   = async { getPurchasePartySuspend(schemeId, type) }
-
+            val dispatchTypeListDeferred = async { getGetDispatchTypeListSuspend() }
          //   val salePartyResponse = salePartyDeferred.await()
             val schemeResponse = schemeDeferred.await()
-            // val purchasePartyResponse   = purchasePartyDeferred.await()
+            val dispatchTypeListResponse = dispatchTypeListDeferred.await()
 
-            /*_salePartyEdit.postValue(salePartyResponse)
-        _schemeEdit.postValue(schemeResponse)
-        _purchasePartyEdit.postValue(purchasePartyResponse)*/
-
-       //     _saleParty.postValue(salePartyResponse)
+            _getDispatchTypeList.postValue(dispatchTypeListResponse)
             _scheme.postValue(schemeResponse)
             //  _purchaseParty.postValue(purchasePartyResponse)
             _setEditOrderFields.postValue(true)

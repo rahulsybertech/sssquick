@@ -243,7 +243,7 @@ class AddOrderFragment
                 binding.radioSubparty.isEnabled = false
                 binding.radioSubpartyRemark.isEnabled = false
               //  binding.etSubParty.isEnabled = false
-                binding.etDispatchType.isEnabled = false
+                binding.etDispatchType.isEnabled = true
             //    binding.etTransport.isEnabled = false
             //    binding.etStation.isEnabled = false
                 binding.etScheme.isEnabled = false
@@ -1105,7 +1105,7 @@ class AddOrderFragment
         viewModel.isOrderPlaced.observe(viewLifecycleOwner) {
 
             if (it == true) {
-                binding.etSalePartyName.text.clear()
+                 binding.etSalePartyName.text.clear()
 
                 binding.etSubParty.text.clear()
                 binding.etDispatchType.text.clear()
@@ -1395,7 +1395,9 @@ class AddOrderFragment
                     println("GETTING_VALUE_OF_SUB_PARTY 0 ${it?.subPartyId }")
                     binding.etSubParty.setText(it?.subPartyName )
                     subPartyId = it?.subPartyId.toString()!!
-
+                    binding.etDispatchType.isEnabled = true
+                    binding.etDispatchType.showDropDown()
+                    apiResponseDispatchType()
                     binding.etDispatchType.setText(it?.dispatchType )
                     dispatchId = it?.dispatchTypeID.toString()!!
                     //         job3 = async { viewModel.getStation(it.salePartyId!!, subPartyId) }
@@ -1788,7 +1790,7 @@ class AddOrderFragment
                             binding.etStation.setOnItemClickListener { parent, _, position, _ ->
                                 val stationId = stationAdapter.getItem(position)
                                 binding.tilStation.isErrorEnabled =
-                                    !(stationId?.stationId.isNotNullOrBlank() || binding.tilStation.isErrorEnabled)
+                                    !(stationId?.stationId.isNullOrBlank() || binding.tilStation.isErrorEnabled)
                                 bookingStationId = stationId?.stationId.toString()
                             }
                         } else {

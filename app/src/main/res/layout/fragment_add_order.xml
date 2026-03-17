@@ -866,7 +866,7 @@
                 <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/etDispatchType"
                     android:layout_width="match_parent"
-                    android:focusable="false"
+                    android:focusable="true"
                     android:layout_height="45dp"
                     android:imeOptions="actionNext"
                     android:inputType="textFilter"

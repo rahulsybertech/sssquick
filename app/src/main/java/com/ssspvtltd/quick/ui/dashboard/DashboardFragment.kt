@@ -42,11 +42,14 @@ class DashboardFragment : Fragment() {
     private lateinit var binding: FragmentDashboardBinding
     private val viewModel: DashBoardViewmodel by viewModels()
     private val dateFormat = java.text.SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    private val dateFormat1 = java.text.SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private val apiDateFormat =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
 
     private val displayDateFormat =
         SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    private val displayDateFormat1 =
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private lateinit var navController: NavController
     companion object {
         const val TAG = "TaG"
@@ -138,11 +141,11 @@ class DashboardFragment : Fragment() {
             val currentDate = LocalDate.now()
             val oneWeekBeforeDate = currentDate.minusWeeks(1L)
 
-          /*  binding.txtTotalSaleFromDate.text = oneWeekBeforeDate.format(formatter)
-            binding.txtTotalSaleToDate.text = currentDate.format(formatter)*/
 
             binding.txtTotalSaleFromDate.text = ""
+            binding.txtTotalSaleFromDate1.text = ""
             binding.txtTotalSaleToDate.text = ""
+            binding.txtTotalSaleToDate1.text = ""
 
         }
 
@@ -265,12 +268,16 @@ class DashboardFragment : Fragment() {
                     val date = apiDateFormat.parse(fromDate)
                     binding.txtTotalSaleFromDate.text =
                         date?.let { displayDateFormat.format(it) } ?: "-"
+                    binding.txtTotalSaleFromDate1.text =
+                        date?.let { displayDateFormat1.format(it) } ?: "-"
                 }
 
                 dashBoardData?.toDate?.let { toDate ->
                     val date = apiDateFormat.parse(toDate)
                     binding.txtTotalSaleToDate.text =
                         date?.let { displayDateFormat.format(it) } ?: "-"
+                    binding.txtTotalSaleToDate1.text =
+                        date?.let { displayDateFormat1.format(it) } ?: "-"
                 }
 
 
@@ -329,6 +336,8 @@ class DashboardFragment : Fragment() {
                     fromDate.set(Calendar.MONTH, monthOfYear)
                     fromDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                     binding.txtTotalSaleFromDate.text = dateFormat.format(fromDate.time)
+                    binding.txtTotalSaleFromDate.visibility=View.INVISIBLE
+                    binding.txtTotalSaleFromDate1.text = dateFormat1.format(fromDate.time)
 
                     // Check if ToDate needs to be updated based on the selected FromDate
                     val currentToDate = Calendar.getInstance().apply {
@@ -337,12 +346,21 @@ class DashboardFragment : Fragment() {
                     if (currentToDate.before(fromDate)) {
                         val updatedToDate = fromDate.clone() as Calendar
                         updatedToDate.add(Calendar.DAY_OF_YEAR, 0)
+                        binding.txtTotalSaleToDate.visibility=View.INVISIBLE
                         binding.txtTotalSaleToDate.text = dateFormat.format(updatedToDate.time)
+                        binding.txtTotalSaleToDate1.text = dateFormat1.format(updatedToDate.time)
                     }
-                    viewModel.getDashBoardSaleCountDetails(
-                        binding.txtTotalSaleFromDate.text.toString(),
-                        binding.txtTotalSaleToDate.text.toString()
-                    ) // Refresh sale count details
+
+                    val fromDate = displayDateFormat.parse(binding.txtTotalSaleFromDate.text.toString())
+                    val toDate = displayDateFormat.parse(binding.txtTotalSaleToDate.text.toString())
+
+                    if (fromDate != null) {
+                        viewModel.getDashBoardSaleCountDetails(
+                            binding.txtTotalSaleFromDate.text.toString(),
+                            binding.txtTotalSaleToDate.text.toString()
+                        )
+                    }
+                    // Refresh sale count details
 
                 }
 
@@ -355,8 +373,26 @@ class DashboardFragment : Fragment() {
             )
 
             // Restrict the "From Date" to today or earlier
+         //   val today = Calendar.getInstance()
+       //     datePickerDialog.datePicker.maxDate = today.timeInMillis
+
             val today = Calendar.getInstance()
-            datePickerDialog.datePicker.maxDate = today.timeInMillis
+
+            val financialYearStart = Calendar.getInstance()
+            val financialYearEnd = Calendar.getInstance()
+
+            if (today.get(Calendar.MONTH) >= Calendar.APRIL) {
+                // Current FY
+                financialYearStart.set(today.get(Calendar.YEAR), Calendar.APRIL, 1)
+                financialYearEnd.set(today.get(Calendar.YEAR) + 1, Calendar.MARCH, 31)
+            } else {
+                // Previous FY
+                financialYearStart.set(today.get(Calendar.YEAR) - 1, Calendar.APRIL, 1)
+                financialYearEnd.set(today.get(Calendar.YEAR), Calendar.MARCH, 31)
+            }
+
+            datePickerDialog.datePicker.minDate = financialYearStart.timeInMillis
+            datePickerDialog.datePicker.maxDate = financialYearEnd.timeInMillis
 
             datePickerDialog.show()
         }
