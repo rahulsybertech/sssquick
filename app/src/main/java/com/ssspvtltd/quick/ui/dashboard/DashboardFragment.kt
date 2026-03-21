@@ -85,6 +85,18 @@ class DashboardFragment : Fragment() {
             }
             navController.navigate(R.id.holdorderFragment, bundle)
         }
+
+    /*    binding.rlFairCustomerDetails.setOnClickListener {
+            val bundle = Bundle().apply {
+            }
+            navController.navigate(R.id.customerListFragment3, bundle)
+        }*/
+        binding.rlFairCustomerDetails.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("id", "")
+            }
+            navController.navigate(R.id.customerListFragment3, bundle)
+        }
         binding.rlPendiingGr.setOnClickListener {
             val intent = Intent(requireActivity(), GoodsReturnActivity::class.java)
             startActivity(intent)
@@ -248,7 +260,8 @@ class DashboardFragment : Fragment() {
             with(binding) {
 
                 tvTotalSale.text = (dashBoardData?.totalSaleCount ?: 0).toString()
-                println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
+                tvFairCustomerDetails.text = dashBoardData?.fairCustomerCount.toString()
+               // println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
                 val totalAmount = dashBoardData?.totalSaleAmt
                     ?.toString()
                     ?.toDoubleOrNull() ?: 0.0

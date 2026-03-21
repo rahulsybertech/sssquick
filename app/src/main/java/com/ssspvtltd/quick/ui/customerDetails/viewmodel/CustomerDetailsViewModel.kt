@@ -6,13 +6,16 @@ import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.model.customer.NickName
-
+import com.ssspvtltd.quick.model.customerdetails.CustomerList
+import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
 import com.ssspvtltd.quick.utils.showToast
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -39,23 +42,66 @@ class CustomerDetailsViewModel @Inject constructor(
             }
         }
     }
+
+
+
     private val _customerNickNameList = MutableLiveData<List<NickName>>()
     val customerNickNameList: LiveData<List<NickName>> = _customerNickNameList
 
     fun factchCustomerNickNameList() = viewModelScope.launch {
         showProgressBar()
         when (val response = repository.getNickNameList()) {
-
             is ResultWrapper.Failure -> apiErrorData(response.error)
-
             is ResultWrapper.Success -> {
                 hideProgressBar()
                 val list = response.value.body()
-
                 _customerNickNameList.postValue(list!!.NickNameList)
             }
         }
     }
+
+
+
+ /*   fun loadCustomerAndNickNameData() = viewModelScope.launch {
+
+        showProgressBar()
+
+        try {
+            // Run both APIs in parallel
+            val customerDeferred = async { repository.getAccountNameListt() }
+            val nickNameDeferred = async { repository.getNickNameList() }
+
+            // Wait for both
+            val customerResponse = customerDeferred.await()
+            val nickNameResponse = nickNameDeferred.await()
+
+            // Handle Customer List
+            if (customerResponse is ResultWrapper.Success) {
+                val list = customerResponse.value.body()
+                _accountNameList.postValue(list?.AccountNameList ?: emptyList())
+            } else if (customerResponse is ResultWrapper.Failure) {
+                apiErrorData(customerResponse.error)
+            }
+
+            // Handle NickName List
+            if (nickNameResponse is ResultWrapper.Success) {
+                val list = nickNameResponse.value.body()
+                _customerNickNameList.postValue(list?.NickNameList ?: emptyList())
+            } else if (nickNameResponse is ResultWrapper.Failure) {
+                apiErrorData(nickNameResponse.error)
+            }
+
+        } catch (e: Exception) {
+         //   apiErrorData(e.message ?: "Something went wrong")
+        } finally {
+            hideProgressBar() // ✅ only once after both APIs complete
+        }
+    }*/
+
+
+
+
+
 
     private val _customerListByNickNameId = MutableLiveData<List<AccountName>>()
     val customerListByNickNameId: LiveData<List<AccountName>> = _customerListByNickNameId
@@ -104,7 +150,85 @@ class CustomerDetailsViewModel @Inject constructor(
     }
 
 
+    private val _allAccountList = MutableLiveData<List<CustomerList>>()
+    val allAccountList: LiveData<List<CustomerList>> = _allAccountList
+    private var customerList1 = listOf<CustomerList>()
+
+    fun fatchAllAccountList() = viewModelScope.launch {
+        showProgressBar()
+        when (val response = repository.allAccountReq()) {
+
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                val list = response.value.body()!!.Data
+                customerList1=list
+                _allAccountList.postValue(list)
+            }
+        }
+    }
+
+    var searchValue = ""
+    fun filterList(query: String) {
+        if (query.isBlank()) {
+            _allAccountList.value = customerList1
+            return
+        }
+
+        val filteredList = customerList1.filter { customer ->
+            customer.nickName?.contains(query, ignoreCase = true) == true
+                 /*   customer.mobileNo?.contains(query, ignoreCase = true) == true ||
+                    customer.address?.contains(query, ignoreCase = true) == true*/
+        }
+
+        _allAccountList.value = filteredList
+    }
+
+    private val _deleteAccountForID = MutableLiveData<Boolean>()
+    val deleteAccountForID: LiveData<Boolean> = _deleteAccountForID
 
 
+    fun deleteAccountForIDParam(id: String) = viewModelScope.launch {
+
+        showProgressBar()
+
+
+        when (val response = repository.deleteAccountForIDReq(DeleteAccountRequest(id))) {
+
+            is ResultWrapper.Failure -> {
+                hideProgressBar()
+                apiErrorData(response.error)
+                _deleteAccountForID.postValue(false)
+            }
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+
+                val data = response.value.body()
+                msg = data?.ResponseMessage ?: ""
+                showToast(msg)
+
+                _deleteAccountForID.postValue(true)
+            }
+        }
+    }
+    private val _accountDetailsForID = MutableLiveData<List<EditCustomerData>>()
+    val accountDetailsForID: LiveData<List<EditCustomerData>> = _accountDetailsForID
+
+    fun fatchAccountDetailsForID(id: String) = viewModelScope.launch {
+        showProgressBar()
+        when (val response = repository.accountDetailsForIdReq(DeleteAccountRequest(id))) {
+
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                val list = response.value.body()!!.Data
+             //   customerList1=list
+                _accountDetailsForID.postValue(list)
+            }
+        }
+    }
   }
 

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:paddingHorizontal="16dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvSNo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/noto_sans_medium"
+        android:text="@string/sale_bill_no_format"
+        android:textColor="@color/dark_gray"
+        android:textSize="14sp"
+        app:fontFamily="@font/helvetica_bold"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/imgEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="NA" />
+
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvCustomerName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/noto_sans_light"
+        android:text="@string/sale_party_format"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        app:fontFamily="@font/helvetica_regular"
+        app:layout_constraintEnd_toStartOf="@id/imgEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvSNo"
+        tools:text="Sale Party | OMM HOSIERY : MUZAFFARPUR" />
+    <ImageView
+        android:id="@+id/imgEdit"
+        android:layout_width="25dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="25dp"
+        android:src="@drawable/edit"
+        app:layout_constraintEnd_toStartOf="@id/imgDelete"
+        app:layout_constraintTop_toTopOf="@+id/tvCustomerName"
+        />
+    <ImageView
+        android:id="@+id/imgDelete"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvCustomerName"
+        />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPersons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        app:layout_constraintTop_toBottomOf="@id/tvCustomerName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/person_adapter" />
+    <View
+        android:layout_width="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvPersons"
+        android:background="@color/light_gray"
+        android:layout_marginTop="7dp"
+        android:layout_height="1dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

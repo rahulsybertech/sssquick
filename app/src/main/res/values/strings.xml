@@ -133,6 +133,7 @@
     <string name="RecordGR">Create GR</string>
     <string name="bility_courier_name">Bility/Courier Name</string>
     <string name="customer_code">Customer Code</string>
+    <string name="customer_name">Customer Name</string>
     <string name="supplier_">Supplier*</string>
     <string name="parcel_qty">Parcel Qty*</string>
     <string name="transport_courier_name">Transport/Courier Name*</string>

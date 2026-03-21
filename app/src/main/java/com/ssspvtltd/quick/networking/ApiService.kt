@@ -14,6 +14,9 @@ import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
 import com.ssspvtltd.quick.model.customer.NickName
 import com.ssspvtltd.quick.model.customer.NickNameResponse
+import com.ssspvtltd.quick.model.customerdetails.CustomerList
+import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
+import com.ssspvtltd.quick.model.editCustomer.EditCustomerDetailsResponse
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
@@ -37,6 +40,7 @@ import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -319,4 +323,18 @@ interface ApiService {
     suspend fun addCustomerApi(
         @Body customerDetailsRequest: CustomerDetailsRequest
     ): Response<AccountNameResponse>
+
+    @POST("api/OrderBook/GetAllAccountDetailForID")
+    suspend fun allAccountApi(): Response<AccountNameResponse>// Added >
+
+
+    @POST("api/OrderBook/DeleteAccountForID")
+    suspend fun deleteAccountForIDApi(
+        @Body request: DeleteAccountRequest
+    ): Response<AccountNameResponse>
+
+    @POST("api/OrderBook/GetAccountDetailForIDByID")
+    suspend fun accountDetailsForIDApi(
+        @Body request: DeleteAccountRequest
+    ): Response<EditCustomerDetailsResponse>
 }

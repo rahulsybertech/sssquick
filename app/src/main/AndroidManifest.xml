@@ -58,6 +58,10 @@
         <activity
             android:name="com.ssspvtltd.quick.ui.create_gr.CreateGRActivity"
             android:exported="false" />
+
+        <activity
+            android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsActivity"
+            android:exported="false" />
         <activity
             android:name="com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity"
             android:exported="false"

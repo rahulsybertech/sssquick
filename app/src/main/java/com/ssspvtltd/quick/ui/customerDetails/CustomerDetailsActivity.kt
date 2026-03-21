@@ -17,7 +17,14 @@ class CustomerDetailsActivity : BaseActivity<ActivityCustomerDetailsBinding,Base
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        addFragment(CustomerDetailsFragment(),binding.fragmentContainer.id,false)
+        val id = intent.getStringExtra("id")   // 👈 get id from intent
+
+        val fragment = CustomerDetailsFragment()
+        val bundle = Bundle()
+        bundle.putString("id", id)             // 👈 pass to fragment
+        fragment.arguments = bundle
+
+        addFragment(fragment,binding.fragmentContainer.id,false)
         //   addFragment(GoodsReturnFragmentNew(),binding.fragmentContainer.id,false)
     }
 }

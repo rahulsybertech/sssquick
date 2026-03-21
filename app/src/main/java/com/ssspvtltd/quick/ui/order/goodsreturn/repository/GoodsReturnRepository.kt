@@ -3,6 +3,7 @@ import com.ssspvtltd.quick.model.customer.AccountNameResponse
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.customer.NickNameResponse
+import com.ssspvtltd.quick.model.editCustomer.EditCustomerDetailsResponse
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
@@ -14,6 +15,7 @@ import com.ssspvtltd.quick.networking.ApiService
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.networking.safeApiCall
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Response
 import javax.inject.Inject
@@ -70,6 +72,24 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
     suspend fun addCustomerDetails(customerDetailsRequest: CustomerDetailsRequest) : ResultWrapper<ApiResponse<*>, Response<AccountNameResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
             apiService.addCustomerApi(customerDetailsRequest)
+        }
+    }
+
+
+    suspend fun allAccountReq(): ResultWrapper<ApiResponse<*>, Response<AccountNameResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.allAccountApi()
+        }}
+
+    suspend fun deleteAccountForIDReq(id: DeleteAccountRequest) : ResultWrapper<ApiResponse<*>, Response<AccountNameResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
+            apiService.deleteAccountForIDApi(id)
+        }
+    }
+
+    suspend fun accountDetailsForIdReq(id: DeleteAccountRequest) : ResultWrapper<ApiResponse<*>, Response<EditCustomerDetailsResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
+            apiService.accountDetailsForIDApi(id)
         }
     }
 }

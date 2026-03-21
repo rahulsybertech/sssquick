@@ -32,7 +32,54 @@
             android:id="@+id/dropNickName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:scrollHorizontally="true"
             android:hint="Select Nick Name"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutNickNameByCustomerId"
+        android:layout_width="0dp"
+        android:visibility="invisible"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropNickNameByCustomerId"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:scrollHorizontally="true"
+            android:hint="Select Nick Name"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layouCustomerBYNickNameId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        app:layout_constraintTop_toBottomOf="@id/layoutNickName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropCutomerByNickNameId"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:scrollHorizontally="true"
+            android:hint="Customer Name"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -52,7 +99,11 @@
         <AutoCompleteTextView
             android:id="@+id/dropCity"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:scrollHorizontally="true"
+            android:gravity="start"
+            android:layout_height="wrap_content"
             android:hint="Customer Name"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -64,6 +115,8 @@
         android:hint="Mobile Number"
         android:layout_marginEnd="10dp"
         android:background="@drawable/edit_bg"
+        android:inputType="number"
+        android:maxLength="10"
         android:layout_marginStart="10dp"
         android:padding="10dp"
         android:layout_marginTop="10dp"
@@ -77,7 +130,7 @@
         android:layout_margin="10dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/etMobileNumber"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvAdd"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
