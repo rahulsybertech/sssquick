@@ -17,4 +17,8 @@ data class AccountName(
     val partyType: String?,   // nullable because JSON has null
     val nickNameID: String,
     val nickName: String
-)
+){
+    override fun toString(): String {
+        return name ?: name   // 👈 display value
+    }
+}

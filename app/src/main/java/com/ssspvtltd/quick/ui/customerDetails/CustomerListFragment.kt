@@ -42,8 +42,13 @@ class CustomerListFragment
 
         initViews()
         registerObserver()      // ✅ here
-        callPendingOrderApi()   // ✅ here
+
         registerListener()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        callPendingOrderApi()
     }
     private fun callPendingOrderApi() {
         lifecycleScope.launch {

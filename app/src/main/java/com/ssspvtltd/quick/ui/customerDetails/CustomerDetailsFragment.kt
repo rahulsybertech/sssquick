@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentCustomerDetailsBinding
@@ -78,9 +79,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     if (selectedImageType == "front") {
                         list[selectedPosition].aadharFrontBitmap = it
                         list[selectedPosition].aadharFrontBase64 = base64
+                        list[selectedPosition].backURL = ""
                     } else {
                         list[selectedPosition].aadharBackBitmap = it
                         list[selectedPosition].aadharBackBase64 = base64
+                        list[selectedPosition].backURL = ""
                     }
 
                     personAdapter.notifyItemChanged(selectedPosition)
@@ -106,9 +109,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     if (selectedImageType == "front") {
                         list[selectedPosition].aadharFrontBitmap = bitmap
                         list[selectedPosition].aadharFrontBase64 = base64
+                        list[selectedPosition].frontURL = ""
                     } else {
                         list[selectedPosition].aadharBackBitmap = bitmap
                         list[selectedPosition].aadharBackBase64 = base64
+                        list[selectedPosition].frontURL = ""
                     }
 
                     personAdapter.notifyItemChanged(selectedPosition)
@@ -135,6 +140,8 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         }
         initViews()
+        setupNickNameDropdown()
+        setupCustomerDropdown()
         registerObserver()
         viewModel.showProgressBar()
         viewModel.factchCustomerNickNameList()
@@ -145,16 +152,16 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             if (!validateForm()) return@setOnClickListener
 
             val personList = list.map {
-                if(customerId!!.isNotEmpty()){
+                if (!customerId.isNullOrEmpty()) {
                     Person(
-                        id = it.id,
+                        id = if (it.id.isNullOrEmpty()) null else it.id,
                         personName = it.personName,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
                         frontURL = it.frontURL,
                         backURL = it.backURL
                     )
-                }else{
+                } else {
                     Person(
                         id = null,
                         personName = it.personName,
@@ -184,14 +191,186 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             )
 
             Log.e("request",request.toString())
+            val gson = Gson()
+            val json = gson.toJson(request)
+
+            Log.e("request_json", json)
             viewModel.addCustomerDetailReq(request)
         }
 
     }
 
+    private fun setupNickNameDropdown() {
+
+        // 👉 show dropdown on click
+        binding.dropNickName.setOnClickListener {
+            binding.dropNickName.showDropDown()
+        }
+
+        // 👉 show dropdown on focus
+        binding.dropNickName.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.dropNickName.showDropDown()
+        }
+
+        // 👉 observe API list
+        viewModel.customerNickNameList.observe(viewLifecycleOwner) { list ->
+
+            nickNameData = list
+
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                nickNameData
+            )
+
+            binding.dropNickName.setAdapter(adapter)
+        }
+
+        // 👉 item click (FIXED)
+        binding.dropNickName.setOnItemClickListener { parent, _, position, _ ->
+
+            val selectedNick = parent.getItemAtPosition(position) as? NickName
+                ?: return@setOnItemClickListener
+
+            selectedNickNameId = selectedNick.id
+
+            // ✅ FIX: use same value as UI
+            selectedNickName = selectedNick.nickName ?: selectedNick.name
+
+            isNickNameSelected = true
+
+            // ✅ lock correct value in UI
+            binding.dropNickName.setText(selectedNick.toString(), false)
+
+            binding.dropNickName.error = null
+            binding.dropNickName.clearFocus()
+
+            // reset customer
+            selectedCustomerId = ""
+            selectedCustomerName = ""
+            binding.dropCutomerByNickNameId.setText("", false)
+
+            binding.layouCustomerBYNickNameId.visibility = View.VISIBLE
+            binding.layouCustomer.visibility = View.INVISIBLE
+
+            viewModel.factchCustomerListByNickNameId(selectedNick.id)
+        }
+
+        // 👉 handle manual typing (FIXED)
+        binding.dropNickName.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                val text = s?.toString()?.trim()
+
+                val match = nickNameData.find {
+                    (it.nickName ?: it.name).equals(text, ignoreCase = true)
+                }
+
+                if (match == null) {
+                    // ❌ user typed manually → reset everything
+                    selectedNickNameId = ""
+                    selectedNickName = ""
+                    isNickNameSelected = false
+
+                    binding.layouCustomerBYNickNameId.visibility = View.INVISIBLE
+                    binding.layouCustomer.visibility = View.VISIBLE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+    private fun setupCustomerDropdown() {
+
+        // 👉 show dropdown on click
+        binding.dropCity.setOnClickListener {
+            binding.dropCity.showDropDown()
+        }
+
+        // 👉 show dropdown on focus
+        binding.dropCity.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) binding.dropCity.showDropDown()
+        }
+
+        // 👉 observe API list
+        viewModel.customerList.observe(viewLifecycleOwner) { list ->
+
+            customerData = list
+
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                customerData   // ✅ FULL MODEL LIST (IMPORTANT)
+            )
+
+            binding.dropCity.setAdapter(adapter)
+        }
+
+        // 👉 item click (FIXED)
+        binding.dropCity.setOnItemClickListener { parent, _, position, _ ->
+
+            val selectedCustomer = parent.getItemAtPosition(position) as? AccountName
+                ?: return@setOnItemClickListener
+
+            selectedCustomerId = selectedCustomer.id
+            selectedCustomerName = selectedCustomer.name
+
+            selectedNickNameId = selectedCustomer.nickNameID
+            selectedNickName = selectedCustomer.nickName ?: ""
+
+            isCustomerNameSelected = true
+            isNickNameSelected = true
+
+            // ✅ lock correct value
+            binding.dropCity.setText(selectedCustomer.toString(), false)
+
+            // UI updates
+            binding.layoutNickNameByCustomerId.visibility = View.VISIBLE
+            binding.layoutNickName.visibility = View.INVISIBLE
+
+            binding.dropNickNameByCustomerId.setText(selectedCustomer.nickName, false)
+        }
+
+        // 👉 handle manual typing (VERY IMPORTANT)
+        binding.dropCity.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                val text = s?.toString()?.trim()
+
+                val match = customerData.find {
+                    it.name.equals(text, ignoreCase = true)
+                }
+
+                if (match == null) {
+
+                    // ❌ reset everything if not selected from list
+                    selectedCustomerId = ""
+                    selectedCustomerName = ""
+                    selectedNickName = ""
+                    selectedNickNameId = ""
+
+                    isCustomerNameSelected = false
+                    isNickNameSelected = false
+
+                    binding.layoutNickNameByCustomerId.visibility = View.GONE
+                    binding.layoutNickName.visibility = View.VISIBLE
+
+                    binding.dropNickNameByCustomerId.setText("", false)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
 
     private fun registerObserver() {
-        viewModel.customerNickNameList.observe(viewLifecycleOwner) { list ->
+   /*     viewModel.customerNickNameList.observe(viewLifecycleOwner) { list ->
             viewModel.hideProgressBar()
             nickNameData = list
             val nickNameList = list.map { it.name }
@@ -248,6 +427,16 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 customerList
             )
             binding.dropCutomerByNickNameId.setAdapter(customerAdapterByNickNameId)
+        }*/
+        viewModel.customerListByNickNameId.observe(viewLifecycleOwner) { list ->
+            val customerList = list.map { it.name }
+            customerData=list
+            val customerAdapterByNickNameId = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                customerList
+            )
+            binding.dropCutomerByNickNameId.setAdapter(customerAdapterByNickNameId)
         }
 
         binding.dropCutomerByNickNameId.setOnItemClickListener { _, _, position, _ ->
@@ -277,7 +466,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
         })
 
 
-        viewModel.customerList.observe(viewLifecycleOwner) { list ->
+       /* viewModel.customerList.observe(viewLifecycleOwner) { list ->
             customerData=list
             val customerList = list.map { it.name }
             val customerAdapter = ArrayAdapter(
@@ -327,16 +516,18 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             override fun afterTextChanged(p0: Editable?) {
 
             }
-        })
+        })*/
         viewModel.addCustomerResult.observe(viewLifecycleOwner) { isSuccess ->
 
             if (isSuccess) {
-
                 showToast("Customer Added Successfully")
+                val isEdit = !customerId.isNullOrEmpty()
 
-                // Example: Close screen
-                findNavController().popBackStack()
-
+                if (isEdit) {
+                    activity?.onBackPressedDispatcher?.onBackPressed()
+                } else {
+                    activity?.onBackPressedDispatcher?.onBackPressed()
+                }
             } else {
 
                 showToast("Customer Add Failed")
@@ -401,7 +592,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 return false
             }
 
-            if (person.aadharBackBase64.isNullOrEmpty()&&person.frontURL.isNullOrEmpty()) {
+            if (person.aadharBackBase64.isNullOrEmpty()&&person.backURL.isNullOrEmpty()) {
                 showToast("Upload Aadhar Back at position ${index + 1}")
                 return false
             }

@@ -9,6 +9,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.utils.showToast
@@ -67,17 +68,27 @@ class PersonAdapter(
 
         if(item.aadharFrontBitmap!=null){
             holder.imgFront.setImageBitmap(item.aadharFrontBitmap)
-            holder.imgBack.setImageBitmap(item.aadharBackBitmap)
+
         }else{
-            Glide.with( holder.imgFront).load(item.frontURL).into( holder.imgFront)
-            Glide.with( holder.imgFront).load(item.backURL).into( holder.imgBack)
-            /*holder.imgFront.setImageBitmap(item.aadharFrontBitmap)
-            holder.imgBack.setImageBitmap(item.aadharBackBitmap)*/
+            Glide.with(holder.imgFront.context)
+                .load(item.frontURL)
+                .signature(ObjectKey(System.currentTimeMillis()))
+                .into(holder.imgFront)
+
+
+        }
+        if(item.aadharBackBitmap==null){
+
+            Glide.with( holder.imgBack).load(item.backURL).signature(ObjectKey(System.currentTimeMillis()))
+                .into( holder.imgBack)
+
+        }else{
+            holder.imgBack.setImageBitmap(item.aadharBackBitmap)
         }
 
 
         holder.btnAdd.setOnClickListener {
-            if (item.personName.isNotEmpty() && !item.aadharFrontBase64.isNullOrEmpty()) {
+            if (item.frontURL.isNotEmpty() && item.aadharFrontBase64.isNullOrEmpty()) {
                 onAddClick(position)
             } else if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")

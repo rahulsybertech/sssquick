@@ -14,4 +14,8 @@ data class NickName(
     val partyType: String?,
     val nickNameID: String?,
     val nickName: String?
-)
+){
+    override fun toString(): String {
+        return nickName ?: name   // 👈 display value
+    }
+}

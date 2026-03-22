@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/view"
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:paddingHorizontal="16dp">
@@ -46,6 +47,7 @@
         app:layout_constraintEnd_toStartOf="@id/imgDelete"
         app:layout_constraintTop_toTopOf="@+id/tvCustomerName"
         />
+
     <ImageView
         android:id="@+id/imgDelete"
         android:layout_width="25dp"

@@ -71,7 +71,7 @@ class PendingLrViewHolder(
 
 
         // ✅ Edit click
-        imgEdit.setOnClickListener {
+        view.setOnClickListener {
             onItemEditClick?.invoke(item)
         }
 
