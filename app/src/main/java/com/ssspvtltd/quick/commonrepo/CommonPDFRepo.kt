@@ -17,7 +17,6 @@ class CommonPDFRepo @Inject constructor(private val apiService: ApiService) {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
             apiService.getOrderBookGeneratePdf(orderId)
         }
-
     }
 
 }

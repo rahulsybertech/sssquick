@@ -1,24 +1,22 @@
 package com.ssspvtltd.quick.networking
-
 import com.google.gson.JsonObject
+import com.ssspvtltd.quick.model.customer.AccountNameResponse
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
 import com.ssspvtltd.quick.model.HoldOrderRequest
-import com.ssspvtltd.quick.model.IntResponse
 import com.ssspvtltd.quick.model.SubPartyGRData
-import com.ssspvtltd.quick.model.SubPartyGRResponse
 import com.ssspvtltd.quick.model.TransportMasterData
-import com.ssspvtltd.quick.model.TransportMasterResponse
 import com.ssspvtltd.quick.model.auth.AutoLogout
 import com.ssspvtltd.quick.model.auth.LoginData
 import com.ssspvtltd.quick.model.auth.VerifyOtpData
 import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
+import com.ssspvtltd.quick.model.customer.NickName
+import com.ssspvtltd.quick.model.customer.NickNameResponse
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
-import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
 import com.ssspvtltd.quick.model.order.add.PackTypeData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
@@ -38,6 +36,7 @@ import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateResponse
 import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -305,4 +304,19 @@ interface ApiService {
         @Body request: GoodsReturnImageUploadRequest
     ): ApiResponse<Any>
 
+
+    @POST("api/OrderBook/GetCustomerNameList")
+    suspend fun bankAccountName(): Response<AccountNameResponse>// Added >
+
+    @POST("api/OrderBook/GetCustomerNickNameList")
+    suspend fun nickNameApi(): Response<NickNameResponse>// Added >
+
+    @POST("api/OrderBook/GetMainPartyAndSubPartyList")
+    suspend fun customerNameByNickNameApi(
+        @Query("nickNameId") appName: String
+    ): Response<AccountNameResponse>
+    @POST("api/OrderBook/SaveAndUpdateAccountForID")
+    suspend fun addCustomerApi(
+        @Body customerDetailsRequest: CustomerDetailsRequest
+    ): Response<AccountNameResponse>
 }

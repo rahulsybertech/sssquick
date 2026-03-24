@@ -32,6 +32,7 @@ import com.ssspvtltd.quick.ui.auth.viewmodel.LoginViewModel
 import com.ssspvtltd.quick.ui.checkincheckout.activity.CheckInCheckOutActivity
 import com.ssspvtltd.quick.ui.create_gr.CreateGRActivity
 import com.ssspvtltd.quick.ui.create_gr.CreateGRFragment
+import com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsActivity
 import com.ssspvtltd.quick.ui.mailboxremark.MailBoxRemarkActivity
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
 import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
@@ -144,6 +145,12 @@ class MainActivity :
                 //         false
                 //
                 // }
+
+                R.id.nav_custtomer_details -> {
+                    val intent = Intent(this, CustomerDetailsActivity::class.java)
+                    startActivity(intent)
+                    false
+                }
 
                 R.id.nav_goods_return -> {
                     val intent = Intent(this, GoodsReturnActivity::class.java)

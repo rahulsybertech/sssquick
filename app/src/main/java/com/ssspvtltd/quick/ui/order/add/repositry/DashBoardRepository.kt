@@ -40,5 +40,10 @@ class DashBoardRepository @Inject constructor(private val apiService: ApiService
             apiService.fetchVersion(appName)
         }
     }
+  /*  suspend fun getAccountNameListt(): ResultWrapper<ApiResponse<*>, AccountName> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.ACCOUNT_NAME.ordinal) {
+            apiService.bankAccountName()
+        }
+    }*/
 
 }

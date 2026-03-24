@@ -48,6 +48,10 @@
         android:icon="@drawable/pending_lr"
         android:title="@string/pending_lr" />
     <item
+        android:id="@+id/nav_custtomer_details"
+        android:icon="@drawable/pending_lr"
+        android:title="@string/customer_fair_details" />
+    <item
         android:id="@+id/nav_logout"
         android:icon="@drawable/heroicons_outline_logout"
         android:title="@string/logout" />

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="3dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- Person Name -->
+
+        <EditText
+            android:id="@+id/etPersonName"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:hint="Person Name"
+            android:background="@drawable/edit_bg"
+            android:padding="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Aadhaar Front -->
+
+        <LinearLayout
+            android:id="@+id/layoutFront"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/etPersonName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintEnd_toStartOf="@id/layoutBack"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/imgFront"
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:background="@drawable/edit_bg"
+                android:padding="10dp"
+                android:src="@drawable/baseline_add_a_photo_24"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aadhar Front"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Aadhaar Back -->
+
+        <LinearLayout
+            android:id="@+id/layoutBack"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/etPersonName"
+            app:layout_constraintStart_toEndOf="@id/layoutFront"
+            app:layout_constraintEnd_toStartOf="@id/layoutButtons"
+            app:layout_constraintHorizontal_weight="1"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/imgBack"
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:background="@drawable/edit_bg"
+                android:padding="10dp"
+                android:src="@drawable/baseline_add_a_photo_24"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aadhar Back"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Add / Delete Buttons -->
+
+        <LinearLayout
+            android:id="@+id/layoutButtons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/etPersonName"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id="@+id/btnAdd"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/add_circle_fill"/>
+
+            <ImageView
+                android:id="@+id/btnRemove"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/delete_hold"/>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

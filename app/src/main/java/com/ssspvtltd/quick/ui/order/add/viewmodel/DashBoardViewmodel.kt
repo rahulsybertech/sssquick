@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
+import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
@@ -54,6 +55,31 @@ class DashBoardViewmodel @Inject constructor(
 
 
     }
+
+
+    private val _accountNameList = MutableLiveData<List<AccountName>>()
+    val list: LiveData<List<AccountName>> = _accountNameList
+
+
+/*    fun getAccountNameList() = viewModelScope.launch {
+
+        when (val response = repository.getAccountNameListt()) {
+
+            is ResultWrapper.Failure ->
+                apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                // 1. Get the body from the Retrofit Response object
+                val responseBody = response.value
+
+                // 2. Access the list from the body
+                val list = responseBody?.AccountNameList ?: emptyList()
+
+                _accountNameList.postValue(list)
+                Log.d("DashBoardVM", "Account list size: ${list.size}")
+            }
+        }
+    }*/
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
     fun getDashBoardSaleCountDetails(fromDate: String?, toDate: String?) =
