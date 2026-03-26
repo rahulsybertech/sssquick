@@ -32,6 +32,14 @@
         android:id="@+id/pendingOrderByCustomer2"
         android:name="com.ssspvtltd.quick.ui.order.pending.fragment.PendingOrderByCustomer"
         android:label="PendingOrderByCustomer" />
+    <fragment
+        android:id="@+id/customerListFragment3"
+        android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerListFragment"
+        android:label="CustomerListFragment" />
+    <fragment
+        android:id="@+id/customerDetailsFragment"
+        android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsFragment"
+        android:label="CustomerDetailsFragment" />
 
     <!--    <dialog-->
     <!--        android:id="@+id/locationFragment"-->

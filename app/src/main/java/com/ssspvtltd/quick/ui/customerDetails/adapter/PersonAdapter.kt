@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.utils.showToast
@@ -29,6 +31,7 @@ class PersonAdapter(
         val btnRemove: ImageView = itemView.findViewById(R.id.btnRemove)
     }
 
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val view = LayoutInflater.from(parent.context)
@@ -43,25 +46,57 @@ class PersonAdapter(
 
         val item = list[position]
 
-        holder.etName.setText(item.personName)
-        holder.imgFront.setImageBitmap(item.aadharFrontBitmap)
-        holder.imgBack.setImageBitmap(item.aadharBackBitmap)
+        // 🔥 Remove previous watcher
+        if (holder.etName.tag is TextWatcher) {
+            holder.etName.removeTextChangedListener(holder.etName.tag as TextWatcher)
+        }
 
-        holder.etName.addTextChangedListener(object : TextWatcher {
+        holder.etName.setText(item.personName ?: "")
+
+        val watcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                item.personName = s.toString()
+                list[holder.adapterPosition].personName = s.toString()
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+        }
+
+        holder.etName.addTextChangedListener(watcher)
+
+        // 🔥 Save watcher in tag
+        holder.etName.tag = watcher
+
+        if(item.aadharFrontBitmap!=null){
+            holder.imgFront.setImageBitmap(item.aadharFrontBitmap)
+
+        }else{
+            Glide.with(holder.imgFront.context)
+                .load(item.frontURL)
+                .signature(ObjectKey(System.currentTimeMillis()))
+                .into(holder.imgFront)
+
+
+        }
+        if(item.aadharBackBitmap==null){
+
+            Glide.with( holder.imgBack).load(item.backURL).signature(ObjectKey(System.currentTimeMillis()))
+                .into( holder.imgBack)
+
+        }else{
+            holder.imgBack.setImageBitmap(item.aadharBackBitmap)
+        }
+
 
         holder.btnAdd.setOnClickListener {
-            if (item.personName.isNotEmpty()&&item.aadharFrontBase64!!.isNotEmpty()) {
-                onAddClick(position)
-            }else if(item.personName.isEmpty()){
+            if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")
+            } else if (item.personName.length > 30) {
+                showToast("Person Name should not be greater than 30 characters")
             }
-            else{
+            else if (item.frontURL.isNotEmpty() || item.aadharFrontBase64?.isNotEmpty() == true||item.backURL.isNotEmpty() || item.aadharBackBase64?.isNotEmpty() == true) {
+                onAddClick(position)
+            }
+            else {
                 showToast("At least one person's photo is required.")
             }
         }
@@ -69,15 +104,21 @@ class PersonAdapter(
         holder.btnRemove.setOnClickListener {
             onRemoveClick(position)
         }
+
         holder.imgFront.setOnClickListener {
             onAadharFrontClick(position)
         }
+
         holder.imgBack.setOnClickListener {
             onAadharBackClick(position)
         }
 
-        // Hide delete if only 1 item
         holder.btnRemove.visibility =
             if (list.size == 1) View.GONE else View.VISIBLE
+    }
+    fun updateList(newList: List<PersonModel>) {
+        list.clear()
+        list.addAll(newList)
+        notifyDataSetChanged()
     }
 }

@@ -147,10 +147,18 @@ class MainActivity :
                 // }
 
                 R.id.nav_custtomer_details -> {
-                    val intent = Intent(this, CustomerDetailsActivity::class.java)
+         /*           val intent = Intent(this, CustomerDetailsActivity::class.java)
                     startActivity(intent)
                     false
+         */
+                    val bundle = Bundle().apply {
+                        putString("source", "Markerter")
+                    }
+                    navController.navigate(R.id.customerDetailsFragment, bundle)
+                    false
                 }
+
+
 
                 R.id.nav_goods_return -> {
                     val intent = Intent(this, GoodsReturnActivity::class.java)

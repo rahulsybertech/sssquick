@@ -1,5 +1,9 @@
 package com.ssspvtltd.quick.model.customerdetails
 
+import com.ssspvtltd.quick.base.recycler.data.BaseViewType
+import com.ssspvtltd.quick.base.recycler.data.BaseWidget
+import com.ssspvtltd.quick.base.recycler.data.CommonViewType
+
 data class CustomerList(
     val id: String,
     val nickName: String,
@@ -8,7 +12,10 @@ data class CustomerList(
     val date: String,
     val fairName: String?,
     val persons: List<PersonData>
-)
+) : BaseWidget {
+    override val viewType: BaseViewType = CommonViewType.HEADER
+    override fun getUniqueId() : String = id
+}
 
 data class PersonData(
     val name: String,
