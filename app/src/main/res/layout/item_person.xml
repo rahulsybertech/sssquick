@@ -47,7 +47,7 @@
                 android:layout_height="60dp"
                 android:background="@drawable/edit_bg"
                 android:padding="10dp"
-                android:src="@drawable/baseline_add_a_photo_24"/>
+                android:src="@drawable/empty_photo"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -60,7 +60,7 @@
 
         <!-- Aadhaar Back -->
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/layoutBack"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -78,16 +78,18 @@
                 android:layout_height="60dp"
                 android:background="@drawable/edit_bg"
                 android:padding="10dp"
-                android:src="@drawable/baseline_add_a_photo_24"/>
+                android:src="@drawable/empty_photo"/>
 
             <TextView
+                android:layout_below="@+id/imgBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Aadhar Back"
                 android:textAppearance="@style/MyTextStyle"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp"/>
-        </LinearLayout>
+
+        </RelativeLayout>
 
         <!-- Add / Delete Buttons -->
 
@@ -96,24 +98,37 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center"
             app:layout_constraintTop_toBottomOf="@id/etPersonName"
             app:layout_constraintEnd_toEndOf="parent"
 
             android:layout_marginTop="10dp">
 
-            <ImageView
-                android:id="@+id/btnAdd"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/add_circle_fill"/>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_marginEnd="15dp"
+                    android:layout_width="17dp"
+                    android:tint="@color/red"
+                    android:layout_height="17dp"
+                    android:src="@drawable/star"/>
+                <ImageView
+                    android:id="@+id/btnAdd"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/add_circle_fill"/>
+            </LinearLayout>
+
 
             <ImageView
                 android:id="@+id/btnRemove"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:layout_gravity="end"
+                android:tint="@color/blue"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/delete_hold"/>
+                android:src="@drawable/delete"/>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

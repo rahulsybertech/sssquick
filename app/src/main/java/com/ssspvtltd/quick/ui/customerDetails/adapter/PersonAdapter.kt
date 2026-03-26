@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.signature.ObjectKey
@@ -25,6 +27,8 @@ class PersonAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
+      //  val layoutDelete: FrameLayout = itemView.findViewById(R.id.layoutDelete)
+   //     val layoutEdit: FrameLayout = itemView.findViewById(R.id.layoutEdit)
         val btnAdd: ImageView = itemView.findViewById(R.id.btnAdd)
         val imgFront: ImageView = itemView.findViewById(R.id.imgFront)
         val imgBack: ImageView = itemView.findViewById(R.id.imgBack)
@@ -71,7 +75,7 @@ class PersonAdapter(
 
         }else{
             Glide.with(holder.imgFront.context)
-                .load(item.frontURL)
+                .load(item.frontURL).error(R.drawable.empty_photo)
                 .signature(ObjectKey(System.currentTimeMillis()))
                 .into(holder.imgFront)
 
@@ -79,7 +83,10 @@ class PersonAdapter(
         }
         if(item.aadharBackBitmap==null){
 
-            Glide.with( holder.imgBack).load(item.backURL).signature(ObjectKey(System.currentTimeMillis()))
+            Glide.with( holder.imgBack)
+                .load(item.backURL).
+                error(R.drawable.empty_photo)
+                    .signature(ObjectKey(System.currentTimeMillis()))
                 .into( holder.imgBack)
 
         }else{
@@ -97,7 +104,7 @@ class PersonAdapter(
                 onAddClick(position)
             }
             else {
-                showToast("At least one person's photo is required.")
+                showToast("At Least one person's photo is required.")
             }
         }
 

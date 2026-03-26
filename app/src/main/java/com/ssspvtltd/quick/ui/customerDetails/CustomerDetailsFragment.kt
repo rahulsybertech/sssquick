@@ -588,15 +588,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             }
 
 
-            if (person.aadharFrontBase64.isNullOrEmpty()&&person.frontURL.isNullOrEmpty()) {
-                showToast("Upload Aadhar Front at position ${index + 1}")
+            if (person.aadharFrontBase64.isNullOrEmpty()&&person.frontURL.isNullOrEmpty()&&person.aadharBackBase64.isNullOrEmpty()&&person.backURL.isNullOrEmpty()) {
+                showToast("Upload Aadhar Photo at position ${index + 1}")
                 return false
             }
 
-            if (person.aadharBackBase64.isNullOrEmpty()&&person.backURL.isNullOrEmpty()) {
-                showToast("Upload Aadhar Back at position ${index + 1}")
-                return false
-            }
         }
 
         return true

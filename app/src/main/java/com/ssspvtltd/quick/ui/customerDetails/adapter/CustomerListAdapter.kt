@@ -66,21 +66,19 @@ class PendingLrViewHolder(
         tvSNo.text = "S.No. ${position + 1}"
         noOfPerson.text = "Total Person  ${item.persons.size}"
         tvCustomerName.text = Html.fromHtml(
-            "<b>Customer Name : </b> ${item.accountName}",
+            "<b>Customer Name | </b> ${item.accountName}",
             Html.FROM_HTML_MODE_LEGACY
         )
 
 
         // ✅ Edit click
-        view.setOnClickListener {
-            onItemEditClick?.invoke(item)
-        }
-        imgEdit .setOnClickListener {
+        layoutEdit.setOnClickListener {
             onItemEditClick?.invoke(item)
         }
 
+
         // ✅ Delete click
-        imgDelete.setOnClickListener {
+        layoutDelete.setOnClickListener {
             onItemDeleteClick?.invoke(item)
         }
     }
