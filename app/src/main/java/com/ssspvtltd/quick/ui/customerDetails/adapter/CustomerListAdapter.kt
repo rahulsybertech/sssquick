@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.customerDetails.adapter
 
 import android.text.Html
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -56,6 +57,17 @@ class PendingLrViewHolder(
     }
 
     fun bind(item: CustomerList,position: Int) = with(binding) {
+
+
+     if (item.editAllowed) {
+
+         layoutEdit.visibility = View.VISIBLE
+         layoutDelete.visibility = View.VISIBLE
+     }
+        else{
+        layoutEdit.visibility= View.GONE
+         layoutDelete.visibility= View.GONE
+    }
 
         // ✅ Set inner list
         personAdapter.submitList(item.persons ?: emptyList())

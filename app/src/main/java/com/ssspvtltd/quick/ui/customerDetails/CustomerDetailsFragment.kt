@@ -12,6 +12,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -19,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentCustomerDetailsBinding
@@ -43,7 +45,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
     var nickNameData: List<NickName> = emptyList()
     var customerData: List<AccountName> = emptyList()
     var editCustomerList: List<EditCustomerData> = emptyList()
-  //  private val mAdapter by lazy { GoodsReturnAdapter() }
+  //  private val mAdapter by lazy { GoodsReturnAdaptoer() }
     private lateinit var personAdapter: PersonAdapter
     private val list = mutableListOf<PersonModel>()
     override val inflate: InflateF<FragmentCustomerDetailsBinding>
@@ -278,6 +280,28 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     binding.layouCustomerBYNickNameId.visibility = View.INVISIBLE
                     binding.layouCustomer.visibility = View.VISIBLE
                 }
+                if(text!!.isEmpty()){
+                  binding.layoutNickNameByCustomerId.visibility= View.INVISIBLE
+                  binding.layoutNickName.visibility= View.VISIBLE
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        binding.dropNickNameByCustomerId.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                val text = s?.toString()?.trim()
+
+
+                if(text!!.isEmpty()){
+                    binding.layoutNickNameByCustomerId.visibility= View.INVISIBLE
+                    binding.layoutNickName.visibility= View.VISIBLE
+                }
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -328,10 +352,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             binding.dropCity.setText(selectedCustomer.toString(), false)
 
             // UI updates
-            binding.layoutNickNameByCustomerId.visibility = View.VISIBLE
+         /*   binding.layoutNickNameByCustomerId.visibility = View.VISIBLE
             binding.layoutNickName.visibility = View.INVISIBLE
-
+*/
             binding.dropNickNameByCustomerId.setText(selectedCustomer.nickName, false)
+            binding.dropNickName.setText(selectedCustomer.nickName, false)
         }
 
         // 👉 handle manual typing (VERY IMPORTANT)
@@ -589,7 +614,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
 
             if (person.aadharFrontBase64.isNullOrEmpty()&&person.frontURL.isNullOrEmpty()&&person.aadharBackBase64.isNullOrEmpty()&&person.backURL.isNullOrEmpty()) {
-                showToast("Upload Aadhar Photo at position ${index + 1}")
+                showToast("Upload Aadhar photo at least one side  ${index + 1}")
                 return false
             }
 
@@ -629,6 +654,15 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 selectedPosition = position
                 selectedImageType = "back"
                 showImagePicker()
+            },
+            onRequestNextFocus = { nextPosition ->
+                recyclerView.scrollToPosition(nextPosition)
+
+                recyclerView.postDelayed({
+                    val viewHolder = recyclerView.findViewHolderForAdapterPosition(nextPosition)
+                    val editText = viewHolder?.itemView?.findViewById<EditText>(R.id.etPersonName)
+                    editText?.requestFocus()
+                }, 100)
             }
         )
 

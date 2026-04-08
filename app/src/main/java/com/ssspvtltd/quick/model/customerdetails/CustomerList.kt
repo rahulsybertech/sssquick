@@ -6,6 +6,7 @@ import com.ssspvtltd.quick.base.recycler.data.CommonViewType
 
 data class CustomerList(
     val id: String,
+    val editAllowed: Boolean,
     val nickName: String,
     val accountName: String,
     val marketerMame: String?,
@@ -18,6 +19,7 @@ data class CustomerList(
 }
 
 data class PersonData(
+    val activeStatus: Boolean,
     val name: String,
     val frontImageURL: String?,
     val backImageURL: String?

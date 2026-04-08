@@ -22,6 +22,7 @@ class PersonAdapter(
     private val onRemoveClick: (Int) -> Unit,
     private val onAadharFrontClick: (Int) -> Unit,
     private val onAadharBackClick: (Int) -> Unit,
+    var onRequestNextFocus: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<PersonAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -93,7 +94,6 @@ class PersonAdapter(
             holder.imgBack.setImageBitmap(item.aadharBackBitmap)
         }
 
-
         holder.btnAdd.setOnClickListener {
             if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")
@@ -102,6 +102,7 @@ class PersonAdapter(
             }
             else if (item.frontURL.isNotEmpty() || item.aadharFrontBase64?.isNotEmpty() == true||item.backURL.isNotEmpty() || item.aadharBackBase64?.isNotEmpty() == true) {
                 onAddClick(position)
+                onRequestNextFocus?.invoke(position + 1)
             }
             else {
                 showToast("At Least one person's photo is required.")
@@ -119,7 +120,14 @@ class PersonAdapter(
         holder.imgBack.setOnClickListener {
             onAadharBackClick(position)
         }
+        val currentPosition = holder.bindingAdapterPosition
 
+        if (currentPosition != RecyclerView.NO_POSITION) {
+            holder.btnAdd.visibility =
+                if (currentPosition == list.size - 1) View.VISIBLE else View.GONE
+        } else {
+            holder.btnAdd.visibility = View.GONE
+        }
         holder.btnRemove.visibility =
             if (list.size == 1) View.GONE else View.VISIBLE
     }

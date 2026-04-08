@@ -39,6 +39,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:clickable="true"
+
         android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintEnd_toStartOf="@id/layoutDelete"
@@ -78,7 +79,7 @@
         android:id="@+id/rvPersons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:nestedScrollingEnabled="false"
         android:focusable="false"
         android:clickable="false"

@@ -91,7 +91,7 @@ class CustomerListFragment
 
 
         toolbar.setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
-        toolbar.setTitle("Garment Fair Customer Details Reports")
+        toolbar.setTitle("Garment Fair Customer Details")
         adapter.onItemEditClick = {
             val intent = Intent(requireActivity(), CustomerDetailsActivity::class.java)
             intent.putExtra("id",it.id)

@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.customerdetails.Person
@@ -35,7 +36,19 @@ class PersonAdapter : RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
 
     class PersonViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(item: PersonData) {
-            itemView.findViewById<TextView>(R.id.tvPersonName).text ="Person Name | "+ item.name
+
+            val tvPersonName = itemView.findViewById<TextView>(R.id.tvPersonName)
+
+            tvPersonName.text = "Person Name | ${item.name}"
+
+            val color = if (item.activeStatus
+                ) {
+                ContextCompat.getColor(itemView.context, R.color.black)
+            } else {
+                ContextCompat.getColor(itemView.context, R.color.red_2)
+            }
+
+            tvPersonName.setTextColor(color)
         }
     }
 }
