@@ -60,6 +60,12 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
             apiService.getSalePartyDetails(accountId)
         }
     }
+
+    suspend fun limitChangeReq(salePartyId: String, subPartyId: String): ResultWrapper<ApiResponse<*>, ApiResponse<Data>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.SALE_PARTY_DETAILS.ordinal) {
+            apiService.limitChangeApi(salePartyId,subPartyId)
+        }
+    }
     suspend fun subPartyDetailGR(accountId:String): ResultWrapper<ApiResponse<*>, ApiResponse<List<SubPartyGRData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.SALE_PARTY_DETAILS.ordinal) {
             apiService.getSubPartyDetailsGR(accountId)

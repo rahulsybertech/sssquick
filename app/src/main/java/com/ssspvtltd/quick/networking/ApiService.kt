@@ -164,6 +164,11 @@ interface ApiService {
         @Query("accountId") accountId: String
     ): ApiResponse<Data>
 
+    @POST("api/OrderBook/GetSalePartyDetail")
+    suspend fun limitChangeApi(
+        @Query("accountId") salePartyId: String,  @Query("subPartyId") subPartyId: String
+    ): ApiResponse<Data>
+
     @POST("api/OrderBook/GetGRSubPartyList")
     suspend fun getSubPartyDetailsGR(
         @Query("accountId") accountId: String
@@ -335,6 +340,6 @@ interface ApiService {
 
     @POST("api/OrderBook/GetAccountDetailForIDByID")
     suspend fun accountDetailsForIDApi(
-        @Body request: DeleteAccountRequest
+        @Body request: JsonObject
     ): Response<EditCustomerDetailsResponse>
 }

@@ -3,6 +3,8 @@ package com.ssspvtltd.quick.ui.customerDetails.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.anychart.JsObject
+import com.google.gson.JsonObject
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.model.customer.NickName
@@ -178,8 +180,9 @@ class CustomerDetailsViewModel @Inject constructor(
 
         val filteredList = customerList1.filter { customer ->
             customer.nickName?.contains(query, ignoreCase = true) == true
-                 /*   customer.mobileNo?.contains(query, ignoreCase = true) == true ||
-                    customer.address?.contains(query, ignoreCase = true) == true*/
+                    customer.marketerMame?.contains(query, ignoreCase = true) == true ||
+                    customer.marketerMame?.contains(query, ignoreCase = true) == true ||
+                    customer.accountName?.contains(query, ignoreCase = true) == true
         }
 
         _allAccountList.value = filteredList
@@ -189,7 +192,7 @@ class CustomerDetailsViewModel @Inject constructor(
     val deleteAccountForID: LiveData<Boolean> = _deleteAccountForID
 
 
-    fun deleteAccountForIDParam(id: String) = viewModelScope.launch {
+    fun deleteAccountForIDParam(id: String,nickNameID:String,customerID:String) = viewModelScope.launch {
 
         showProgressBar()
 
@@ -216,9 +219,9 @@ class CustomerDetailsViewModel @Inject constructor(
     private val _accountDetailsForID = MutableLiveData<List<EditCustomerData>>()
     val accountDetailsForID: LiveData<List<EditCustomerData>> = _accountDetailsForID
 
-    fun fatchAccountDetailsForID(id: String) = viewModelScope.launch {
+    fun fatchAccountDetailsForID(jsObject: JsonObject) = viewModelScope.launch {
         showProgressBar()
-        when (val response = repository.accountDetailsForIdReq(DeleteAccountRequest(id))) {
+        when (val response = repository.accountDetailsForIdReq(jsObject)) {
 
             is ResultWrapper.Failure -> apiErrorData(response.error)
 

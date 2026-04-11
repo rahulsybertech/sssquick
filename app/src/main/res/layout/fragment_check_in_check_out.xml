@@ -185,12 +185,39 @@
                 app:layout_constraintTop_toBottomOf="@id/divider3" />
 
             <View
+                android:id="@+id/divider4"
                 android:layout_width="0dp"
                 android:layout_height="0.5dp"
                 android:background="@color/gray"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/other" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/totalCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/grey_200"
+                android:ellipsize="end"
+                android:fontFamily="@font/helvetica_bold"
+                android:gravity="center"
+                android:lines="2"
+                android:maxLines="2"
+                android:paddingEnd="30dp"
+                android:text="@string/total_count"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/divider4" />
+            <View
+                android:id="@+id/divider5"
+                android:layout_width="0dp"
+                android:layout_height="0.5dp"
+                android:background="@color/gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/totalCount" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout

@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import com.google.gson.JsonObject
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
@@ -347,6 +348,49 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
             isCustomerNameSelected = true
             isNickNameSelected = true
+            val jsonObject = JsonObject().apply {
+             /*   addProperty("id", customerId)*/
+                     addProperty("nickNameId", selectedNickNameId)
+                     addProperty("id", selectedCustomerId)
+            }
+            viewModel.fatchAccountDetailsForID(jsonObject)
+            viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
+
+                if (list1.isNullOrEmpty()) {
+
+                    // Show one empty item
+                    personAdapter.updateList(listOf(PersonModel()))
+
+                    return@observe
+                }
+
+                val data = list1.first()
+
+                binding.dropNickName.setText(data.nickName, false)
+                isCustomerNameSelected = true
+                isNickNameSelected = true
+                selectedNickNameId = data.nickNameID
+                selectedCustomerId = data.accountID
+                customerId = data.id
+
+                binding.dropCity.setText(data.accountName, false)
+                binding.etMobileNumber.setText(data.mobileNo)
+
+                val persons = data.persons?.map {
+                    PersonModel(
+                        id = it.id,
+                        personName = it.personName,
+                        frontURL = it.frontURL,
+                        backURL = it.backURL
+                    )
+                } ?: emptyList()
+
+                if (persons.isEmpty()) {
+                    personAdapter.updateList(listOf(PersonModel())) // 👈 show empty item
+                } else {
+                    personAdapter.updateList(persons)
+                }
+            }
 
             // ✅ lock correct value
             binding.dropCity.setText(selectedCustomer.toString(), false)
@@ -365,29 +409,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-  /*              val text = s?.toString()?.trim()
-
-                val match = customerData.find {
-                    it.name.equals(text, ignoreCase = true)
-                }
-
-                if (match == null) {
-
-                    // ❌ reset everything if not selected from list
-                    selectedCustomerId = ""
-                    selectedCustomerName = ""
-                    selectedNickName = ""
-                    selectedNickNameId = ""
-
-                    isCustomerNameSelected = false
-                    isNickNameSelected = false
-
-                    binding.layoutNickNameByCustomerId.visibility = View.GONE
-                    binding.layoutNickName.visibility = View.VISIBLE
-
-                    binding.dropNickNameByCustomerId.setText("", false)
-                }*/
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -395,65 +416,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
     }
 
     private fun registerObserver() {
-   /*     viewModel.customerNickNameList.observe(viewLifecycleOwner) { list ->
-            viewModel.hideProgressBar()
-            nickNameData = list
-            val nickNameList = list.map { it.name }
-            val nickAdapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                nickNameList
-            )
-            binding.dropNickName.setAdapter(nickAdapter)
-        }
-        binding.dropNickName.setOnItemClickListener { _, _, position, _ ->
 
-            val selectedNick = nickNameData[position]
-
-            val nickId = selectedNick.id
-            selectedNickNameId=nickId
-            isNickNameSelected=true
-            selectedNickName=selectedNick.nickName.toString()
-            selectedCustomerName=""
-            binding.dropNickName.error = null
-            binding.dropNickName.clearFocus()
-            binding.dropCutomerByNickNameId.setText("", false)
-            selectedCustomerId=""
-            binding.layouCustomerBYNickNameId.visibility= View.VISIBLE
-            binding.layouCustomer.visibility= View.INVISIBLE
-            viewModel.factchCustomerListByNickNameId(nickId)
-
-        }
-        binding.dropNickName.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                if (s.isNullOrEmpty()) {
-                    selectedNickName=""
-                    selectedCustomerName=""
-                    isNickNameSelected = false
-                    binding.layouCustomerBYNickNameId.visibility= View.INVISIBLE
-                    binding.layouCustomer.visibility= View.VISIBLE
-                   // viewModel.getCustomerList()
-                }
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        })
-        viewModel.customerListByNickNameId.observe(viewLifecycleOwner) { list ->
-            val customerList = list.map { it.name }
-            customerData=list
-            val customerAdapterByNickNameId = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                customerList
-            )
-            binding.dropCutomerByNickNameId.setAdapter(customerAdapterByNickNameId)
-        }*/
         viewModel.customerListByNickNameId.observe(viewLifecycleOwner) { list ->
             val customerList = list.map { it.name }
             customerData=list
@@ -471,6 +434,51 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             selectedCustomerId = selectedCustomer.id
             selectedCustomerName=selectedCustomer.name
             isCustomerNameSelected=true
+            val jsonObject = JsonObject().apply {
+                /*   addProperty("id", customerId)*/
+                addProperty("nickNameId", selectedNickNameId)
+                addProperty("customerId", selectedCustomerId)
+            }
+
+            viewModel.fatchAccountDetailsForID(jsonObject)
+
+            viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
+
+                if (list1.isNullOrEmpty()) {
+
+                    // Show one empty item
+                    personAdapter.updateList(listOf(PersonModel()))
+
+                    return@observe
+                }
+
+                val data = list1.first()
+
+                binding.dropNickName.setText(data.nickName, false)
+                isCustomerNameSelected = true
+                isNickNameSelected = true
+                selectedNickNameId = data.nickNameID
+                selectedCustomerId = data.accountID
+                customerId = data.id
+
+                binding.dropCity.setText(data.accountName, false)
+                binding.etMobileNumber.setText(data.mobileNo)
+
+                val persons = data.persons?.map {
+                    PersonModel(
+                        id = it.id,
+                        personName = it.personName,
+                        frontURL = it.frontURL,
+                        backURL = it.backURL
+                    )
+                } ?: emptyList()
+
+                if (persons.isEmpty()) {
+                    personAdapter.updateList(listOf(PersonModel())) // 👈 show empty item
+                } else {
+                    personAdapter.updateList(persons)
+                }
+            }
         }
 
         binding.dropCutomerByNickNameId.addTextChangedListener(object : TextWatcher {
@@ -491,58 +499,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             }
         })
 
-
-       /* viewModel.customerList.observe(viewLifecycleOwner) { list ->
-            customerData=list
-            val customerList = list.map { it.name }
-            val customerAdapter = ArrayAdapter(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                customerList
-            )
-            binding.dropCity.setAdapter(customerAdapter)
-
-        }
-
-
-        binding.dropCity.setOnItemClickListener { _, _, position, _ ->
-
-            val selectedCustomer = customerData[position]
-             selectedNickNameId = selectedCustomer.nickNameID
-             selectedCustomerId = selectedCustomer.id
-            val nickName = selectedCustomer.nickName
-            isNickNameSelected=true
-            isCustomerNameSelected=true
-            selectedCustomerName=selectedCustomer.name
-            selectedNickName=selectedCustomer.nickName
-
-            // Correct way
-            binding.layoutNickNameByCustomerId.visibility= View.VISIBLE
-            binding.layoutNickName.visibility= View.INVISIBLE
-            binding.dropNickNameByCustomerId.setText(nickName, false)
-        }
-
-        binding.dropCity.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                if (s.isNullOrEmpty()) {
-                    binding.layoutNickNameByCustomerId.visibility= View.GONE
-                    binding.layoutNickName.visibility= View.VISIBLE
-                    isNickNameSelected=false
-                    isCustomerNameSelected=false
-                    selectedCustomerName=""
-                    selectedNickName=""
-                    binding.dropNickNameByCustomerId.setText("", false)
-                }
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-
-            }
-        })*/
         viewModel.addCustomerResult.observe(viewLifecycleOwner) { isSuccess ->
 
             if (isSuccess) {
@@ -675,32 +631,47 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             toolbar.setTitle("Edit Customer Details")
             tvAdd.setText("Update")
 
-            viewModel.fatchAccountDetailsForID(customerId!!)
+            val jsonObject = JsonObject().apply {
+                addProperty("id", customerId)
+           /*     addProperty("nickNameId", "")
+                addProperty("customerId", "")*/
+            }
+            viewModel.fatchAccountDetailsForID(jsonObject)
 
             viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
 
-                val data = list1[0]
+                if (list1.isNullOrEmpty()) {
+                    // show one empty item
+                    personAdapter.updateList(listOf(PersonModel()))
+                    return@observe
+                }
+
+                val data = list1.first()
 
                 binding.dropNickName.setText(data.nickName, false)
-                isCustomerNameSelected=true
-                isNickNameSelected=true
-                selectedNickNameId=data.nickNameID
-                selectedCustomerId=data.accountID
-                customerId=data.id
+                isCustomerNameSelected = true
+                isNickNameSelected = true
+                selectedNickNameId = data.nickNameID
+                selectedCustomerId = data.accountID
+                customerId = data.id
 
                 binding.dropCity.setText(data.accountName, false)
                 binding.etMobileNumber.setText(data.mobileNo)
 
-                val persons = data.persons.map {
+                val persons = data.persons?.map {
                     PersonModel(
                         id = it.id,
                         personName = it.personName,
                         frontURL = it.frontURL,
                         backURL = it.backURL
                     )
-                }
+                } ?: emptyList()
 
-                personAdapter.updateList(persons)   // ✅ safe now
+                if (persons.isEmpty()) {
+                    personAdapter.updateList(listOf(PersonModel()))
+                } else {
+                    personAdapter.updateList(persons)
+                }
             }
 
         } else {

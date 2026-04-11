@@ -1,5 +1,4 @@
 package com.ssspvtltd.quick.ui.customerDetails
-
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,16 +6,12 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentAllAccountListBinding
 import com.ssspvtltd.quick.ui.customerDetails.adapter.CustomerListAdapter
 import com.ssspvtltd.quick.ui.customerDetails.viewmodel.CustomerDetailsViewModel
-import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
-
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -103,7 +98,7 @@ class CustomerListFragment
                 .setTitle("Delete Account")
                 .setMessage("Are you sure you want to delete this account?")
                 .setPositiveButton("Yes") { _, _ ->
-                    viewModel.deleteAccountForIDParam(it.id)
+                    viewModel.deleteAccountForIDParam(it.id,"","")
                 }
                 .setNegativeButton("No", null)
                 .show()

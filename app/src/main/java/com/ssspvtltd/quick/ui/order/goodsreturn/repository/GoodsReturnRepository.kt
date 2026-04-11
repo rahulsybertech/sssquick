@@ -1,4 +1,5 @@
 package com.ssspvtltd.quick.ui.order.goodsreturn.repository
+import com.google.gson.JsonObject
 import com.ssspvtltd.quick.model.customer.AccountNameResponse
 import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.GoodsReturnImageUploadRequest
@@ -87,7 +88,7 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
         }
     }
 
-    suspend fun accountDetailsForIdReq(id: DeleteAccountRequest) : ResultWrapper<ApiResponse<*>, Response<EditCustomerDetailsResponse>> {
+    suspend fun accountDetailsForIdReq(id: JsonObject) : ResultWrapper<ApiResponse<*>, Response<EditCustomerDetailsResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
             apiService.accountDetailsForIDApi(id)
         }

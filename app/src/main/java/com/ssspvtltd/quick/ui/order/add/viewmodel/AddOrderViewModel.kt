@@ -537,6 +537,49 @@ class AddOrderViewModel @Inject constructor(
         }
 
 
+    private val _limitChangeBySubparty = MutableLiveData<Data?>()
+    val limitChangeBySubparty: MutableLiveData<Data?> get() = _limitChangeBySubparty
+
+    fun getLimitChangeParam(salePartyId: String, subPartyId: String) =
+        viewModelScope.launch {
+            showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
+            val job1 = viewModelScope.launch(Dispatchers.IO) {
+                when (val response = repository.limitChangeReq(salePartyId,subPartyId)) {
+                    is ResultWrapper.Failure -> {
+                        apiErrorData(response.error)
+                        Log.e("ersss", response.toString())
+                    }
+
+                    is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                        response.value.data?.let {
+                            withContext(Dispatchers.Main) {
+                                _limitChangeBySubparty.postValue(response.value.data)
+                            }
+                        }
+                    }
+                }
+
+            }
+
+
+            /*    val job2 = viewModelScope.launch (Dispatchers.IO) {
+                        when (val response = repository.allStationList(salePartyId, subPartyId)) {
+                            is ResultWrapper.Failure -> apiErrorData(response.error)
+                            is ResultWrapper.Success -> withContext(Dispatchers.Default) {
+                                response.value.data?.let {
+                                    withContext(Dispatchers.Main) {
+                                        _station.postValue(it)
+                                    }
+                                }
+                            }
+                        }
+                    }*/
+
+
+            job1.join()
+            //  job2.join()
+            hideProgressBar()
+        }
     private val _subPartyDetailGR = MutableLiveData<List<SubPartyGRData>?>()
     val subPartyDetailGR: MutableLiveData<List<SubPartyGRData>?> get() = _subPartyDetailGR
     fun getSubPartyGR(accountId: String) = viewModelScope.launch {

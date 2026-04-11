@@ -110,8 +110,8 @@ class AddOrderFragment
     private var purchasePartyData: List<PurchasePartyData>? = emptyList()
     private var nicNaneData: List<PurchasePartyData>? = emptyList()
     private var purchasePartyDataWithNicName: List<PurchasePartyData>? = emptyList()
-    private var salePartyData: List<SalepartyData>? = emptyList()
-    private var subPartyData: List<SubParty>? = emptyList()
+    private var salePartyData: List<SalepartyData> = emptyList()
+    var subPartyData = mutableListOf<SubParty>()
     private var dispatchTypeData: List<DispatchTypeList>? = emptyList()
     private var stationData: List<AllStation>? = emptyList()
     private var stationDataWithRemark: ArrayList<AllStation>? = arrayListOf()
@@ -286,6 +286,9 @@ class AddOrderFragment
         }
         binding.tilSaletParty.setEndIconOnClickListener {
             //Abhinav
+            subPartyData.clear()              // ✅ clear list
+            subPartyAdapter.notifyDataSetChanged()   // ✅ refresh UI
+
             binding.etSalePartyName.text.clear()
             binding.etAvailableLimit.text?.clear()
             binding.ivCallSaleParty.visibility=View.GONE
@@ -308,6 +311,7 @@ class AddOrderFragment
             //Abhinav
             binding.ivCallSubParty.visibility=View.GONE
             transportData.clear()
+ /*           binding.etAvailableLimit.text?.clear()*/
             stationData= emptyList()
             binding.etTransport.text?.clear()
             binding.etSubParty.text?.clear()
@@ -1139,7 +1143,7 @@ class AddOrderFragment
                 binding.etSubPartyRemark.text.clear()
                 binding.autoCompleteStatus.setText("PENDING", false)
                 addItemViewModel.packTypeDataList = emptyList()
-                subPartyData = emptyList()
+                subPartyData.clear()
                 stationData = emptyList()
                 transportData.clear()
                 /*purchasePartyData       = emptyList()
@@ -1610,11 +1614,11 @@ class AddOrderFragment
                     transportData = firstSubParty.transportList.toMutableList()
                     subPartyId = firstSubParty.subPartyId
 
-
+                    subPartyData = apiResponseNew.subPartyList as MutableList<SubParty>
                     subPartyAdapter = SubPartyAdapter(
-                        requireContext(), R.layout.item_saleparty, apiResponseNew.subPartyList
+                        requireContext(), R.layout.item_saleparty, subPartyData
                     )
-                    subPartyData = apiResponseNew.subPartyList
+
                     binding.etSubParty.threshold = 1
                     binding.etSubParty.setAdapter(subPartyAdapter)
 
@@ -1622,6 +1626,32 @@ class AddOrderFragment
                     binding.etSubParty.setOnItemClickListener { parent, _, position, _ ->
                         val subPartyItem = subPartyAdapter.getItem(position) ?: return@setOnItemClickListener
                         subPartyId = subPartyItem.subPartyId
+
+                        viewModel.getLimitChangeParam(salePartyId, subPartyId)
+                        viewModel.limitChangeBySubparty.observe(viewLifecycleOwner) {
+                            val apiResponseNew = it ?: return@observe
+                            var avlLimit = "0"
+                            if (apiResponseNew.avlLimit != null && apiResponseNew!!.avlLimit.toDouble() != 0.0) {
+                                avlLimit = apiResponseNew.avlLimit.toString()
+                            } else {
+                                binding.autoCompleteStatus.setText("PENDING", false)
+                            }
+
+                            // Indian locale for lakh/crore grouping
+                            val formatter = NumberFormat.getInstance(Locale("en", "IN"))
+
+                            val formattedLimit = avlLimit.toLongOrNull()?.let { formatter.format(it) } ?: avlLimit
+
+                            binding.etAvailableLimit.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    if (avlLimit.contains("-") || avlLimit == "0") R.color.error_text else R.color.green
+                                )
+                            )
+                            binding.etAvailableLimit.setText(formattedLimit)
+                        }
+
+
 
                         subPartyItem?.mobileNo?.takeIf { it.isNotBlank() }?.let { phone ->
                             // ✅ Case: mobile number exists & not blank
@@ -1632,6 +1662,11 @@ class AddOrderFragment
                             binding.ivCallSubParty.visibility = View.GONE
                             mobileNumberSubParty = null
                         }
+                        binding.etSubParty.clearFocus()
+                        binding.etSubParty.hideKeyBoard()
+                        binding.tilSubParty.isErrorEnabled =
+                            !(subPartyItem.subPartyName.isNotNullOrBlank() || binding.tilSubParty.isErrorEnabled)
+
 
                         val selectedTransportList = subPartyItem.transportList ?: emptyList()
 
@@ -1824,9 +1859,9 @@ class AddOrderFragment
                     subPartyId = firstSubParty.subPartyId
 
                     subPartyAdapter = SubPartyAdapter(
-                        requireContext(), R.layout.item_saleparty, apiResponseNew.subPartyList
+                        requireContext(), R.layout.item_saleparty, subPartyData
                     )
-                    subPartyData = apiResponseNew.subPartyList
+                    subPartyData = apiResponseNew.subPartyList as MutableList<SubParty>
                     binding.etSubParty.threshold = 1
                     binding.etSubParty.setAdapter(subPartyAdapter)
 
@@ -1835,6 +1870,33 @@ class AddOrderFragment
                         val subPartyItem = subPartyAdapter.getItem(position) ?: return@setOnItemClickListener
                         subPartyId = subPartyItem.subPartyId
 
+                        binding.etSubParty.clearFocus()
+                        binding.etSubParty.hideKeyBoard()
+                        binding.tilSubParty.isErrorEnabled =
+                            !(subPartyItem.subPartyName.isNotNullOrBlank() || binding.tilSubParty.isErrorEnabled)
+                        viewModel.getLimitChangeParam(salePartyId, subPartyId)
+                        viewModel.limitChangeBySubparty.observe(viewLifecycleOwner) {
+                            val apiResponseNew = it ?: return@observe
+                            var avlLimit = "0"
+                            if (apiResponseNew.avlLimit != null && apiResponseNew!!.avlLimit.toDouble() != 0.0) {
+                                avlLimit = apiResponseNew.avlLimit.toString()
+                            } else {
+                                binding.autoCompleteStatus.setText("PENDING", false)
+                            }
+
+                            // Indian locale for lakh/crore grouping
+                            val formatter = NumberFormat.getInstance(Locale("en", "IN"))
+
+                            val formattedLimit = avlLimit.toLongOrNull()?.let { formatter.format(it) } ?: avlLimit
+
+                            binding.etAvailableLimit.setTextColor(
+                                ContextCompat.getColor(
+                                    requireContext(),
+                                    if (avlLimit.contains("-") || avlLimit == "0") R.color.error_text else R.color.green
+                                )
+                            )
+                            binding.etAvailableLimit.setText(formattedLimit)
+                        }
                         subPartyItem?.mobileNo?.takeIf { it.isNotBlank() }?.let { phone ->
                             // ✅ Case: mobile number exists & not blank
                             binding.ivCallSubParty.visibility = View.VISIBLE
