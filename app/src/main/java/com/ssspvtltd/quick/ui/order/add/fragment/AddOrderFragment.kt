@@ -662,6 +662,7 @@ class AddOrderFragment
                     binding.etSubParty.text.clear()
                 }
             }
+            if (subPartyData.isNotEmpty())
             if (!binding.etSubParty.isPopupShowing) {
                 binding.etSubParty.showDropDown()
             }
@@ -1857,11 +1858,11 @@ class AddOrderFragment
                     val firstSubParty = apiResponseNew.subPartyList[0]
                     transportData = firstSubParty.transportList.toMutableList()
                     subPartyId = firstSubParty.subPartyId
-
+                    subPartyData = apiResponseNew.subPartyList as MutableList<SubParty>
                     subPartyAdapter = SubPartyAdapter(
                         requireContext(), R.layout.item_saleparty, subPartyData
                     )
-                    subPartyData = apiResponseNew.subPartyList as MutableList<SubParty>
+
                     binding.etSubParty.threshold = 1
                     binding.etSubParty.setAdapter(subPartyAdapter)
 
