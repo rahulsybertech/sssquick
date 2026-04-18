@@ -21,7 +21,6 @@
             android:hint="Person Name"
             android:background="@drawable/edit_bg"
             android:padding="10dp"
-            android:maxLength="30"
             android:singleLine="true"
             android:textAppearance="@style/MyTextStyle"
             app:layout_constraintTop_toTopOf="parent"

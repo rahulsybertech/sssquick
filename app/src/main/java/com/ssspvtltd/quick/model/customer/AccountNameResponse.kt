@@ -4,8 +4,9 @@ import com.ssspvtltd.quick.model.customerdetails.CustomerList
 
 data class AccountNameResponse(
     val ResponseCode: Int,
-    val ResponseStatus: Boolean,
+    val isSuccess: Boolean,
     val ResponseMessage: String,
+    val applicationMessage: String,
     val BookingTime: Int,
     val AccountNameList: List<AccountName>,
     val Data: List<CustomerList>

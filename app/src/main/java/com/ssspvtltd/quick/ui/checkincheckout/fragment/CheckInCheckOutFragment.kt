@@ -107,7 +107,7 @@ class CheckInCheckOutFragment :
         }
         viewModel.customerDataResp.observe(this) {
             mAdapter.setCustomers(it)
-            binding.totalCount!!.text = "Total Count : ${it.size}"
+            binding.totalCount!!.text = "Total : ${it.size}"
 
 
         }

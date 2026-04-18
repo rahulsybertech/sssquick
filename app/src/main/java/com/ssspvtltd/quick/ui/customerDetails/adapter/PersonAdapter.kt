@@ -58,10 +58,34 @@ class PersonAdapter(
 
         holder.etName.setText(item.personName ?: "")
 
+
+        // ✅ Single TextWatcher (FIXED)
         val watcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                list[holder.adapterPosition].personName = s.toString()
+
+                val text = s.toString()
+
+                // 🚫 Prevent space at start
+                if (text.startsWith(" ")) {
+                    val trimmed = text.trimStart()
+                    holder.etName.setText(trimmed)
+                    holder.etName.setSelection(trimmed.length)
+                    return
+                }
+
+                val pos = holder.bindingAdapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    list[pos].personName = text
+                }
+
+                // ✅ Length validation
+                if (text.length > 35) {
+                    holder.etName.error = "Max 35 characters allowed"
+                } else {
+                    holder.etName.error = null
+                }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
@@ -97,15 +121,15 @@ class PersonAdapter(
         holder.btnAdd.setOnClickListener {
             if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")
-            } else if (item.personName.length > 30) {
+            }/* else if (item.personName.length > 30) {
                 showToast("Person Name should not be greater than 30 characters")
-            }
+            }*/
             else if (item.frontURL.isNotEmpty() || item.aadharFrontBase64?.isNotEmpty() == true||item.backURL.isNotEmpty() || item.aadharBackBase64?.isNotEmpty() == true) {
                 onAddClick(position)
                 onRequestNextFocus?.invoke(position + 1)
             }
             else {
-                showToast("At Least one person's photo is required.")
+                showToast("At Least one Aadhar photo is required.")
             }
         }
 
@@ -122,12 +146,19 @@ class PersonAdapter(
         }
         val currentPosition = holder.bindingAdapterPosition
 
-        if (currentPosition != RecyclerView.NO_POSITION) {
+       /* if (currentPosition != RecyclerView.NO_POSITION) {
             holder.btnAdd.visibility =
                 if (currentPosition == list.size - 1) View.VISIBLE else View.GONE
         } else {
             holder.btnAdd.visibility = View.GONE
         }
+        holder.btnRemove.visibility =
+            if (list.size == 1) View.GONE else View.VISIBLE*/
+
+        holder.btnAdd.visibility =
+            if (position == list.size - 1) View.VISIBLE else View.GONE
+
+        // ✅ Hide remove if only 1 item
         holder.btnRemove.visibility =
             if (list.size == 1) View.GONE else View.VISIBLE
     }

@@ -7,6 +7,7 @@ import com.anychart.JsObject
 import com.google.gson.JsonObject
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.customer.AccountName
+import com.ssspvtltd.quick.model.customer.AccountNameResponse
 import com.ssspvtltd.quick.model.customer.NickName
 import com.ssspvtltd.quick.model.customerdetails.CustomerList
 import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
@@ -123,8 +124,10 @@ class CustomerDetailsViewModel @Inject constructor(
         }
     }
 
-    private val _addCustomerResult = MutableLiveData<Boolean>()
-    val addCustomerResult: LiveData<Boolean> = _addCustomerResult
+    private val _addCustomerResult = MutableLiveData<AccountNameResponse>()
+    val addCustomerResult: LiveData<AccountNameResponse> = _addCustomerResult
+    var isSuccess=false
+
 
     fun addCustomerDetailReq(customerDetailsRequest: CustomerDetailsRequest) = viewModelScope.launch {
 
@@ -133,9 +136,10 @@ class CustomerDetailsViewModel @Inject constructor(
         when (val response = repository.addCustomerDetails(customerDetailsRequest)) {
 
             is ResultWrapper.Failure -> {
+                isSuccess=false
                 hideProgressBar()
                 apiErrorData(response.error)
-                _addCustomerResult.postValue(false)
+            //    _addCustomerResult.postValue()
             }
 
             is ResultWrapper.Success -> {
@@ -143,10 +147,14 @@ class CustomerDetailsViewModel @Inject constructor(
 
                 val data = response.value.body()
 
-                msg = data?.ResponseMessage ?: ""
-                showToast(msg)
+                if (data != null) {
+                    val msg = data.ResponseMessage ?: ""
+                    showToast(msg)
 
-                _addCustomerResult.postValue(true)
+                    _addCustomerResult.postValue(data)
+                } else {
+                    showToast("Something went wrong, empty response")
+                }
             }
         }
     }

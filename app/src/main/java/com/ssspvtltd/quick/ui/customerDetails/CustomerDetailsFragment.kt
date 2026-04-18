@@ -11,8 +11,11 @@ import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Filter
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -53,6 +56,8 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
     get() = FragmentCustomerDetailsBinding::inflate
     private var isNickNameSelected = false
     private var isCustomerNameSelected = false
+    private var isCustomerSelectWithNickName = false
+
     private var selectedPosition = -1
     private var selectedImageType = ""
     private var selectedNickNameId = ""
@@ -183,6 +188,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 nickNameID = selectedNickNameId,
                 accountID = selectedCustomerId,
                 mobileNo = binding.etMobileNumber.text.toString(),
+                remark = binding.etRemark.text.toString(),
                 marketerID = null,
                 nickName = selectedNickName,
                 accountName = selectedCustomerName,
@@ -217,7 +223,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
         // 👉 observe API list
         viewModel.customerNickNameList.observe(viewLifecycleOwner) { list ->
-
             nickNameData = list
 
             val adapter = ArrayAdapter(
@@ -231,7 +236,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
         // 👉 item click (FIXED)
         binding.dropNickName.setOnItemClickListener { parent, _, position, _ ->
-
+            isCustomerSelectWithNickName=true
             val selectedNick = parent.getItemAtPosition(position) as? NickName
                 ?: return@setOnItemClickListener
 
@@ -257,6 +262,48 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             binding.layouCustomer.visibility = View.INVISIBLE
 
             viewModel.factchCustomerListByNickNameId(selectedNick.id)
+            val jsonObject = JsonObject().apply {
+                /*   addProperty("id", customerId)*/
+                addProperty("nickNameId", selectedNickNameId)
+       //         addProperty("id", selectedCustomerId)
+            }
+            viewModel.fatchAccountDetailsForID(jsonObject)
+            viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
+
+                if (list1.isNullOrEmpty()) {
+                    // Show one empty item
+                    personAdapter.updateList(listOf(PersonModel()))
+
+                    return@observe
+                }
+
+                val data = list1.first()
+
+           //     binding.dropNickName.setText(data.nickName, false)
+                isCustomerNameSelected = true
+                isNickNameSelected = true
+                /*      selectedNickNameId = data.nickNameID
+                      selectedCustomerId = data.accountID*/
+                //   customerId = data.id
+
+            //    binding.dropCity.setText(data.accountName, false)
+             //   binding.etMobileNumber.setText(data.mobileNo)
+
+                val persons = data.persons?.map {
+                    PersonModel(
+                        id = it.id,
+                        personName = it.personName,
+                        frontURL = it.frontURL,
+                        backURL = it.backURL
+                    )
+                } ?: emptyList()
+
+                if (persons.isEmpty()) {
+                    personAdapter.updateList(listOf(PersonModel())) // 👈 show empty item
+                } else {
+                    personAdapter.updateList(persons)
+                }
+            }
         }
 
         // 👉 handle manual typing (FIXED)
@@ -325,18 +372,57 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
             customerData = list
 
-            val adapter = ArrayAdapter(
+            val adapter = object : ArrayAdapter<AccountName>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                customerData   // ✅ FULL MODEL LIST (IMPORTANT)
-            )
+                ArrayList(customerData)
+            ) {
+
+                private var fullList: List<AccountName> = customerData
+
+                override fun getFilter(): Filter {
+                    return object : Filter() {
+
+                        override fun performFiltering(constraint: CharSequence?): FilterResults {
+                            val query = constraint?.toString()?.lowercase()?.trim() ?: ""
+
+                            val filtered = if (query.isEmpty()) {
+                                fullList
+                            } else {
+                                fullList.filter {
+                                    it.name.lowercase().contains(query)   // ✅ search anywhere
+                                }
+                            }
+
+                            return FilterResults().apply {
+                                values = filtered
+                            }
+                        }
+
+                        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                            clear()
+                            addAll(results?.values as List<AccountName>)
+                            notifyDataSetChanged()
+                        }
+                    }
+                }
+
+                // 👉 IMPORTANT: Show full text
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val view = super.getView(position, convertView, parent)
+                    val item = getItem(position)
+                    (view as TextView).text = item?.name   // ✅ FULL DISPLAY
+                    return view
+                }
+            }
 
             binding.dropCity.setAdapter(adapter)
+            binding.dropCity.threshold = 1
         }
 
         // 👉 item click (FIXED)
         binding.dropCity.setOnItemClickListener { parent, _, position, _ ->
-
+            isCustomerSelectWithNickName=false
             val selectedCustomer = parent.getItemAtPosition(position) as? AccountName
                 ?: return@setOnItemClickListener
 
@@ -349,7 +435,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             isCustomerNameSelected = true
             isNickNameSelected = true
             val jsonObject = JsonObject().apply {
-             /*   addProperty("id", customerId)*/
+                addProperty("id", customerId)
                      addProperty("nickNameId", selectedNickNameId)
                      addProperty("id", selectedCustomerId)
             }
@@ -357,7 +443,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
 
                 if (list1.isNullOrEmpty()) {
-
                     // Show one empty item
                     personAdapter.updateList(listOf(PersonModel()))
 
@@ -371,10 +456,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 isNickNameSelected = true
                 selectedNickNameId = data.nickNameID
                 selectedCustomerId = data.accountID
-                customerId = data.id
+             //   customerId = data.id
 
                 binding.dropCity.setText(data.accountName, false)
                 binding.etMobileNumber.setText(data.mobileNo)
+                binding.etRemark.setText(data.remark)
 
                 val persons = data.persons?.map {
                     PersonModel(
@@ -440,7 +526,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 addProperty("customerId", selectedCustomerId)
             }
 
-            viewModel.fatchAccountDetailsForID(jsonObject)
+        /*    viewModel.fatchAccountDetailsForID(jsonObject)
 
             viewModel.accountDetailsForID.observe(viewLifecycleOwner) { list1 ->
 
@@ -478,7 +564,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 } else {
                     personAdapter.updateList(persons)
                 }
-            }
+            }*/
         }
 
         binding.dropCutomerByNickNameId.addTextChangedListener(object : TextWatcher {
@@ -499,10 +585,10 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             }
         })
 
-        viewModel.addCustomerResult.observe(viewLifecycleOwner) { isSuccess ->
+        viewModel.addCustomerResult.observe(viewLifecycleOwner) { data ->
 
-            if (isSuccess) {
-                showToast("Customer Added Successfully")
+            if (data.isSuccess) {
+                showToast(data.applicationMessage)
                 val isEdit = !customerId.isNullOrEmpty()
 
                 if (isEdit) {
@@ -511,8 +597,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     activity?.onBackPressedDispatcher?.onBackPressed()
                 }
             } else {
-
-                showToast("Customer Add Failed")
+                showToast(data.applicationMessage)
 
             }
         }
@@ -528,26 +613,52 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
         }
 
         // 2. Customer validation
-        if (!isCustomerNameSelected) {
-            binding.dropCity.error = "Select Customer"
-            binding.dropCity.requestFocus()
-            return false
+
+        if (isCustomerSelectWithNickName) {
+
+            // 👉 When using NickName dropdown
+            if (!isCustomerNameSelected) {
+               // binding.layouCustomerBYNickNameId.error = "Select Customer"
+                binding.dropCutomerByNickNameId.requestFocus()
+                return false
+            } else {
+                binding.layouCustomerBYNickNameId.error = null
+                binding.layouCustomerBYNickNameId.isErrorEnabled = false
+            }
+
+        } else {
+
+            // 👉 Normal customer dropdown
+            if (!isCustomerNameSelected) {
+               // binding.layouCustomer.error = "Select Customer"
+                binding.dropCity.requestFocus()
+                return false
+            } else {
+                binding.layouCustomer.error = null
+                binding.layouCustomer.isErrorEnabled = false
+            }
         }
 
-        // 3. Mobile validation
-        val mobile = binding.etMobileNumber.text.toString().trim()
 
-        if (mobile.isEmpty()) {
+        // 3. Mobile validation
+
+
+    /*    if (mobile.isEmpty()) {
             binding.etMobileNumber.error = "Enter Mobile Number"
             binding.etMobileNumber.requestFocus()
             return false
-        }
+        }*/
+        val mobile = binding.etMobileNumber.text.toString().trim()
 
-        if (!mobile.matches(Regex("^[6-9][0-9]{9}$"))) {
+// ✅ Only validate if NOT empty
+        if (mobile.isNotEmpty() && !mobile.matches(Regex("^[6-9][0-9]{9}$"))) {
             binding.etMobileNumber.error = "Enter valid Indian mobile number"
             binding.etMobileNumber.requestFocus()
             return false
         }
+
+// ✅ Clear error if valid or empty
+        binding.etMobileNumber.error = null
 
         // 4. Dropdown selection validation (important)
         /* if (!isNickNameSelected) {
@@ -564,13 +675,15 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
         list.forEachIndexed { index, person ->
 
             if (person.personName.isEmpty()) {
-                showToast("Enter person name at position ${index + 1}")
+              //  showToast("Enter person name at position ${index + 1}")
+                showToast("Enter person name")
                 return false
             }
 
 
             if (person.aadharFrontBase64.isNullOrEmpty()&&person.frontURL.isNullOrEmpty()&&person.aadharBackBase64.isNullOrEmpty()&&person.backURL.isNullOrEmpty()) {
-                showToast("Upload Aadhar photo at least one side  ${index + 1}")
+            //    showToast("Upload Aadhar photo at least one side  ${index + 1}")
+                showToast("Upload Aadhar photo at least one side")
                 return false
             }
 
@@ -588,17 +701,29 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
         personAdapter = PersonAdapter(
             list,
             onAddClick = { position ->
+                binding.scrollView.post {
+                    binding.scrollView.fullScroll(View.FOCUS_DOWN)
+                }
                 if (list.size < 5) {
                     list.add(position + 1, PersonModel())
                     personAdapter.notifyItemInserted(position + 1)
+                    personAdapter.notifyItemChanged(position)
                 } else {
-                    Toast.makeText(context, "Maximum 6 person allowed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Maximum 5 person allowed", Toast.LENGTH_SHORT).show()
+                }
+                binding.scrollView.post {
+                    binding.scrollView.fullScroll(View.FOCUS_DOWN)
                 }
             },
             onRemoveClick = { position ->
                 if (list.size > 1) {
+
                     list.removeAt(position)
+
                     personAdapter.notifyItemRemoved(position)
+
+                    // ✅ IMPORTANT: refresh last item
+                    personAdapter.notifyItemChanged(list.size - 1)
                 }
             },
             onAadharFrontClick = { position ->
@@ -657,6 +782,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
                 binding.dropCity.setText(data.accountName, false)
                 binding.etMobileNumber.setText(data.mobileNo)
+                binding.etRemark.setText(data.remark)
 
                 val persons = data.persons?.map {
                     PersonModel(

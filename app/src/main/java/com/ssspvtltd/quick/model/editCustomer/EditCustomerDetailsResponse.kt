@@ -14,6 +14,7 @@ data class EditCustomerData(
     val nickNameID: String,
     val accountID: String,
     val mobileNo: String,
+    val remark: String,
     val marketerID: String,
     val nickName: String,
     val accountName: String,
