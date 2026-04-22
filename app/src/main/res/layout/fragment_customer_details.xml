@@ -2,204 +2,172 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
+    <!-- Toolbar -->
     <com.ssspvtltd.quick.widgets.AppToolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:isCartVisible="false"
         app:isLocationVisible="false"
-        app:layout_constraintTop_toTopOf="parent"
         app:navigationType="back"
-        app:titleType="title" />
+        app:titleType="title"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- First Dropdown -->
+    <!-- Scroll Area -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
-        android:descendantFocusability="beforeDescendants"
+        android:descendantFocusability="afterDescendants"
         android:focusableInTouchMode="true"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toTopOf="@id/tvAdd"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Inner Layout -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Content -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutNickName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        android:layout_margin="10dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/dropNickName"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:maxLines="1"
-            android:textAppearance="@style/MyTextStyle"
-            android:ellipsize="end"
-            android:scrollHorizontally="true"
-            android:hint="Select Nick Name"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutNickNameByCustomerId"
-        android:layout_width="0dp"
-        android:visibility="invisible"
-        app:endIconMode="clear_text"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/dropNickNameByCustomerId"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:maxLines="1"
-            android:textSize="12sp"
-            android:ellipsize="end"
-            android:scrollHorizontally="true"
-            android:textAppearance="@style/MyTextStyle"
-            android:hint="Select Nick Name"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layouCustomerBYNickNameId"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:visibility="gone"
-
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:layout_constraintTop_toBottomOf="@id/layoutNickName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/dropCutomerByNickNameId"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:maxLines="1"
-            android:textAppearance="@style/MyTextStyle"
-            android:ellipsize="end"
-            android:scrollHorizontally="true"
-            android:hint="Customer Name"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-
-    <!-- Second Dropdown -->
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layouCustomer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        android:layout_margin="10dp"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        app:layout_constraintTop_toBottomOf="@id/layoutNickName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <AutoCompleteTextView
-            android:id="@+id/dropCity"
-            android:layout_width="match_parent"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textAppearance="@style/MyTextStyle"
-            android:scrollHorizontally="true"
-            android:gravity="start"
             android:layout_height="wrap_content"
-            android:hint="Customer Name"/>
+            android:orientation="vertical">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <!-- NickName Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutNickName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:endIconMode="clear_text">
 
-    <EditText
-        android:id="@+id/etMobileNumber"
-        android:layout_width="0dp"
-        android:layout_height="45dp"
-        android:hint="Mobile Number"
-        android:layout_marginEnd="10dp"
-        android:background="@drawable/edit_bg"
-        android:inputType="number"
-        android:maxLength="10"
-        android:layout_marginStart="10dp"
-        android:padding="10dp"
-        android:textAppearance="@style/MyTextStyle"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toBottomOf="@id/layouCustomer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+                <AutoCompleteTextView
+                    android:id="@+id/dropNickName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Nick Name"
+                    android:maxLines="1"
+                    android:textAppearance="@style/MyTextStyle"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Alternate NickName (Hidden) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layoutNickNameByCustomerId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:endIconMode="clear_text">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropNickNameByCustomerId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Select Nick Name"
+                    android:maxLines="1"
+                    android:textAppearance="@style/MyTextStyle"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Customer by NickName -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layouCustomerBYNickNameId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropCutomerByNickNameId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Customer Name"
+                    android:maxLines="1"
+                    android:textAppearance="@style/MyTextStyle"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Customer Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layouCustomer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:endIconMode="clear_text">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropCity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Customer Name"
+                    android:maxLines="1"
+                    android:textAppearance="@style/MyTextStyle"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Mobile -->
+            <EditText
+                android:id="@+id/etMobileNumber"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/edit_bg"
+                android:hint="Mobile Number"
+                android:inputType="number"
+                android:maxLength="10"
+                android:padding="10dp"
+                android:textAppearance="@style/MyTextStyle"/>
+
+            <!-- Remark -->
             <EditText
                 android:id="@+id/etRemark"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:hint="Remark"
-                android:layout_marginEnd="10dp"
+                android:layout_margin="10dp"
                 android:background="@drawable/edit_bg"
-                android:inputType="text"
-                android:singleLine="true"
-                android:layout_marginStart="10dp"
+                android:hint="Remark"
                 android:padding="10dp"
-                android:textAppearance="@style/MyTextStyle"
-                android:layout_marginTop="10dp"
-                app:layout_constraintTop_toBottomOf="@id/etMobileNumber"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                android:singleLine="true"
+                android:textAppearance="@style/MyTextStyle"/>
 
+            <!-- RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_marginBottom="100dp"
+                android:nestedScrollingEnabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="130dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:nestedScrollingEnabled="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        app:layout_constraintTop_toBottomOf="@id/etRemark"
-        android:layout_marginBottom="1000dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
+        </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Save Button -->
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvAdd"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="45dp"
-        android:layout_centerInParent="true"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_margin="16dp"
         android:background="@drawable/bg_btn_effect_green"
         android:gravity="center"
         android:text="Save"
         android:textAllCaps="true"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_goneMarginTop="20dp" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

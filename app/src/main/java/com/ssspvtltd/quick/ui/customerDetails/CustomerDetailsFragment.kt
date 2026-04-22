@@ -91,7 +91,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     } else {
                         list[selectedPosition].aadharBackBitmap = it
                         list[selectedPosition].aadharBackBase64 = base64
-                        list[selectedPosition].backURL = ""
+                        list[selectedPosition].frontURL = ""
                     }
 
                     personAdapter.notifyItemChanged(selectedPosition)

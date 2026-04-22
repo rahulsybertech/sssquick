@@ -1,16 +1,19 @@
 package com.ssspvtltd.quick.ui.customerDetails.adapter
 
+import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.signature.ObjectKey
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.customerdetails.PersonModel
@@ -96,7 +99,11 @@ class PersonAdapter(
         holder.etName.tag = watcher
 
         if(item.aadharFrontBitmap!=null){
-            holder.imgFront.setImageBitmap(item.aadharFrontBitmap)
+            Glide.with(holder.itemView.context)
+                .load(item.aadharFrontBitmap)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(holder.imgFront)
 
         }else{
             Glide.with(holder.imgFront.context)
@@ -115,7 +122,12 @@ class PersonAdapter(
                 .into( holder.imgBack)
 
         }else{
-            holder.imgBack.setImageBitmap(item.aadharBackBitmap)
+            Glide.with(holder.itemView.context).clear(holder.imgBack)
+
+            Glide.with(holder.itemView.context)
+                .load(item.aadharBackBitmap)
+                .placeholder(R.drawable.empty_photo)
+                .into(holder.imgBack)
         }
 
         holder.btnAdd.setOnClickListener {
@@ -130,6 +142,38 @@ class PersonAdapter(
             }
             else {
                 showToast("At Least one Aadhar photo is required.")
+            }
+        }
+        holder.etName.setOnEditorActionListener { v, actionId, _ ->
+
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+
+                val nextPos = holder.bindingAdapterPosition + 1
+
+                val recyclerView = holder.itemView.parent as RecyclerView
+
+                if (nextPos < list.size) {
+
+                    recyclerView.post {
+                        recyclerView.smoothScrollToPosition(nextPos)
+
+                        recyclerView.findViewHolderForAdapterPosition(nextPos)
+                            ?.itemView
+                            ?.findViewById<EditText>(R.id.etPersonName)
+                            ?.requestFocus()
+                    }
+
+                } else {
+                    // Last item → hide keyboard
+                    v.clearFocus()
+                    val imm = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                }
+
+                true
+            } else {
+                false
             }
         }
 

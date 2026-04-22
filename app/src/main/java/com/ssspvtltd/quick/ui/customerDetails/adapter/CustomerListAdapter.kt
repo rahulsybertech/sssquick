@@ -6,9 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.Glide.init
-import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.recycler.adapter.BaseViewHolder
 import com.ssspvtltd.quick.base.recycler.adapter.MultiViewAdapter
 import com.ssspvtltd.quick.databinding.AllAccountAdapterBinding

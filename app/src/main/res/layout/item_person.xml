@@ -21,6 +21,7 @@
             android:hint="Person Name"
             android:background="@drawable/edit_bg"
             android:padding="10dp"
+            android:imeOptions="actionNext"
             android:singleLine="true"
             android:textAppearance="@style/MyTextStyle"
             app:layout_constraintTop_toTopOf="parent"
@@ -45,9 +46,10 @@
                 android:id="@+id/imgFront"
                 android:layout_width="80dp"
                 android:layout_height="60dp"
+
                 android:background="@drawable/edit_bg"
                 android:padding="10dp"
-                android:src="@drawable/empty_photo"/>
+               />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -78,7 +80,7 @@
                 android:layout_height="60dp"
                 android:background="@drawable/edit_bg"
                 android:padding="10dp"
-                android:src="@drawable/empty_photo"/>
+               />
 
             <TextView
                 android:layout_below="@+id/imgBack"
