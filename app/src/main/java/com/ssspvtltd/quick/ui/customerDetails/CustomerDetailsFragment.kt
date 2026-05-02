@@ -608,11 +608,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
     private fun validateForm(): Boolean {
 
         // 1. Nick Name validation
-        if (!isNickNameSelected) {
+    /*    if (!isNickNameSelected) {
             binding.dropNickName.error = "Select Nick Name"
             binding.dropNickName.requestFocus()
             return false
-        }
+        }*/
 
         // 2. Customer validation
 
@@ -679,6 +679,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             if (person.personName.isEmpty()) {
               //  showToast("Enter person name at position ${index + 1}")
                 showToast("Enter person name")
+                return false
+            }
+            if (person.mobileNo.isEmpty()) {
+                //  showToast("Enter person name at position ${index + 1}")
+                showToast("Enter valid Indian mobile number")
                 return false
             }
 
