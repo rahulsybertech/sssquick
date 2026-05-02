@@ -6,7 +6,9 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentAllAccountListBinding
@@ -84,6 +86,15 @@ class CustomerListFragment
 
     private fun registerListener() = with(binding) {
 
+
+        btnAddCustomer.setOnClickListener {
+            val bundle = Bundle().apply {
+            putString("source", "Markerter")
+        }
+            findNavController().navigate(R.id.customerDetailsFragment, bundle)  }
+
+
+        false
 
         toolbar.setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         toolbar.setTitle("Garment Fair Customer Details")

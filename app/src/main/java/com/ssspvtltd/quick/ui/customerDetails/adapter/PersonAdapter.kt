@@ -31,6 +31,7 @@ class PersonAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
+        val etPMobileNumber: EditText = itemView.findViewById(R.id.etPMobileNumber)
       //  val layoutDelete: FrameLayout = itemView.findViewById(R.id.layoutDelete)
    //     val layoutEdit: FrameLayout = itemView.findViewById(R.id.layoutEdit)
         val btnAdd: ImageView = itemView.findViewById(R.id.btnAdd)
@@ -60,6 +61,7 @@ class PersonAdapter(
         }
 
         holder.etName.setText(item.personName ?: "")
+        holder.etPMobileNumber.setText(item.mobileNo ?: "")
 
 
         // ✅ Single TextWatcher (FIXED)
@@ -92,8 +94,32 @@ class PersonAdapter(
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
+        val watcher1 = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+
+                val text = s.toString()
+
+                // 🚫 Prevent space at start
+                if (text.startsWith(" ")) {
+                    val trimmed = text.trimStart()
+                    holder.etPMobileNumber.setText(trimmed)
+                    holder.etPMobileNumber.setSelection(trimmed.length)
+                    return
+                }
+
+                val pos = holder.bindingAdapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    list[pos].mobileNo = text
+                }
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
 
         holder.etName.addTextChangedListener(watcher)
+        holder.etPMobileNumber.addTextChangedListener(watcher1)
 
         // 🔥 Save watcher in tag
         holder.etName.tag = watcher
@@ -105,7 +131,14 @@ class PersonAdapter(
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .into(holder.imgFront)
 
-        }else{
+        }else if(item.frontURL.isNotEmpty()){
+            Glide.with(holder.itemView.context)
+                .load(item.frontURL)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(holder.imgFront)
+        }
+        else    {
             Glide.with(holder.imgFront.context)
                 .load(item.frontURL).error(R.drawable.empty_photo)
                 .signature(ObjectKey(System.currentTimeMillis()))
@@ -121,7 +154,8 @@ class PersonAdapter(
                     .signature(ObjectKey(System.currentTimeMillis()))
                 .into( holder.imgBack)
 
-        }else{
+        }
+        else{
             Glide.with(holder.itemView.context).clear(holder.imgBack)
 
             Glide.with(holder.itemView.context)
@@ -133,9 +167,12 @@ class PersonAdapter(
         holder.btnAdd.setOnClickListener {
             if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")
-            }/* else if (item.personName.length > 30) {
-                showToast("Person Name should not be greater than 30 characters")
-            }*/
+            }  else if (item.mobileNo.isEmpty()) {
+                showToast("Enter valid Indian mobile number")
+            }
+            else if (item.mobileNo.isNotEmpty() && !item.mobileNo.matches(Regex("^[6-9][0-9]{9}$"))) {
+                showToast("Enter valid Indian mobile number")
+        }
             else if (item.frontURL.isNotEmpty() || item.aadharFrontBase64?.isNotEmpty() == true||item.backURL.isNotEmpty() || item.aadharBackBase64?.isNotEmpty() == true) {
                 onAddClick(position)
                 onRequestNextFocus?.invoke(position + 1)

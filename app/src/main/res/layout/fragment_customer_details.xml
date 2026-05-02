@@ -40,6 +40,7 @@
 
             <!-- NickName Dropdown -->
             <com.google.android.material.textfield.TextInputLayout
+                android:visibility="gone"
                 android:id="@+id/layoutNickName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

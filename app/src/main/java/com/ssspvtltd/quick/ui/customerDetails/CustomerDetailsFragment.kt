@@ -87,11 +87,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     if (selectedImageType == "front") {
                         list[selectedPosition].aadharFrontBitmap = it
                         list[selectedPosition].aadharFrontBase64 = base64
-                        list[selectedPosition].backURL = ""
+                       // list[selectedPosition].backURL = ""
                     } else {
                         list[selectedPosition].aadharBackBitmap = it
                         list[selectedPosition].aadharBackBase64 = base64
-                        list[selectedPosition].frontURL = ""
+                      //  list[selectedPosition].frontURL = ""
                     }
 
                     personAdapter.notifyItemChanged(selectedPosition)
@@ -148,7 +148,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         }
         initViews()
-        setupNickNameDropdown()
+      //  setupNickNameDropdown()
         setupCustomerDropdown()
         registerObserver()
         viewModel.showProgressBar()
@@ -164,6 +164,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     Person(
                         id = if (it.id.isNullOrEmpty()) null else it.id,
                         personName = it.personName,
+                        mobileNo   = it.mobileNo,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
                         frontURL = it.frontURL,
@@ -173,6 +174,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     Person(
                         id = null,
                         personName = it.personName,
+                        mobileNo   = it.mobileNo,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
                         frontURL = "",
@@ -259,7 +261,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             binding.dropCutomerByNickNameId.setText("", false)
 
             binding.layouCustomerBYNickNameId.visibility = View.VISIBLE
-            binding.layouCustomer.visibility = View.INVISIBLE
+            binding.layouCustomer.visibility = View.GONE
 
             viewModel.factchCustomerListByNickNameId(selectedNick.id)
             val jsonObject = JsonObject().apply {
@@ -325,11 +327,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     selectedNickName = ""
                     isNickNameSelected = false
 
-                    binding.layouCustomerBYNickNameId.visibility = View.INVISIBLE
+                    binding.layouCustomerBYNickNameId.visibility = View.GONE
                     binding.layouCustomer.visibility = View.VISIBLE
                 }
                 if(text!!.isEmpty()){
-                  binding.layoutNickNameByCustomerId.visibility= View.INVISIBLE
+                  binding.layoutNickNameByCustomerId.visibility= View.GONE
                   binding.layoutNickName.visibility= View.VISIBLE
                 }
             }
@@ -347,7 +349,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
 
                 if(text!!.isEmpty()){
-                    binding.layoutNickNameByCustomerId.visibility= View.INVISIBLE
+                    binding.layoutNickNameByCustomerId.visibility= View.GONE
                     binding.layoutNickName.visibility= View.VISIBLE
                 }
             }
