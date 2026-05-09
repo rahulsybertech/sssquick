@@ -41,6 +41,13 @@ import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
+import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
+import com.ssspvtltd.quick.ui.tour.model.CommonResponse
+import com.ssspvtltd.quick.ui.tour.model.GradeResponse
+import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
+import com.ssspvtltd.quick.ui.tour.model.StateResponse
+import com.ssspvtltd.quick.ui.tour.model.StationResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -342,4 +349,26 @@ interface ApiService {
     suspend fun accountDetailsForIDApi(
         @Body request: JsonObject
     ): Response<EditCustomerDetailsResponse>
+
+
+    @POST("api/OrderBook/GetMainPartyAndSubPartyList")
+    suspend fun frimListApii(): Response<AccountNameResponse>// Added >
+
+     @POST("api/OrderBook/SaveLeadData")
+    suspend fun submitLeadApi(@Body request: LeadRequest): Response<CommonResponse>// Added >
+
+    @POST("api/OrderBook/GetGradeTypeList")
+    suspend fun getGradeList(): Response<GradeResponse>// Added >
+
+       @POST("api/OrderBook/GetAllStationName")
+    suspend fun getStationList(): Response<StationResponse>// Added >
+
+    @POST("api/OrderBook/GetAllStateName")
+    suspend fun getStateList(): Response<StateResponse>// Added >
+
+    @POST("api/OrderBook/GetCategoryName")
+    suspend fun getCategoryList(): Response<CategoryResponse>// Added >
+
+    @POST("api/OrderBook/GetShopCategory")
+    suspend fun getShopCategoryList(): Response<ShopCategoryResponse>// Added >
 }

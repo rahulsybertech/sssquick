@@ -164,5 +164,4 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
         }
     }
 
-
 }

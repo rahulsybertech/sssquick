@@ -82,6 +82,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustNothing" />
         <activity
+            android:name=".ui.tour.TourDetailsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name="com.ssspvtltd.quick.ui.main.MainActivity"
             android:windowSoftInputMode="adjustNothing"
             android:exported="true"

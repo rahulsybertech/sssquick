@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -27,7 +28,8 @@ class PersonAdapter(
     private val onAadharBackClick: (Int) -> Unit,
     var onRequestNextFocus: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<PersonAdapter.ViewHolder>() {
-
+    private var focusNamePosition = -1
+    private var focusMobilePosition = -1
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
@@ -54,6 +56,7 @@ class PersonAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val item = list[position]
+
 
         // 🔥 Remove previous watcher
         if (holder.etName.tag is TextWatcher) {
@@ -181,34 +184,31 @@ class PersonAdapter(
                 showToast("At Least one Aadhar photo is required.")
             }
         }
-        holder.etName.setOnEditorActionListener { v, actionId, _ ->
+        holder.etName.setOnEditorActionListener { _, actionId, _ ->
 
-            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_NEXT ||
-                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE) {
+            if (actionId == EditorInfo.IME_ACTION_NEXT ||
+                actionId == EditorInfo.IME_ACTION_DONE) {
 
-                val nextPos = holder.bindingAdapterPosition + 1
+                holder.etPMobileNumber.requestFocus()
 
-                val recyclerView = holder.itemView.parent as RecyclerView
+                holder.etPMobileNumber.post {
 
-                if (nextPos < list.size) {
+                    holder.etPMobileNumber.setSelection(
+                        holder.etPMobileNumber.text.length
+                    )
 
-                    recyclerView.post {
-                        recyclerView.smoothScrollToPosition(nextPos)
+                    val imm = holder.itemView.context
+                        .getSystemService(Context.INPUT_METHOD_SERVICE)
+                            as InputMethodManager
 
-                        recyclerView.findViewHolderForAdapterPosition(nextPos)
-                            ?.itemView
-                            ?.findViewById<EditText>(R.id.etPersonName)
-                            ?.requestFocus()
-                    }
-
-                } else {
-                    // Last item → hide keyboard
-                    v.clearFocus()
-                    val imm = v.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(v.windowToken, 0)
+                    imm.showSoftInput(
+                        holder.etPMobileNumber,
+                        InputMethodManager.SHOW_IMPLICIT
+                    )
                 }
 
                 true
+
             } else {
                 false
             }
@@ -242,10 +242,73 @@ class PersonAdapter(
         // ✅ Hide remove if only 1 item
         holder.btnRemove.visibility =
             if (list.size == 1) View.GONE else View.VISIBLE
+
+
+
+        // Focus Name
+        if (focusNamePosition == position) {
+
+            holder.etName.requestFocus()
+
+            holder.etName.post {
+
+                holder.etName.setSelection(
+                    holder.etName.text.length
+                )
+
+                val imm = holder.itemView.context
+                    .getSystemService(Context.INPUT_METHOD_SERVICE)
+                        as InputMethodManager
+
+                imm.showSoftInput(
+                    holder.etName,
+                    InputMethodManager.SHOW_IMPLICIT
+                )
+            }
+
+            focusNamePosition = -1
+        }
+
+// Focus Mobile
+        if (focusMobilePosition == position) {
+
+            holder.etPMobileNumber.requestFocus()
+
+            holder.etPMobileNumber.post {
+
+                holder.etPMobileNumber.setSelection(
+                    holder.etPMobileNumber.text.length
+                )
+
+                val imm = holder.itemView.context
+                    .getSystemService(Context.INPUT_METHOD_SERVICE)
+                        as InputMethodManager
+
+                imm.showSoftInput(
+                    holder.etPMobileNumber,
+                    InputMethodManager.SHOW_IMPLICIT
+                )
+            }
+
+            focusMobilePosition = -1
+        }
     }
     fun updateList(newList: List<PersonModel>) {
         list.clear()
         list.addAll(newList)
         notifyDataSetChanged()
+    }
+    fun requestNameFocus(position: Int) {
+
+        focusNamePosition = position
+
+        notifyItemChanged(position)
+    }
+
+    fun requestMobileFocus(position: Int) {
+
+        focusMobilePosition = position
+
+        notifyItemChanged(position)
     }
 }

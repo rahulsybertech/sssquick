@@ -37,6 +37,7 @@ import com.ssspvtltd.quick.ui.mailboxremark.MailBoxRemarkActivity
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
 import com.ssspvtltd.quick.ui.order.pendinglr.activity.PendingLrActivity
 import com.ssspvtltd.quick.ui.order.stockinoffice.activity.StockInOfficeActivity
+import com.ssspvtltd.quick.ui.tour.TourDetailsActivity
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.observe
 import com.ssspvtltd.quick.utils.showWarningDialog
@@ -162,6 +163,11 @@ class MainActivity :
 
                 R.id.nav_goods_return -> {
                     val intent = Intent(this, GoodsReturnActivity::class.java)
+                    startActivity(intent)
+                    false
+                }
+                R.id.nav_tour_details -> {
+                    val intent = Intent(this, TourDetailsActivity::class.java)
                     startActivity(intent)
                     false
                 }

@@ -1,0 +1,22 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="110dp"
+    android:layout_height="80dp"
+    android:layout_margin="6dp">
+
+    <ImageView
+        android:id="@+id/imgPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_image_border"
+        android:scaleType="centerCrop"/>
+
+    <ImageView
+        android:id="@+id/imgDelete"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:padding="2dp"
+        android:src="@android:drawable/ic_delete"
+        android:tint="@android:color/holo_red_dark"/>
+
+</FrameLayout>

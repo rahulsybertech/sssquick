@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Toolbar -->
+    <com.ssspvtltd.quick.widgets.AppToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:isCartVisible="false"
+        app:isLocationVisible="false"
+        app:navigationType="back"
+        app:titleType="title"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- RadioGroup -->
+    <RadioGroup
+        android:id="@+id/radioGroupCustomer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <RadioButton
+            android:id="@+id/rbExisting"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Existing Customer"/>
+
+        <RadioButton
+            android:id="@+id/rbNew"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="New Customer"/>
+
+    </RadioGroup>
+    <!-- Bottom Next Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBack"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:text="Back"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btnNext"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnNext"
+        android:layout_width="0dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="Next"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- ScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:paddingBottom="20dp"
+        app:layout_constraintTop_toBottomOf="@id/radioGroupCustomer"
+        app:layout_constraintBottom_toTopOf="@+id/btnNext"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+
+        <!-- ONLY ONE CHILD -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- STEP ONE -->
+            <!-- Main Form Layout -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/mainLayout"
+                android:layout_width="match_parent"
+                android:visibility="gone"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                >
+
+                <!-- Customer Dropdown -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouCustomer"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropCity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Firm Name * "
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Customer Dropdown -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouGrade"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouCustomer"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropGrade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Grade"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouStation"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouGrade"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropStation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Station *"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouState"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouStation"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropState"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="State *"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouOwnerName"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouState"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/ownerName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Owner"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutMobileNum"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouOwnerName"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/mobileNo1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Mobile No * "
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutMobileNum2"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutMobileNum"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/mobileNo2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Mobile No2"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouCategory"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutMobileNum2"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/dropCategory"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Category *"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouShopArea"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouCategory"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/shopArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Shop Area(Sq. ft.)"
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouWorkingBranchs"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    app:endIconMode="clear_text"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@+id/layouShopArea"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/workingBranchs"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:textAlignment="viewStart"
+                        android:hint="Working Branches"
+                        android:gravity="top|start"
+                        android:maxLines="1"
+                        android:inputType="text"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- STEP TWO -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutStepTwo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:visibility="visible">
+
+                <!-- Shop Category Title -->
+                <TextView
+                    android:id="@+id/tvShopCategory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Shop Category :-"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <!-- Select All Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSelectAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="Select All"
+                    android:textAllCaps="false"
+                    app:cornerRadius="8dp"
+                    app:layout_constraintTop_toTopOf="@id/tvShopCategory"
+                    app:layout_constraintBottom_toBottomOf="@id/tvShopCategory"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- RecyclerView -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerCategory"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:nestedScrollingEnabled="false"
+                    app:layout_constraintTop_toBottomOf="@id/tvShopCategory"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- OLD AGENT -->
+                <TextView
+                    android:id="@+id/txtOldAgent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Old Agent"
+                    android:textColor="#000"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerCategory"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <EditText
+                    android:id="@+id/edtOldAgent"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_edit"
+                    android:padding="8dp"
+                    android:textColor="#000"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toEndOf="@id/txtOldAgent"
+                    app:layout_constraintEnd_toStartOf="@id/txtYearlySale"
+                    app:layout_constraintTop_toTopOf="@id/txtOldAgent"/>
+
+                <!-- YEARLY SALE -->
+                <TextView
+                    android:id="@+id/txtYearlySale"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Yearly Sale"
+                    android:textColor="#000"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toTopOf="@id/txtOldAgent"
+                    app:layout_constraintStart_toEndOf="@id/edtOldAgent"/>
+
+                <EditText
+                    android:id="@+id/edtYearlySale"
+                    android:layout_width="70dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_edit"
+                    android:inputType="number"
+                    android:padding="8dp"
+                    android:textColor="#000"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toEndOf="@id/txtYearlySale"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/txtYearlySale"/>
+
+                <!-- LOCATION BOX -->
+                <LinearLayout
+                    android:id="@+id/locationLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="#EAF5EE"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/edtOldAgent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@android:drawable/ic_menu_mylocation"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" Your Current Location Accuracy: 41m"
+                            android:textColor="#555"
+                            android:textSize="14sp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/txtLatLong"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginStart="24dp"
+                        android:text="Long, Lat: 77.7734782, 29.8870577"
+                        android:textColor="#666"
+                        android:textSize="13sp"/>
+                </LinearLayout>
+
+                <!-- REMARKS -->
+                <TextView
+                    android:id="@+id/txtRemarks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Remarks"
+                    android:textColor="#000"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toBottomOf="@id/locationLayout"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <EditText
+                    android:id="@+id/edtRemarks"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_edit"
+                    android:padding="8dp"
+                    app:layout_constraintStart_toEndOf="@id/txtRemarks"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/txtRemarks"/>
+
+                <!-- SELFIE TEXT -->
+             <!--   <TextView
+                    android:id="@+id/txtSelfie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Selfie"
+                    android:textColor="#000"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    app:layout_constraintTop_toBottomOf="@id/edtRemarks"
+                    app:layout_constraintStart_toStartOf="parent"/>-->
+
+
+                <!-- SELFIE TITLE -->
+                <TextView
+                    android:id="@+id/txtSelfie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selfie"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintTop_toBottomOf="@id/edtRemarks"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <!-- SELFIE RECYCLER -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSelfie"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/txtSelfie"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+                <!-- BOTTOM TITLE -->
+                <TextView
+                    android:id="@+id/txtBottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bottom Images"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintTop_toBottomOf="@id/rvSelfie"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <!-- BOTTOM RECYCLER -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvBottom"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:layout_constraintTop_toBottomOf="@id/txtBottom"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+           <!--     &lt;!&ndash; SELFIE IMAGE &ndash;&gt;
+                <FrameLayout
+                    android:id="@+id/selfieContainer"
+                    android:layout_width="110dp"
+                    android:layout_height="80dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_image_border"
+                    app:layout_constraintTop_toBottomOf="@id/txtSelfie"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imgSelfie"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"/>
+                </FrameLayout>
+
+                &lt;!&ndash; DELETE SELFIE &ndash;&gt;
+                <ImageView
+                    android:id="@+id/imgDeleteSelfie"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@android:drawable/ic_delete"
+                    android:tint="#FF0000"
+                    app:layout_constraintStart_toEndOf="@id/selfieContainer"
+                    app:layout_constraintTop_toTopOf="@id/selfieContainer"/>-->
+
+                <!-- BOTTOM IMAGE -->
+        <!--        <FrameLayout
+                    android:id="@+id/bottomImageContainer"
+                    android:layout_width="180dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/bg_image_border"
+                    app:layout_constraintTop_toBottomOf="@id/selfieContainer"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <ImageView
+                        android:id="@+id/imgBottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"/>
+                </FrameLayout>
+
+                &lt;!&ndash; DELETE BOTTOM IMAGE &ndash;&gt;
+                <ImageView
+                    android:id="@+id/imgDeleteBottom"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@android:drawable/ic_delete"
+                    android:tint="#FF0000"
+                    app:layout_constraintStart_toEndOf="@id/bottomImageContainer"
+                    app:layout_constraintTop_toTopOf="@id/bottomImageContainer"/>
+-->
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

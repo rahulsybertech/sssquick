@@ -14,34 +14,51 @@
 
         <!-- Person Name -->
 
-        <EditText
-            android:id="@+id/etPersonName"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:hint="Person Name"
-            android:background="@drawable/edit_bg"
-            android:padding="10dp"
 
-            android:imeOptions="actionNext"
-            android:singleLine="true"
-            android:textAppearance="@style/MyTextStyle"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPersonName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="clear_text"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/etPMobileNumber"
+            <AutoCompleteTextView
+                android:id="@+id/etPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:maxLength="40"
+                android:hint="Person Name * "
+                android:maxLines="1"
+                android:textAppearance="@style/MyTextStyle"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPersonMobileNum"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:layout_marginTop="@dimen/margin_01"
-            android:background="@drawable/edit_bg"
-            android:imeOptions="actionDone"
-            app:layout_constraintTop_toBottomOf="@id/etPersonName"
-            android:hint="Mobile Number"
-            android:inputType="number"
-            android:maxLength="10"
-            android:padding="10dp"
-            android:textAppearance="@style/MyTextStyle"/>
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonName"
+            android:layout_margin="10dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="clear_text">
+
+            <AutoCompleteTextView
+                android:id="@+id/etPMobileNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Mobile Number * "
+                android:inputType="number"
+                android:maxLength="10"
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                android:textAppearance="@style/MyTextStyle"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Aadhaar Front -->
 
@@ -51,20 +68,31 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/etPMobileNumber"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintEnd_toStartOf="@id/layoutBack"
             android:layout_marginTop="10dp">
 
-            <ImageView
-                android:id="@+id/imgFront"
-                android:layout_width="80dp"
-                android:layout_height="60dp"
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/imgFront"
+                    android:layout_centerInParent="true"
+                    android:layout_width="80dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/edit_bg"
+                    android:padding="10dp"
+                    />
+                <ImageView
+                    android:layout_alignParentRight="true"
+                    android:layout_width="10dp"
+                    android:tint="@color/red"
+                    android:layout_height="10dp"
+                    android:src="@drawable/star"/>
+            </RelativeLayout>
 
-                android:background="@drawable/edit_bg"
-                android:padding="10dp"
-               />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -83,7 +111,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/etPMobileNumber"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
             app:layout_constraintStart_toEndOf="@id/layoutFront"
             app:layout_constraintEnd_toStartOf="@id/layoutButtons"
             app:layout_constraintHorizontal_weight="1"
@@ -115,7 +143,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/etPMobileNumber"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
             app:layout_constraintEnd_toEndOf="parent"
 
             android:layout_marginTop="10dp">
@@ -127,6 +155,7 @@
                 <ImageView
                     android:layout_marginEnd="15dp"
                     android:layout_width="17dp"
+                    android:visibility="invisible"
                     android:tint="@color/red"
                     android:layout_height="17dp"
                     android:src="@drawable/star"/>
