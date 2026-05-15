@@ -18,11 +18,11 @@ jobs:
 
     steps:
 
-      # Checkout Source
+      # Checkout source code
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      # Setup Java
+      # Setup Java 17
       - name: Setup JDK 17
         uses: actions/setup-java@v4
         with:
@@ -33,11 +33,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      # Gradle Permission
+      # Grant permission to gradlew
       - name: Grant Execute Permission
         run: chmod +x gradlew
 
-      # Cache Gradle
+      # Cache Gradle dependencies
       - name: Cache Gradle Files
         uses: actions/cache@v4
         with:
@@ -45,13 +45,17 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
-      # Decode google-services.json
-      - name: Decode google-services.json
+      # Create google-services.json from GitHub Secret
+      - name: Create google-services.json
         run: |
-          echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > app/google-services.json
+          cat <<EOF > app/google-services.json
+          ${{ secrets.GOOGLE_SERVICES_JSON }}
+          EOF
 
-      # Run Lint
+      # Run Android Lint
       - name: Run Lint Check
         run: ./gradlew lint
 
@@ -71,28 +75,28 @@ jobs:
       - name: Build Release Bundle
         run: ./gradlew bundleRelease
 
-      # Upload Debug APK Artifact
+      # Upload Debug APK artifact
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      # Upload Release APK Artifact
+      # Upload Release APK artifact
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: app/build/outputs/apk/release/app-release.apk
 
-      # Upload AAB Artifact
+      # Upload Release AAB artifact
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: release-aab
           path: app/build/outputs/bundle/release/app-release.aab
 
-      # Firebase Distribution
+      # Upload APK to Firebase App Distribution
       - name: Upload APK to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
