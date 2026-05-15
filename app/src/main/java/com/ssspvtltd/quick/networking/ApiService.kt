@@ -39,6 +39,7 @@ import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateResponse
 import com.ssspvtltd.quick.model.order.pendinglr.PendingLrData
 import com.ssspvtltd.quick.model.order.stockinoffice.StockInOfficeData
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
+import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
@@ -371,4 +372,9 @@ interface ApiService {
 
     @POST("api/OrderBook/GetShopCategory")
     suspend fun getShopCategoryList(): Response<ShopCategoryResponse>// Added >
+
+    @POST("api/OrderBook/GetAllBranchFairAccounts")
+    suspend fun getAllBranchFairAccounts(
+        @Query("AccountCode") strAccountCode: String
+    ): Response<CreateResponse>
 }

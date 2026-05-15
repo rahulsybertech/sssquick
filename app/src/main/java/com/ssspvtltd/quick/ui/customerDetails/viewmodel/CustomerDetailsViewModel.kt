@@ -12,6 +12,8 @@ import com.ssspvtltd.quick.model.customer.NickName
 import com.ssspvtltd.quick.model.customerdetails.CustomerList
 import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
 import com.ssspvtltd.quick.networking.ResultWrapper
+import com.ssspvtltd.quick.ui.customerDetails.model.CreateData
+import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
@@ -19,6 +21,11 @@ import com.ssspvtltd.quick.utils.showToast
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -238,6 +245,61 @@ class CustomerDetailsViewModel @Inject constructor(
                 val list = response.value.body()!!.Data
              //   customerList1=list
                 _accountDetailsForID.postValue(list)
+            }
+        }
+    }
+
+
+
+    private val _customerListbyCustomerCode = MutableStateFlow<List<CreateData>>(emptyList())
+    val customerListbyCustomerCode: StateFlow<List<CreateData>> = _customerListbyCustomerCode
+
+
+
+    private val searchQuery = MutableStateFlow("")
+
+    fun observeSearch() {
+
+        viewModelScope.launch {
+
+            searchQuery
+                .debounce(300)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+
+                    fatchCustomerListByCoustomerCode(query)
+
+                }
+        }
+    }
+
+    fun searchCustomer(query: String) {
+
+        viewModelScope.launch {
+
+            if (query.length >= 2) {
+
+                searchQuery.emit(query)
+
+            } else if (query.isEmpty()) {
+
+                searchQuery.emit("")
+            }
+        }
+    }
+
+    private suspend fun fatchCustomerListByCoustomerCode(search: String) {
+
+        when (val response = repository.customerListByCustomerCodeReq(search)) {
+
+            is ResultWrapper.Success -> {
+
+                _customerListbyCustomerCode.value =
+                    response.value.body()?.Data ?: emptyList()
+            }
+
+            is ResultWrapper.Failure -> {
+
             }
         }
     }

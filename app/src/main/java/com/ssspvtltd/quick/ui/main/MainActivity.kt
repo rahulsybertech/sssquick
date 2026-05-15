@@ -148,14 +148,17 @@ class MainActivity :
                 // }
 
                 R.id.nav_custtomer_details -> {
-         /*           val intent = Intent(this, CustomerDetailsActivity::class.java)
-                    startActivity(intent)
-                    false
-         */
                     val bundle = Bundle().apply {
                         putString("source", "Markerter")
                     }
                     navController.navigate(R.id.customerDetailsFragment, bundle)
+                    false
+                }
+              R.id.nav_customer_wise_fair_details -> {
+                    val bundle = Bundle().apply {
+                        putString("source", "Markerter")
+                    }
+                    navController.navigate(R.id.customerListByCustomerCodeFragment, bundle)
                     false
                 }
 
@@ -166,11 +169,11 @@ class MainActivity :
                     startActivity(intent)
                     false
                 }
-                R.id.nav_tour_details -> {
+              /*  R.id.nav_tour_details -> {
                     val intent = Intent(this, TourDetailsActivity::class.java)
                     startActivity(intent)
                     false
-                }
+                }*/
                 R.id.nav_pending_lr -> {
                     val intent = Intent(this, PendingLrActivity::class.java)
                     startActivity(intent)

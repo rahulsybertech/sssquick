@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.ui.tour.viewmodel
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,8 @@ import com.ssspvtltd.quick.ui.tour.model.StationItem
 import com.ssspvtltd.quick.ui.tour.model.StationResponse
 import com.ssspvtltd.quick.ui.tour.repository.TourDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -70,6 +73,21 @@ class TourDetailsViewModel @Inject constructor(
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
 
+
+ /*   private val _location = MutableStateFlow<Location?>(null)
+    val location: StateFlow<Location?> = _location
+
+    fun fetchLocation() {
+        viewModelScope.launch {
+            repository.getLocationFlow()
+                .catch { e ->
+                    Log.e("LOCATION", "Error: ${e.message}")
+                }
+                .collect {
+                    _location.value = it
+                }
+        }
+    }*/
     fun getGradeList() {
 
         viewModelScope.launch {

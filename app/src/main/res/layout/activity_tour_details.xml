@@ -34,6 +34,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:checked="true"
             android:text="Existing Customer"/>
 
         <RadioButton
@@ -92,10 +93,11 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/mainLayout"
                 android:layout_width="match_parent"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 >
+
 
                 <!-- Customer Dropdown -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -110,6 +112,27 @@
 
                     <AutoCompleteTextView
                         android:id="@+id/dropCity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Firm Name * "
+                        android:maxLines="1"
+                        android:inputType="none"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layouNewCustomer"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="0dp"
+                    android:visibility="gone"
+                    android:layout_height="wrap_content"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/firmNameNewCustomer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Firm Name * "
@@ -201,6 +224,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Owner"
+                        android:singleLine="true"
+                        android:imeOptions="actionNext"
                         android:maxLines="1"
                         android:inputType="none"
                         android:textAppearance="@style/MyTextStyle"/>
@@ -223,7 +248,9 @@
                         android:layout_height="wrap_content"
                         android:hint="Mobile No * "
                         android:maxLines="1"
-                        android:inputType="none"
+                        android:maxLength="10"
+                        android:inputType="number"
+                        android:imeOptions="actionNext"
                         android:textAppearance="@style/MyTextStyle"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -243,8 +270,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Mobile No2"
+                        android:imeOptions="actionNext"
+                        android:maxLength="10"
                         android:maxLines="1"
-                        android:inputType="none"
+                        android:inputType="number"
                         android:textAppearance="@style/MyTextStyle"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -286,6 +315,8 @@
                         android:layout_height="wrap_content"
                         android:hint="Shop Area(Sq. ft.)"
                         android:maxLines="1"
+                        android:singleLine="true"
+                        android:imeOptions="actionNext"
                         android:inputType="none"
                         android:textAppearance="@style/MyTextStyle"/>
 
@@ -320,7 +351,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <!-- Shop Category Title -->
                 <TextView

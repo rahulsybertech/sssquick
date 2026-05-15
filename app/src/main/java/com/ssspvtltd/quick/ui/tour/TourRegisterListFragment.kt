@@ -1,4 +1,5 @@
-package com.ssspvtltd.quick.ui.customerDetails
+package com.ssspvtltd.quick.ui.tour
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -11,9 +12,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
-import com.ssspvtltd.quick.databinding.FragmentAllAccountListBinding
-import com.ssspvtltd.quick.ui.customerDetails.adapter.CustomerListAdapter
+import com.ssspvtltd.quick.databinding.FragmentTourRegisterListBinding
+import com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsActivity
 import com.ssspvtltd.quick.ui.customerDetails.viewmodel.CustomerDetailsViewModel
+import com.ssspvtltd.quick.ui.tour.adapter.TourRegisterAdapter
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,11 +24,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 @AndroidEntryPoint
-class CustomerListFragment
-    : BaseFragment<FragmentAllAccountListBinding, CustomerDetailsViewModel>() {
-    private val adapter by lazy { CustomerListAdapter() }
-    override val inflate: InflateF<FragmentAllAccountListBinding>
-        get() = FragmentAllAccountListBinding::inflate
+class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBinding, CustomerDetailsViewModel>() {
+    private val adapter by lazy { TourRegisterAdapter() }
+    override val inflate: InflateF<FragmentTourRegisterListBinding>
+        get() = FragmentTourRegisterListBinding::inflate
 
     override fun initViewModel(): CustomerDetailsViewModel = getViewModel()
 
@@ -56,15 +57,14 @@ class CustomerListFragment
         }
     }
 
+
     private fun registerObserver() {
         viewModel.allAccountList.observe(viewLifecycleOwner) { list ->
             if (!list.isNullOrEmpty()) {
-                binding.searchContainer.visibility= View.VISIBLE
                 binding.recyclerView.visibility = View.VISIBLE
                 adapter.submitList(list)
             } else {
                 binding.recyclerView.visibility = View.GONE
-                binding.searchContainer.visibility= View.GONE
             }
         }
 
@@ -90,16 +90,15 @@ class CustomerListFragment
 
 
         btnAddCustomer.setOnClickListener {
-            val bundle = Bundle().apply {
-            putString("source", "Markerter")
-        }
-            findNavController().navigate(R.id.customerDetailsFragment, bundle)  }
+            val intent = Intent(requireActivity(), TourDetailsActivity::class.java)
+         //   intent.putExtra("id",it.id)
+            startActivity(intent) }
 
 
         false
 
         toolbar.setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
-        toolbar.setTitle("Garment Fair Customer Details")
+        toolbar.setTitle("Tour Register")
         adapter.onItemEditClick = {
             val intent = Intent(requireActivity(), CustomerDetailsActivity::class.java)
             intent.putExtra("id",it.id)

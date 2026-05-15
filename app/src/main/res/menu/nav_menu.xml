@@ -57,6 +57,10 @@
         android:icon="@drawable/pending_lr"
         android:title="Tour Details" />
     <item
+        android:id="@+id/nav_customer_wise_fair_details"
+        android:icon="@drawable/pending_lr"
+        android:title="All Fair Customer detail" />
+    <item
         android:id="@+id/nav_logout"
         android:icon="@drawable/heroicons_outline_logout"
         android:title="@string/logout" />

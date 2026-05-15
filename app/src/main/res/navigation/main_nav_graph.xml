@@ -8,7 +8,11 @@
     <fragment
         android:id="@+id/dashboardFragment"
         android:name="com.ssspvtltd.quick.ui.dashboard.DashboardFragment"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_tourRegisterListFragment"
+            app:destination="@id/tourRegisterListFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/addOrderFragment"
@@ -40,6 +44,14 @@
         android:id="@+id/customerDetailsFragment"
         android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsFragment"
         android:label="CustomerDetailsFragment" />
+    <fragment
+        android:id="@+id/tourRegisterListFragment"
+        android:name="com.ssspvtltd.quick.ui.tour.TourRegisterListFragment"
+        android:label="TourRegisterListFragment" />
+    <fragment
+        android:id="@+id/customerListByCustomerCodeFragment"
+        android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerListByCustomerCodeFragment"
+        android:label="CustomerListByCustomerCodeFragment" />
 
     <!--    <dialog-->
     <!--        android:id="@+id/locationFragment"-->

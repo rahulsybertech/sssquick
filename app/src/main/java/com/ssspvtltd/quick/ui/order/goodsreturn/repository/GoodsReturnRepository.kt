@@ -15,6 +15,7 @@ import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ApiService
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.networking.safeApiCall
+import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import kotlinx.coroutines.Dispatchers
@@ -93,4 +94,9 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
             apiService.accountDetailsForIDApi(id)
         }
     }
+
+    suspend fun customerListByCustomerCodeReq(searchValue: String): ResultWrapper<ApiResponse<*>, Response<CreateResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getAllBranchFairAccounts(searchValue)
+        }}
 }

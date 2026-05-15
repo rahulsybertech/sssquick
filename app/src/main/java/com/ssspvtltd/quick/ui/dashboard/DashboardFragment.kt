@@ -100,6 +100,12 @@ class DashboardFragment : Fragment() {
             }
             navController.navigate(R.id.customerListFragment3, bundle)
         }
+        binding.rlTourDetails.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("id", "")
+            }
+            navController.navigate(R.id.tourRegisterListFragment, bundle)
+        }
         binding.rlPendiingGr.setOnClickListener {
             val intent = Intent(requireActivity(), GoodsReturnActivity::class.java)
             startActivity(intent)

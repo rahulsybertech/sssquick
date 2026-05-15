@@ -42,7 +42,7 @@
         <!-- Search container -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/searchContainer"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/gray_200_bg"
@@ -64,6 +64,7 @@
                 android:drawableTint="@color/red_200"
                 android:fontFamily="@font/roboto_light"
                 android:gravity="center|start"
+                android:singleLine="true"
                 android:hint="@string/search_by_name"
                 android:imeOptions="actionSearch"
                 android:lines="1"
@@ -107,7 +108,7 @@
             app:layout_constraintEnd_toEndOf="parent"
 
             tools:itemCount="5"
-            tools:listitem="@layout/all_account_adapter" />
+            tools:listitem="@layout/adapter_customer_list_by_customer_code" />
 
         <TextView
             android:id="@+id/noDataText"
@@ -123,22 +124,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/searchContainer" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddCustomer"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="Add"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/red_200"
-            android:layout_margin="16dp"
-            app:cornerRadius="20dp"
-            app:icon="@drawable/ic_baseline_plus_24"
-            app:iconGravity="textStart"
-            app:iconPadding="6dp"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

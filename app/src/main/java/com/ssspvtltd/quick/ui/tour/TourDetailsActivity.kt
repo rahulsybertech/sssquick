@@ -2,16 +2,22 @@ package com.ssspvtltd.quick.ui.tour
 
 import android.Manifest
 import android.R
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.text.InputType
 import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
@@ -121,6 +127,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
 
+
+
     private val galleryLauncher =
         registerForActivityResult(
             ActivityResultContracts.GetContent()
@@ -152,7 +160,52 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     }
                 }
             }
+
         }
+
+    private val pickContact =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+            if (result.resultCode == Activity.RESULT_OK) {
+
+                val uri = result.data?.data ?: return@registerForActivityResult
+
+                val cursor = contentResolver.query(
+                    uri,
+                    arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                    null,
+                    null,
+                    null
+                )
+
+                cursor?.use {
+
+                    if (it.moveToFirst()) {
+
+                        val numberIndex = it.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        )
+
+                        if (numberIndex != -1) {
+
+                            val number = it.getString(numberIndex)
+
+                            Log.d("CONTACT", "NUMBER = $number")
+
+                            val cleanNumber = number
+                                ?.replace("\\s".toRegex(), "")
+                                ?.replace("+91", "")
+                                ?.replace("-", "")
+
+                            binding.mobileNo1.setText(cleanNumber)
+                        }
+                    }
+                }
+            }
+        }
+
+
+
     override val inflate: InflateA<ActivityTourDetailsBinding> get() = ActivityTourDetailsBinding::inflate
     override fun initViewModel(): TourDetailsViewModel = getViewModel()
 
@@ -197,21 +250,31 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                 // FIRST SCREEN → NEXT
 
-                isNextScreen = true
+                if(validateForm()){
 
-                binding.btnNext.text = "Save"
+                    isNextScreen = true
 
-                binding.btnBack.visibility = View.VISIBLE
+                    binding.btnNext.text = "Save"
 
-                binding.mainLayout.visibility = View.GONE
+                    binding.btnBack.visibility = View.VISIBLE
 
-                binding.layoutStepTwo.visibility = View.VISIBLE
+                    binding.mainLayout.visibility = View.GONE
+                    binding.radioGroupCustomer.visibility = View.GONE
+
+                    binding.layoutStepTwo.visibility = View.VISIBLE
+                }
+
 
             } else {
 
                 // SECOND SCREEN → SAVE
 
-                saveData()
+
+                if (validateForm()) {
+                    saveData()
+                }
+
+
                 viewModel.submitLeadResponse.observe(this) { response ->
 
                     Toast.makeText(
@@ -238,6 +301,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.btnBack.visibility = View.GONE
 
             binding.mainLayout.visibility = View.VISIBLE
+            binding.radioGroupCustomer.visibility = View.VISIBLE
 
             binding.layoutStepTwo.visibility = View.GONE
         }
@@ -247,6 +311,68 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
 
+    }
+    private fun validateForm(): Boolean {
+
+        // Existing Customer validation
+        if (binding.rbExisting.isChecked) {
+
+            if (binding.dropCity.text.isNullOrEmpty()) {
+                binding.layouCustomer.error = "Select Firm Name"
+                binding.dropCity.requestFocus()
+                return false
+            }
+
+            if (binding.dropGrade.text.isNullOrEmpty()) {
+                binding.layouGrade.error = "Select Grade"
+                return false
+            }
+
+            if (binding.dropStation.text.isNullOrEmpty()) {
+                binding.layouStation.error = "Select Station"
+                return false
+            }
+
+            if (binding.dropState.text.isNullOrEmpty()) {
+                binding.layouState.error = "Select State"
+                return false
+            }
+
+            if (binding.mobileNo1.text.isNullOrEmpty()) {
+                binding.layoutMobileNum.error = "Enter Mobile No"
+                return false
+            }
+
+            if (!binding.mobileNo1.text.toString()
+                    .matches(Regex("^[6-9][0-9]{9}$"))
+            ) {
+                binding.mobileNo1.error = "Invalid Mobile Number"
+                return false
+            }
+        }
+
+        // New Customer validation
+        else if (binding.rbNew.isChecked) {
+
+            if (binding.firmNameNewCustomer.text.isNullOrEmpty()) {
+                binding.layouNewCustomer.error = "Enter Firm Name"
+                return false
+            }
+
+            if (binding.mobileNo1.text.isNullOrEmpty()) {
+                binding.layoutMobileNum.error = "Enter Mobile No"
+                return false
+            }
+
+            if (!binding.mobileNo1.text.toString()
+                    .matches(Regex("^[6-9][0-9]{9}$"))
+            ) {
+                binding.layoutMobileNum.error = "Invalid Mobile Number"
+                return false
+            }
+        }
+
+        return true
     }
 
     private fun saveData() {
@@ -356,6 +482,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     private fun initViews() = with(binding) {
 
+     //   viewModel.fetchLocation()
         selfieAdapter = ImageAdapter(
             selfieList,
 
@@ -417,11 +544,101 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
 
+
+
+
+         val contactPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+
+                if (granted) {
+
+                    openContactList()
+
+                } else {
+
+             /*       Toast.makeText(
+                        this,
+                        "Permission denied",
+                        Toast.LENGTH_SHORT
+                    ).show()*/
+                }
+            }
+
+
+
+
+        binding.mobileNo1.setOnClickListener {
+
+            if (ContextCompat.checkSelfPermission(
+                    this@TourDetailsActivity,
+                    Manifest.permission.READ_CONTACTS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+
+                openContactList()
+
+            } else {
+
+                contactPermissionLauncher.launch(
+                    Manifest.permission.READ_CONTACTS
+                )
+            }
+        }
+
+
+
+
+    }
+    private fun openContactList() {
+
+        val intent = Intent(
+            Intent.ACTION_PICK,
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        )
+
+        pickContact.launch(intent)
     }
     private var isFirmApiCalled = false
 
     private fun setupFirmDropdown() {
+        var  customerType="existing"
+        binding.rbExisting.isChecked = true
 
+        customerType = "existing"
+
+        binding.layouCustomer.visibility = View.VISIBLE
+        binding.layouNewCustomer.visibility = View.GONE
+
+        binding.radioGroupCustomer.setOnCheckedChangeListener { _, checkedId ->
+
+            when (checkedId) {
+
+                binding.rbExisting.id -> {
+
+                    customerType = "existing"
+
+                    binding.dropCity.setText("")
+
+                    binding.layouCustomer.visibility = View.VISIBLE
+                    binding.layouNewCustomer.visibility = View.GONE
+                }
+
+                binding.rbNew.id -> {
+
+                    customerType = "new"
+
+                    selectedFirmId = ""
+                    selectedFirmName = ""
+
+                    binding.dropCity.setText("")
+
+                    binding.layouNewCustomer.visibility = View.VISIBLE
+                    binding.layouCustomer.visibility = View.INVISIBLE
+                }
+            }
+        }
         // First click -> API call + keyboard open
         binding.dropCity.setOnFocusChangeListener { _, hasFocus ->
 
@@ -437,7 +654,12 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 } else {
 
                     // Already loaded
-                    binding.dropCity.showDropDown()
+                    if(customerType=="existing"){
+                        binding.dropCity.showDropDown()
+                    }else{
+                        binding.dropCity.dismissDropDown()
+                    }
+
                 }
             }
         }
@@ -627,6 +849,18 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selectedItem.name,
                 false
             )
+
+
+            // ✅ IMPORTANT FIX
+            binding.dropGrade.clearFocus()
+            binding.dropGrade.isCursorVisible = false
+
+            // hide keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
+
+            // remove error
+            binding.layouGrade.error = null
         }
 
         // clear icon click support
@@ -704,6 +938,16 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selectedItem.name,
                 false
             )
+            // ✅ IMPORTANT FIX
+            binding.dropStation.clearFocus()
+            binding.dropStation.isCursorVisible = false
+
+            // hide keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
+
+            // remove error
+            binding.layouStation.error = null
         }
 
         // dismiss support
@@ -780,6 +1024,18 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selectedItem.name,
                 false
             )
+
+            // ✅ IMPORTANT FIX
+            binding.dropState.clearFocus()
+            binding.dropState.isCursorVisible = false
+
+            // hide keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
+
+            // remove error
+            binding.layouState.error = null
+
         }
 
         // clear focus when dropdown dismiss
@@ -856,6 +1112,17 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selectedItem.name,
                 false
             )
+
+            // ✅ IMPORTANT FIX
+            binding.dropCategory.clearFocus()
+            binding.dropCategory.isCursorVisible = false
+
+            // hide keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.dropCategory.windowToken, 0)
+
+            // remove error
+            binding.layouCategory.error = null
         }
 
         // clear focus when dropdown dismiss
@@ -953,4 +1220,6 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
+
+
 }

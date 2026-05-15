@@ -22,6 +22,10 @@
           android:layout_below="@+id/toolbar"
           android:layout_marginTop="10dp">
 
+          <androidx.core.widget.NestedScrollView
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:fillViewport="true">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -609,12 +613,70 @@
 
                     </RelativeLayout>
 
+                    <RelativeLayout
+                        android:id="@+id/rlTourDetails"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/gray_200_bg">
 
+                        <ImageView
+                            android:id="@+id/iconTourDetails"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerInParent="true"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:background="@drawable/gray_300_bg"
+                            android:padding="10dp"
+                            android:rotation="180"
+                            android:src="@drawable/destination"
+                            app:tint="?attr/colorPrimaryDark" />
+
+                        <LinearLayout
+                            android:layout_toRightOf="@+id/iconTourDetails"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_toEndOf="@+id/icon_total_sale_amount"
+                                android:fontFamily="@font/helvetica_regular"
+                                android:text="Tour Details"
+                                android:textColor="@color/black" />
+                            <LinearLayout
+                                android:orientation="horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+                                <TextView
+                                    android:id="@+id/tviconTourDetails"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/helvetica_bold"
+                                    android:text="-"
+                                    android:textColor="@color/black"
+                                    android:textSize="25dp" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+
+
+                    </RelativeLayout>
                 </LinearLayout>
+
 
             </RelativeLayout>
 
-
+          </androidx.core.widget.NestedScrollView>
 
       </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
