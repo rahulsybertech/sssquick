@@ -41,24 +41,39 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutPersonMobileNum"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/layoutPersonName"
             android:layout_margin="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            app:endIconMode="clear_text">
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:endIconMode="clear_text"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/imgPhoneBook">
 
             <AutoCompleteTextView
                 android:id="@+id/etPMobileNumber"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mobile Number * "
+                android:layout_height="50dp"
+                android:hint="Mobile Number *"
                 android:inputType="number"
+                android:text=""
+                android:padding="10dp"
                 android:maxLength="10"
                 android:imeOptions="actionDone"
                 android:maxLines="1"
                 android:textAppearance="@style/MyTextStyle"/>
+
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/imgPhoneBook"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/phone_book"
+            app:layout_constraintTop_toTopOf="@id/layoutPersonMobileNum"
+            app:layout_constraintBottom_toBottomOf="@id/layoutPersonMobileNum"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <!-- Aadhaar Front -->
 

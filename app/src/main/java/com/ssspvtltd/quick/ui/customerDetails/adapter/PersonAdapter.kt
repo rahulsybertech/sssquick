@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -26,6 +27,7 @@ class PersonAdapter(
     private val onRemoveClick: (Int) -> Unit,
     private val onAadharFrontClick: (Int) -> Unit,
     private val onAadharBackClick: (Int) -> Unit,
+    private val onMobileClick: (position: Int, mobile: String) -> Unit,
     var onRequestNextFocus: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<PersonAdapter.ViewHolder>() {
     private var focusNamePosition = -1
@@ -34,6 +36,7 @@ class PersonAdapter(
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
         val etPMobileNumber: EditText = itemView.findViewById(R.id.etPMobileNumber)
+        val imgPhoneBook: ImageView = itemView.findViewById(R.id.imgPhoneBook)
       //  val layoutDelete: FrameLayout = itemView.findViewById(R.id.layoutDelete)
    //     val layoutEdit: FrameLayout = itemView.findViewById(R.id.layoutEdit)
         val btnAdd: ImageView = itemView.findViewById(R.id.btnAdd)
@@ -65,6 +68,16 @@ class PersonAdapter(
 
         holder.etName.setText(item.personName ?: "")
         holder.etPMobileNumber.setText(item.mobileNo ?: "")
+
+
+
+        // In onBindViewHolder
+        holder.imgPhoneBook.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            if (pos != RecyclerView.NO_POSITION) {
+                onMobileClick(pos, holder.etPMobileNumber.text.toString())
+            }
+        }
 
 
         // ✅ Single TextWatcher (FIXED)

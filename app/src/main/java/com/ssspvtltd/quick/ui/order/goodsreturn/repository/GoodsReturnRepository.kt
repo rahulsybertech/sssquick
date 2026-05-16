@@ -18,6 +18,7 @@ import com.ssspvtltd.quick.networking.safeApiCall
 import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Response
 import javax.inject.Inject
@@ -98,5 +99,10 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
     suspend fun customerListByCustomerCodeReq(searchValue: String): ResultWrapper<ApiResponse<*>, Response<CreateResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
             apiService.getAllBranchFairAccounts(searchValue)
+        }}
+
+    suspend fun getAllLeadReq(): ResultWrapper<ApiResponse<*>, Response<LeadResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getAllLeadApi()
         }}
 }

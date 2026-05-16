@@ -51,7 +51,7 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
     private fun callPendingOrderApi() {
         lifecycleScope.launch {
             val customerJob = launch {
-                viewModel.fatchAllAccountList()
+                viewModel.getAllLeadtList()
             }
             customerJob.join()
         }
@@ -59,7 +59,7 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
 
 
     private fun registerObserver() {
-        viewModel.allAccountList.observe(viewLifecycleOwner) { list ->
+        viewModel.getAllLeadByUserIDtList.observe(viewLifecycleOwner) { list ->
             if (!list.isNullOrEmpty()) {
                 binding.recyclerView.visibility = View.VISIBLE
                 adapter.submitList(list)
@@ -72,7 +72,7 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
 
             if (isSuccess) {
                 showToast("Delete Account Successfully")
-                viewModel.fatchAllAccountList()
+                viewModel.getAllLeadtList()
             } else {
 
                 showToast("Customer Add Failed")

@@ -558,11 +558,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                 } else {
 
-             /*       Toast.makeText(
-                        this,
+                    Toast.makeText(
+                        this@TourDetailsActivity,
                         "Permission denied",
                         Toast.LENGTH_SHORT
-                    ).show()*/
+                    ).show()
                 }
             }
 
@@ -600,6 +600,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         pickContact.launch(intent)
     }
+
+
     private var isFirmApiCalled = false
 
     private fun setupFirmDropdown() {

@@ -17,6 +17,7 @@ import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
+import com.ssspvtltd.quick.ui.tour.model.LeadItem
 import com.ssspvtltd.quick.utils.showToast
 
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -303,5 +304,24 @@ class CustomerDetailsViewModel @Inject constructor(
             }
         }
     }
+    private val _getAllLeadtList = MutableLiveData<List<LeadItem>>()
+    val getAllLeadByUserIDtList: LiveData<List<LeadItem>> = _getAllLeadtList
+
+
+    fun getAllLeadtList() = viewModelScope.launch {
+        showProgressBar()
+        when (val response = repository.getAllLeadReq()) {
+
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                val list = response.value.body()!!.data
+              //  customerList1=list
+                _getAllLeadtList.postValue(list)
+            }
+        }
+    }
+
   }
 

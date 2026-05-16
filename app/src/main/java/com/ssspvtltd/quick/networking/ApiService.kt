@@ -44,8 +44,10 @@ import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsReques
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
+
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.StateResponse
 import com.ssspvtltd.quick.ui.tour.model.StationResponse
@@ -377,4 +379,7 @@ interface ApiService {
     suspend fun getAllBranchFairAccounts(
         @Query("AccountCode") strAccountCode: String
     ): Response<CreateResponse>
+
+    @POST("api/OrderBook/GetAllLeadByUserID")
+    suspend fun getAllLeadApi(): Response<LeadResponse>// Added >
 }

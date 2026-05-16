@@ -113,17 +113,48 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Mobile -->
-            <EditText
-                android:id="@+id/etMobileNumber"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/edit_bg"
-                android:hint="Mobile Number"
-                android:inputType="number"
-                android:maxLength="10"
-                android:padding="10dp"
-                android:textAppearance="@style/MyTextStyle"/>
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layoutPersonMobileNum"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:endIconMode="clear_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_marginEnd="10dp"
+                    app:layout_constraintEnd_toStartOf="@id/imgPhoneBook"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etMobileNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="Mobile Number"
+                        android:inputType="number"
+                        android:maxLength="10"
+                        android:padding="10dp"
+                        android:imeOptions="actionDone"
+                        android:maxLines="1"
+                        android:textAppearance="@style/MyTextStyle"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <ImageView
+                    android:id="@+id/imgPhoneBook"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:src="@drawable/phone_book"
+                    app:layout_constraintTop_toTopOf="@id/layoutPersonMobileNum"
+                    app:layout_constraintBottom_toBottomOf="@id/layoutPersonMobileNum"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Remark -->
             <EditText

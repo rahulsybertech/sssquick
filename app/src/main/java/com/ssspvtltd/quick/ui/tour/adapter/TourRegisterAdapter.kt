@@ -10,10 +10,11 @@ import com.ssspvtltd.quick.base.recycler.adapter.MultiViewAdapter
 import com.ssspvtltd.quick.databinding.AdapterTourRegisterListBinding
 import com.ssspvtltd.quick.model.customerdetails.CustomerList
 import com.ssspvtltd.quick.ui.customerDetails.allAccount.PersonAdapter
+import com.ssspvtltd.quick.ui.tour.model.LeadItem
 
 class TourRegisterAdapter    : MultiViewAdapter() {
-    internal var onItemEditClick: ((CustomerList) -> Unit)? = null
-    internal var onItemDeleteClick: ((CustomerList) -> Unit)? = null
+    internal var onItemEditClick: ((LeadItem) -> Unit)? = null
+    internal var onItemDeleteClick: ((LeadItem) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         val binding = AdapterTourRegisterListBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
@@ -27,7 +28,7 @@ class TourRegisterAdapter    : MultiViewAdapter() {
     override fun onBindViewHolder(holder: BaseViewHolder, position: Int) {
         when (holder) {
             is PendingLrViewHolder -> {
-                getItemOrNull<CustomerList>(position)?.let {
+                getItemOrNull<LeadItem>(position)?.let {
                     holder.bind(it, position)
                 }
             }
@@ -38,16 +39,16 @@ class TourRegisterAdapter    : MultiViewAdapter() {
 }
 class PendingLrViewHolder(
     private val binding: AdapterTourRegisterListBinding,
-    private val onItemEditClick: ((CustomerList) -> Unit)?,
-    private val onItemDeleteClick: ((CustomerList) -> Unit)?
+    private val onItemEditClick: ((LeadItem) -> Unit)?,
+    private val onItemDeleteClick: ((LeadItem) -> Unit)?
 ) : BaseViewHolder(binding) {
 
     private val personAdapter = PersonAdapter()
 
-    fun bind(item: CustomerList,position: Int) = with(binding) {
+    fun bind(item: LeadItem,position: Int) = with(binding) {
 
 
-        if (item.editAllowed) {
+     /*   if (item.editAllowed) {
 
             layoutEdit.visibility = View.VISIBLE
             layoutDelete.visibility = View.VISIBLE
@@ -55,10 +56,10 @@ class PendingLrViewHolder(
         else{
             layoutEdit.visibility= View.GONE
             layoutDelete.visibility= View.GONE
-        }
+        }*/
 
         // ✅ Set inner list
-        personAdapter.submitList(item.persons ?: emptyList())
+       // personAdapter.submitList(item.persons ?: emptyList())
 
 
 
@@ -66,7 +67,7 @@ class PendingLrViewHolder(
         tvSNo.text = "S.No. ${position + 1}"
       //  noOfPerson.text = "Total Person  ${item.persons.size}"
         tvCustomerName.text = Html.fromHtml(
-            "<b>Customer Name | </b> ${item.accountName}",
+            "<b>Firm Name | </b> ${item.firmName}",
             Html.FROM_HTML_MODE_LEGACY
         )
 

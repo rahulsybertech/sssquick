@@ -1,11 +1,14 @@
 package com.ssspvtltd.quick.ui.customerDetails
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
@@ -22,7 +25,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.JsonObject
@@ -32,7 +34,6 @@ import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentCustomerDetailsBinding
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.model.customer.NickName
-import com.ssspvtltd.quick.model.customerdetails.CustomerList
 import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
 import com.ssspvtltd.quick.ui.customerDetails.adapter.PersonAdapter
@@ -69,6 +70,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
     private var selectedCustomerName = ""
     private var selectedCustomerId = ""
     private var customerId: String? = null
+    private var person: String? = ""
     private val cameraPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
 
@@ -133,6 +135,59 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             }
         }
 
+    private val pickContact =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+            if (result.resultCode == Activity.RESULT_OK) {
+
+                val uri = result.data?.data ?: return@registerForActivityResult
+
+                val cursor = activity?.contentResolver?.query(
+                    uri,
+                    arrayOf(ContactsContract.CommonDataKinds.Phone.NUMBER),
+                    null,
+                    null,
+                    null
+                )
+
+                cursor?.use {
+
+                    if (it.moveToFirst()) {
+
+                        val numberIndex = it.getColumnIndex(
+                            ContactsContract.CommonDataKinds.Phone.NUMBER
+                        )
+
+                        if (numberIndex != -1) {
+
+                            val number = it.getString(numberIndex)
+
+                            Log.d("CONTACT", "NUMBER = $number")
+
+                            val cleanNumber = number
+                                ?.replace("\\s".toRegex(), "")
+                                ?.replace("+91", "")
+                                ?.replace("-", "")
+
+                            cleanNumber?.let { number ->
+
+                                if (person.equals("customer")) {
+                                    binding.etMobileNumber.setText(number)
+                                } else {
+                                    if (selectedPosition != -1) {
+                                        list[selectedPosition].mobileNo = number
+                                        personAdapter.notifyItemChanged(selectedPosition)
+                                    }
+
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
     override fun initViewModel(): CustomerDetailsViewModel = getViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -179,8 +234,8 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                         mobileNo   = it.mobileNo,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
-                        frontURL = "",
-                        backURL = ""
+                        frontURL = it.frontURL,
+                        backURL = it.backURL
                     )
                 }
 
@@ -395,11 +450,11 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 val persons = data.persons?.map {
 
                     PersonModel(
-                        id = it.id,
-                        personName = it.personName,
-                        mobileNo = it.mobileNo,
-                        frontURL = it.frontURL,
-                        backURL = it.backURL
+                        id = it.id ?: "",
+                        personName = it.personName ?: "",
+                        mobileNo = it.mobileNo ?: "",
+                        frontURL = it.frontURL ?: "",
+                        backURL = it.backURL ?: ""
                     )
 
                 } ?: emptyList()
@@ -664,6 +719,24 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
     private fun initViews() = with(binding) {
 
+        val contactPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+
+                if (granted) {
+
+                    openContactList()
+
+                } else {
+
+                    Toast.makeText(
+                        activity,
+                        "Permission denied",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         customerId = arguments?.getString("id")
         list.clear()
 
@@ -705,6 +778,24 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 selectedPosition = position
                 selectedImageType = "back"
                 showImagePicker()
+            },
+            { position, mobile->
+                selectedPosition = position
+                person="person"
+                if (ContextCompat.checkSelfPermission(
+                        requireActivity(),
+                        Manifest.permission.READ_CONTACTS
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+
+                    openContactList()
+
+                } else {
+
+                    contactPermissionLauncher.launch(
+                        Manifest.permission.READ_CONTACTS
+                    )
+                }
             },
             onRequestNextFocus = { nextPosition ->
                 recyclerView.scrollToPosition(nextPosition)
@@ -755,13 +846,15 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 binding.etRemark.setText(data.remark)
 
                 val persons = data.persons?.map {
+
                     PersonModel(
                         id = it.id,
-                        personName = it.personName,
-                        mobileNo = it.mobileNo,
-                        frontURL = it.frontURL,
-                        backURL = it.backURL
+                        personName = it.personName ?: "",
+                        mobileNo = it.mobileNo ?: "",
+                        frontURL = it.frontURL ?: "",
+                        backURL = it.backURL ?: ""
                     )
+
                 } ?: emptyList()
 
                 if (persons.isEmpty()) {
@@ -777,6 +870,37 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             list.add(PersonModel())
             personAdapter.notifyDataSetChanged()   // ✅ refresh
         }
+
+
+
+
+        binding.imgPhoneBook.setOnClickListener {
+
+            person="customer"
+            if (ContextCompat.checkSelfPermission(
+                    requireActivity(),
+                    Manifest.permission.READ_CONTACTS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+
+                openContactList()
+
+            } else {
+
+                contactPermissionLauncher.launch(
+                    Manifest.permission.READ_CONTACTS
+                )
+            }
+        }
+    }
+    private fun openContactList() {
+
+        val intent = Intent(
+            Intent.ACTION_PICK,
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        )
+
+        pickContact.launch(intent)
     }
 
     private fun showImagePicker() {
