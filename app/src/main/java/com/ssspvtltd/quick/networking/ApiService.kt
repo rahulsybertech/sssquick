@@ -120,6 +120,7 @@ interface ApiService {
     ): ApiResponse<List<SalepartyData>>
 
     @POST("api/OrderBook/GetDispatchTypeList")
+
     suspend fun dispatchType(
     ): ApiResponse<List<DispatchTypeList>>
 

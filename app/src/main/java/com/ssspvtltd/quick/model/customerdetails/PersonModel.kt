@@ -14,4 +14,3 @@ data class PersonModel(
     var aadharFrontBase64: String? = null,
     var aadharBackBase64: String? = null
 )
-
