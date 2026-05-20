@@ -140,7 +140,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             }
         }
 
-
     private val pickContact =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
 
@@ -497,7 +496,6 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     PersonModel(
                         id = it.id ?: "",
                         personName = it.personName ?: "",
-                        personRemark = it.personRemark ?: "",
                         mobileNo = it.mobileNo ?: "",
                         frontURL = it.frontURL ?: "",
                         backURL = it.backURL ?: ""

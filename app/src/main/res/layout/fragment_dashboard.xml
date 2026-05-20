@@ -614,9 +614,10 @@
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:visibility="visible"
+                        android:visibility="gone"
                         android:id="@+id/rlTourDetails"
                         android:layout_width="match_parent"
+
                         android:layout_height="match_parent"
                         android:layout_margin="5dp"
                         android:layout_weight="1"

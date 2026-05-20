@@ -169,11 +169,11 @@ class MainActivity :
                     startActivity(intent)
                     false
                 }
-                R.id.nav_tour_details -> {
+             /*   R.id.nav_tour_details -> {
                     val intent = Intent(this, TourDetailsActivity::class.java)
                     startActivity(intent)
                     false
-                }
+                }*/
                 R.id.nav_pending_lr -> {
                     val intent = Intent(this, PendingLrActivity::class.java)
                     startActivity(intent)
