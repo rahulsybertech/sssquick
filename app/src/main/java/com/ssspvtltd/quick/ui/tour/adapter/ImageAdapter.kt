@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.ssspvtltd.quick.R
+import com.ssspvtltd.quick.ui.tour.model.ImageItem
 
 class ImageAdapter(
-    private val imageList: MutableList<Bitmap>,
+    private val imageList: MutableList<ImageItem>,
     private val onDelete: (Int) -> Unit,
     private val onAdd: () -> Unit,
     private val maxCount: Int
@@ -42,9 +44,22 @@ class ImageAdapter(
 
         if (position < imageList.size) {
 
-            holder.imgPhoto.setImageBitmap(imageList[position])
+            val item = imageList[position]
 
-            holder.imgDelete.visibility = View.VISIBLE
+            when {
+
+                item.bitmap != null -> {
+
+                    holder.imgPhoto.setImageBitmap(item.bitmap)
+                }
+
+                item.imageUrl != null -> {
+
+                    Glide.with(holder.itemView.context)
+                        .load(item.imageUrl)
+                        .into(holder.imgPhoto)
+                }
+            }
 
             holder.imgDelete.setOnClickListener {
                 onDelete(position)

@@ -16,7 +16,9 @@ import com.ssspvtltd.quick.ui.customerDetails.model.CreateData
 import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteLeadRequest
 import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
+import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadItem
 import com.ssspvtltd.quick.utils.showToast
 
@@ -323,5 +325,30 @@ class CustomerDetailsViewModel @Inject constructor(
         }
     }
 
+
+    fun deleteLeadForIDParam(id: String) = viewModelScope.launch {
+
+        showProgressBar()
+
+
+        when (val response = repository.deleteLeadForIDReq(DeleteLeadRequest(id))) {
+
+            is ResultWrapper.Failure -> {
+                hideProgressBar()
+                apiErrorData(response.error)
+                _deleteAccountForID.postValue(false)
+            }
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+
+                val data = response.value.body()
+                msg = data?.ResponseMessage ?: ""
+                showToast(msg)
+
+                _deleteAccountForID.postValue(true)
+            }
+        }
+    }
   }
 

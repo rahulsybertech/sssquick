@@ -12,7 +12,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.text.InputType
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -28,6 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -38,6 +38,8 @@ import com.ssspvtltd.quick.ui.tour.adapter.CategoryAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.ImageAdapter
 import com.ssspvtltd.quick.ui.tour.model.CategoryItem
 import com.ssspvtltd.quick.ui.tour.model.GradeItem
+import com.ssspvtltd.quick.ui.tour.model.ImageItem
+import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryRequest
@@ -64,12 +66,16 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     var stationData: List<StationItem> = emptyList()
     var stateData: List<StateItem> = emptyList()
     var categoryData: List<CategoryItem> = emptyList()
+    var ShopCategory: List<ShopCategoryItem> = emptyList()
     private var isNextScreen = false
     private lateinit var adapter: CategoryAdapter
     private var isAllSelected = false
     private var selectedImageType = ""
-    private val selfieList = mutableListOf<Bitmap>()
-    private val bottomList = mutableListOf<Bitmap>()
+    private val selfieList =
+        mutableListOf<ImageItem>()
+
+    private val bottomList =
+        mutableListOf<ImageItem>()
     private lateinit var selfieAdapter: ImageAdapter
     private lateinit var bottomAdapter: ImageAdapter
     private var selectedFirmName: String? = null
@@ -85,6 +91,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private var whatppMobileNumber: String? = null
     private var selectedCategoryName: String? = null
     private var selectedCategoryId: String? = null
+    private var leadId: String? = null
+    var  customerType="existing"
+
 
 
     private val cameraPermissionLauncher =
@@ -109,7 +118,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     if (selfieList.size < 2) {
 
-                        selfieList.add(it)
+                        selfieList.add(ImageItem(bitmap = bitmap))
 
                         selfieAdapter.notifyDataSetChanged()
                     }
@@ -118,7 +127,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     if (bottomList.size < 5) {
 
-                        bottomList.add(it)
+                        bottomList.add(ImageItem(bitmap = bitmap))
 
                         bottomAdapter.notifyDataSetChanged()
                     }
@@ -145,7 +154,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     if (selfieList.size < 2) {
 
-                        selfieList.add(bitmap)
+                        selfieList.add(ImageItem(bitmap = bitmap))
 
                         selfieAdapter.notifyDataSetChanged()
                     }
@@ -154,7 +163,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     if (bottomList.size < 5) {
 
-                        bottomList.add(bitmap)
+                        bottomList.add(ImageItem(bitmap = bitmap))
 
                         bottomAdapter.notifyDataSetChanged()
                     }
@@ -211,6 +220,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        leadId = intent.getStringExtra("leadId")
+        checkEditMode()
         initViews()
      //   registerObserver()
       //  registerListener()
@@ -306,11 +317,200 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.layoutStepTwo.visibility = View.GONE
         }
 
+        viewModel.getleadDetailByLedId.observe(this) { data ->
+
+            data?.let {
+
+                setLeadData(it)
+            }
+        }
 
 
 
 
+    }
 
+
+
+    private fun setLeadData(data: LeadDetails) = with(binding) {
+        if (data.accountID.isNullOrEmpty()) {
+
+            // NEW CUSTOMER
+
+            binding.rbNew.isChecked = true
+
+            customerType = "new"
+
+            binding.layouNewCustomer.visibility =
+                View.VISIBLE
+
+            binding.layouCustomer.visibility =
+                View.INVISIBLE
+
+            binding.firmNameNewCustomer.setText(
+                data.firmName ?: ""
+            )
+
+        } else {
+
+            // EXISTING CUSTOMER
+
+            binding.rbExisting.isChecked = true
+
+            customerType = "existing"
+
+            binding.layouCustomer.visibility =
+                View.VISIBLE
+
+            binding.layouNewCustomer.visibility =
+                View.GONE
+
+            binding.dropCity.setText(
+                data.firmName ?: "",
+                false
+            )
+
+            selectedFirmId = data.accountID
+        }
+        dropCity.setText(data.firmName ?: "", false)
+        leadId=data.id
+       // selectedFirmId=data.fi
+
+        dropGrade.setText(data.gradeName ?: "", false)
+        selectedGradeId=data.gradeID
+
+        dropStation.setText(data.stationName ?: "", false)
+        selectedStationId=data.stationId
+
+
+        dropState.setText(data.stateName ?: "", false)
+        selectedStateId=data.stateId
+
+        ownerName.setText(data.ownerName ?: "", false)
+
+        mobileNo1.setText(data.mobileNo ?: "")
+
+        mobileNo2.setText(data.whatsappNo ?: "")
+
+        dropCategory.setText(data.categoryName ?: "", false)
+        selectedCategoryId=data.categoryId
+
+        shopArea.setText(data.shopArea ?: "")
+
+        workingBranchs.setText(data.workingBranch ?: "")
+
+        edtOldAgent.setText(data.oldAgentName ?: "")
+      /*  Glide.with(holder.itemView.context)
+            .load(item.imageUrl)
+            .into(holder.imgPhoto)*/
+
+        data.selfieImageURL1?.let {
+
+            selfieList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+        data.selfieImageURL2?.let {
+
+            selfieList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+
+
+        data.shopImageURL1?.let {
+
+            bottomList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+        data.shopImageURL2?.let {
+
+            bottomList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+        data.shopImageURL3?.let {
+
+            bottomList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+        data.shopImageURL4?.let {
+
+            bottomList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+        data.shopImageURL5?.let {
+
+            bottomList.add(
+                ImageItem(imageUrl = it)
+            )
+        }
+
+
+
+        selfieAdapter.notifyDataSetChanged()
+
+        bottomAdapter.notifyDataSetChanged()
+
+        edtYearlySale.setText(data.yearlySale ?: "")
+
+        edtRemarks.setText(data.remark ?: "")
+
+        txtLatLong.text =
+            "Long, Lat: ${data.longitude}, ${data.latitude}"
+
+
+
+        // SHOP CATEGORY SELECT
+
+        val selectedCategories =
+            data.shopCategorys
+                ?.split(",")
+                ?.map { it.trim() }
+                ?: emptyList()
+
+
+
+        ShopCategory.forEach { item ->
+
+            item.isSelected =
+                selectedCategories.any { selected ->
+
+                    selected.equals(
+                        item.name,
+                        ignoreCase = true
+                    )
+                }
+        }
+
+
+
+
+        adapter.notifyDataSetChanged()
+    }
+    private fun checkEditMode() {
+
+        if (!leadId.isNullOrEmpty()) {
+
+            // EDIT MODE
+            binding.toolbar.setTitle("Edit Lead")
+            viewModel.getLeadDetailByLeadID(leadId!!)
+
+        } else {
+
+            // ADD MODE
+
+            binding.toolbar.setTitle("Add Lead")
+        }
     }
     private fun validateForm(): Boolean {
 
@@ -349,6 +549,30 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.mobileNo1.error = "Invalid Mobile Number"
                 return false
             }
+
+            if (binding.dropCategory.text.isNullOrEmpty()) {
+                binding.layouCategory.error = "Select Category"
+                binding.dropCategory.requestFocus()
+                return false
+            }
+        /*    if (adapter.getSelectedCategories().isEmpty()) {
+              //  binding.layouCategory.error = "Select Shop Category"
+                showToast("Select Shop Category")
+             //   binding.dropCategory.requestFocus()
+                return false
+            }*/
+      /*      if (selfieList.isEmpty()) {
+              //  binding.layouCategory.error = "Select Shop Category"
+                showToast("Please pic least one selfie")
+             //   binding.dropCategory.requestFocus()
+                return false
+            }
+            if (bottomList.isEmpty()) {
+                //  binding.layouCategory.error = "Select Shop Category"
+                showToast("Please pic least one shop photo")
+                //   binding.dropCategory.requestFocus()
+                return false
+            }*/
         }
 
         // New Customer validation
@@ -378,18 +602,31 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private fun saveData() {
         val selectedCategoryList = adapter.getSelectedCategories()
         val request = LeadRequest(
-
+            id =
+                if (leadId?.isNotEmpty() == true) {
+                    leadId
+                } else {
+                    null
+                },
             leadNo = 1,
 
             date = getCurrentDateTime(),
 
             ownerName = ownerName ?: "",
 
-            firmName = selectedFirmName ?: "",
+            /*firmName = selectedFirmName ?: "",*/
 
-            mobileNo = mobileNumber ?: "",
+            firmName =
+                if (customerType == "existing") {
+                selectedFirmName ?: ""
+            } else {
+                binding.firmNameNewCustomer.text.toString()
+            }
 
-            whatsappNo = whatppMobileNumber ?: "",
+
+            ,mobileNo = binding.mobileNo2.text.toString() ?: "",
+
+            whatsappNo = binding.mobileNo2.text.toString() ?: "",
 
             stateId = selectedStateId ?: "",
 
@@ -412,7 +649,13 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             yearlySale = binding.edtYearlySale.text.toString(),
 
             remark = binding.edtRemarks.text.toString(),
-            accountID = null,
+            accountID =
+                if (customerType == "existing") {
+                    selectedFirmId
+                } else {
+                    null
+                },
+
             companyId = null,
 
             latitude = "latitude" ?: "",
@@ -605,7 +848,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private var isFirmApiCalled = false
 
     private fun setupFirmDropdown() {
-        var  customerType="existing"
+
         binding.rbExisting.isChecked = true
 
         customerType = "existing"
@@ -1138,10 +1381,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     viewModel.getShopCategoryList()
 
+
         // observe API response
         viewModel.shopcategoryList.observe(this) { list ->
 
-           // categoryData = list
+            ShopCategory = list
 
             adapter = CategoryAdapter(list as MutableList<ShopCategoryItem>)
 
@@ -1212,11 +1456,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private fun openGallery() {
         galleryLauncher.launch("image/*")
     }
-    private fun bitmapToBase64(bitmap: Bitmap): String {
+    private fun bitmapToBase64(bitmap: ImageItem): String {
 
         val byteArrayOutputStream = ByteArrayOutputStream()
 
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        bitmap.bitmap?.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
 
         val bytes = byteArrayOutputStream.toByteArray()
 

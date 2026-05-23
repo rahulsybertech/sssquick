@@ -7,22 +7,53 @@
     android:background="@color/white"
     android:paddingHorizontal="16dp">
 
+
     <!-- S.No -->
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvSNo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/dark_gray"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@id/layoutEdit"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/dndnd"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="S.No: 1" />
+        app:layout_constraintEnd_toStartOf="@id/layoutEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvSNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/dark_gray"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="S.No: 1" />
 
-    <!-- Customer Name -->
+        <!-- Customer Name -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvCustomerName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="13sp"
+            android:textColor="@color/black"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSNo"
+            android:text="Sale Party | OMM HOSIERY : MUZAFFARPUR" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tvCustomerName"
+        android:id="@+id/tvCategory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dndnd"
+        android:text="ffggfgfgffgfgfgffgfgfg" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvGrade"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="13sp"
@@ -30,8 +61,30 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toStartOf="@id/layoutEdit"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSNo"
-        android:text="Sale Party | OMM HOSIERY : MUZAFFARPUR" />
+        app:layout_constraintTop_toBottomOf="@id/tvCategory"
+        android:text="" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvState"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@id/layoutEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvGrade"
+        android:text="" />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvStation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toStartOf="@id/layoutEdit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvState"
+        android:text="" />
 
     <!-- Edit Button (Clickable Area Increased) -->
     <FrameLayout
@@ -39,11 +92,10 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:clickable="true"
-
         android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintEnd_toStartOf="@id/layoutDelete"
-        app:layout_constraintTop_toTopOf="@id/tvCustomerName">
+        app:layout_constraintTop_toTopOf="@id/dndnd">
 
         <ImageView
             android:id="@+id/imgEdit"
@@ -63,7 +115,7 @@
         android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tvCustomerName">
+        app:layout_constraintTop_toTopOf="@id/dndnd">
 
         <ImageView
             android:id="@+id/imgDelete"
@@ -78,6 +130,6 @@
         android:layout_height="1dp"
         android:layout_marginTop="15dp"
         android:background="@color/light_gray"
-        app:layout_constraintTop_toBottomOf="@id/tvCustomerName"/>
+        app:layout_constraintTop_toBottomOf="@id/tvStation"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

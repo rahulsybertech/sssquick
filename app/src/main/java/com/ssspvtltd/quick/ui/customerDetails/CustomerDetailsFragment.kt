@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.customerDetails
 
 import android.Manifest
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,12 +21,14 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Filter
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.ssspvtltd.quick.R
@@ -123,17 +126,18 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     if (selectedImageType == "front") {
                         list[selectedPosition].aadharFrontBitmap = bitmap
                         list[selectedPosition].aadharFrontBase64 = base64
-                        list[selectedPosition].frontURL = ""
+                   //     list[selectedPosition].frontURL = ""
                     } else {
                         list[selectedPosition].aadharBackBitmap = bitmap
                         list[selectedPosition].aadharBackBase64 = base64
-                        list[selectedPosition].frontURL = ""
+                    //    list[selectedPosition].frontURL = ""
                     }
 
                     personAdapter.notifyItemChanged(selectedPosition)
                 }
             }
         }
+
 
     private val pickContact =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -212,6 +216,42 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
        // viewModel.factchCustomerNickNameList()
      //   viewModel.getCustomerList()
 
+
+        binding.etMobileNumber.addTextChangedListener(object : TextWatcher {
+
+            private var isUpdating = false
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+
+                if (isUpdating) return
+
+                var number = s.toString()
+
+                // Remove spaces, +, -
+                number = number.replace("\\s".toRegex(), "")
+                    .replace("+", "")
+                    .replace("-", "")
+
+                // Remove country code 91
+                if (number.startsWith("91") && number.length > 10) {
+                    number = number.substring(2)
+                }
+
+                // Keep only last 10 digits
+                if (number.length > 10) {
+                    number = number.takeLast(10)
+                }
+
+                isUpdating = true
+                binding.etMobileNumber.setText(number)
+                binding.etMobileNumber.setSelection(number.length)
+                isUpdating = false
+            }
+        })
         binding.tvAdd.setOnClickListener {
 
             if (!validateForm()) return@setOnClickListener
@@ -259,10 +299,10 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             )
 
             Log.e("request",request.toString())
-            val gson = Gson()
+         /*   val gson = Gson()
             val json = gson.toJson(request)
 
-            Log.e("request_json", json)
+            Log.e("request_json", json)*/
             viewModel.addCustomerDetailReq(request)
         }
 
@@ -627,28 +667,39 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             binding.etMobileNumber.requestFocus()
             return false
         }*/
-        val mobile = binding.etMobileNumber.text.toString().trim()
+     //   val mobile = binding.etMobileNumber.text.toString().trim()
 
 // ✅ Only validate if NOT empty
-        if (mobile.isNotEmpty() && !mobile.matches(Regex("^[6-9][0-9]{9}$"))) {
+      /*  if (mobile.isNotEmpty() && !mobile.matches(Regex("^[6-9][0-9]{9}$"))) {
             binding.etMobileNumber.error = "Enter valid mobile number"
             binding.etMobileNumber.requestFocus()
             return false
+        }*/
+
+        val mobile = binding.etMobileNumber.text.toString().trim()
+
+        if (mobile.isNotEmpty()) {
+
+            if (!mobile.matches(Regex("^[6-9][0-9]{9}$"))) {
+
+                binding.layoutPersonMobileNum.error =
+                    "Enter valid 10 digit mobile number"
+
+                return false
+
+            } else {
+
+                binding.layoutPersonMobileNum.error = null
+
+            }
+
+        } else {
+
+            // Empty is allowed
+            binding.layoutPersonMobileNum.error = null
+
         }
 
-// ✅ Clear error if valid or empty
-        binding.etMobileNumber.error = null
-
-        // 4. Dropdown selection validation (important)
-        /* if (!isNickNameSelected) {
-             showToast("Please select Nick Name from list")
-             return false
-         }
-
-         if (selectedCustomerId.isEmpty()) {
-             showToast("Please select Customer from list")
-             return false
-         }*/
 
         // 5. Person list validation
         list.forEachIndexed { index, person ->
@@ -747,12 +798,12 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                 binding.scrollView.post {
                     binding.scrollView.fullScroll(View.FOCUS_DOWN)
                 }
-                if (list.size < 5) {
+                if (list.size < 20) {
                     list.add(position + 1, PersonModel())
                     personAdapter.notifyItemInserted(position + 1)
                     personAdapter.notifyItemChanged(position)
                 } else {
-                    Toast.makeText(context, "Maximum 5 person allowed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Maximum 20 person allowed", Toast.LENGTH_SHORT).show()
                 }
                 binding.scrollView.post {
                     binding.scrollView.fullScroll(View.FOCUS_DOWN)
@@ -796,6 +847,9 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                         Manifest.permission.READ_CONTACTS
                     )
                 }
+            },
+            { position, mobile->
+              showZoomDialog(requireContext(),mobile)
             },
             onRequestNextFocus = { nextPosition ->
                 recyclerView.scrollToPosition(nextPosition)
@@ -952,5 +1006,26 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
+    
+    
+    private fun showZoomDialog(context: Context, imageUrl: String) {
 
+        val dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+
+        dialog.setContentView(R.layout.dialog_image_zoom)
+
+        val photoView = dialog.findViewById<com.github.chrisbanes.photoview.PhotoView>(R.id.photoView)
+
+        val btnClose = dialog.findViewById<ImageView>(R.id.btnClose)
+
+        Glide.with(context)
+            .load(imageUrl)
+            .into(photoView)
+
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
 }

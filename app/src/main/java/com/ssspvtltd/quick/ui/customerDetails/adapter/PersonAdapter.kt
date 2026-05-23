@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.customerDetails.adapter
 
 import android.content.Context
 import android.text.Editable
+import android.text.InputFilter
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -13,6 +14,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -28,6 +30,7 @@ class PersonAdapter(
     private val onAadharFrontClick: (Int) -> Unit,
     private val onAadharBackClick: (Int) -> Unit,
     private val onMobileClick: (position: Int, mobile: String) -> Unit,
+    private val zoomIN: (position: Int, mobile: String) -> Unit,
     var onRequestNextFocus: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<PersonAdapter.ViewHolder>() {
     private var focusNamePosition = -1
@@ -35,6 +38,7 @@ class PersonAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
+        val zoomIN: RelativeLayout = itemView.findViewById(R.id.zoomIN)
         val etPMobileNumber: EditText = itemView.findViewById(R.id.etPMobileNumber)
         val imgPhoneBook: ImageView = itemView.findViewById(R.id.imgPhoneBook)
       //  val layoutDelete: FrameLayout = itemView.findViewById(R.id.layoutDelete)
@@ -77,6 +81,11 @@ class PersonAdapter(
             if (pos != RecyclerView.NO_POSITION) {
                 onMobileClick(pos, holder.etPMobileNumber.text.toString())
             }
+        }
+        holder.zoomIN.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+                zoomIN(pos, item.frontURL)
+
         }
 
 
@@ -184,10 +193,10 @@ class PersonAdapter(
             if (item.personName.isEmpty()) {
                 showToast("Please Enter Person Name")
             }  else if (item.mobileNo.isEmpty()) {
-                showToast("Enter valid Indian mobile number")
+                showToast("Enter valid mobile number")
             }
             else if (item.mobileNo.isNotEmpty() && !item.mobileNo.matches(Regex("^[6-9][0-9]{9}$"))) {
-                showToast("Enter valid Indian mobile number")
+                showToast("Enter valid mobile number")
         }
             else if (item.frontURL.isNotEmpty() || item.aadharFrontBase64?.isNotEmpty() == true||item.backURL.isNotEmpty() || item.aadharBackBase64?.isNotEmpty() == true) {
                 onAddClick(position)
@@ -197,6 +206,44 @@ class PersonAdapter(
                 showToast("At Least one Aadhar photo is required.")
             }
         }
+        holder.etPMobileNumber.filters = arrayOf(
+            InputFilter.LengthFilter(10)
+        )
+
+        holder.etPMobileNumber.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+
+                val input = s.toString()
+
+                if (input.startsWith("91") && input.length > 10) {
+
+                    holder.etPMobileNumber.setText(
+                        input.removePrefix("91")
+                    )
+
+                    holder.etPMobileNumber.setSelection(
+                        holder.etPMobileNumber.text.length
+                    )
+                }
+            }
+        })
         holder.etName.setOnEditorActionListener { _, actionId, _ ->
 
             if (actionId == EditorInfo.IME_ACTION_NEXT ||

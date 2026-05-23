@@ -11,6 +11,7 @@ import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
 import com.ssspvtltd.quick.ui.tour.model.CategoryItem
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
 import com.ssspvtltd.quick.ui.tour.model.GradeItem
+import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.StateItem
@@ -194,6 +195,29 @@ class TourDetailsViewModel @Inject constructor(
 
                     _shopcategoryList.postValue(list!!.data)
                 }
+            }
+
+        }
+    }
+
+    private val _getleadDetailByLedId =
+        MutableLiveData<LeadDetails?>()
+
+    val getleadDetailByLedId: LiveData<LeadDetails?> =
+        _getleadDetailByLedId
+
+    fun getLeadDetailByLeadID(leadID: String) = viewModelScope.launch {
+        showProgressBar()
+        when (val response = repository.getLeadByLeadIDReq(leadID)) {
+
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                val list = response.value.body()!!.data
+                //  customerList1=list
+                _getleadDetailByLedId.value =
+                    list
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.ssspvtltd.quick.ui.customerDetails.allAccount
+package com.ssspvtltd.quick.ui.customerDetails.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.model.customerdetails.PersonData
 
-class PersonAdapter : RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
+
+class MaketerAdapter : RecyclerView.Adapter<MaketerAdapter.PersonViewHolder>() {
 
     private val list = mutableListOf<PersonData>()
 
@@ -61,5 +62,3 @@ class PersonAdapter : RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
         }
     }
 }
-
-

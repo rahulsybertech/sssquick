@@ -13,6 +13,7 @@ data class CreateResponse(
 
 data class CreateData(
     val accountName: String,
+    val personName: String,
     val marketerName: String,
     val date: String,
     val personCount: Int

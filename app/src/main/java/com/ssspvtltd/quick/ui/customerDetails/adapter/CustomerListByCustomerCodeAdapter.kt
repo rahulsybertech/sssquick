@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.customerDetails.adapter
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ssspvtltd.quick.base.recycler.adapter.BaseViewHolder
 import com.ssspvtltd.quick.base.recycler.adapter.MultiViewAdapter
 import com.ssspvtltd.quick.databinding.AdapterCustomerListByCustomerCodeBinding
@@ -42,13 +43,27 @@ class CustomerListByCustomerCodeViewHolder(
     private val onItemDeleteClick: ((CreateData) -> Unit)?
 ) : BaseViewHolder(binding) {
 
+    private val personAdapter = MaketerAdapter()
 
+    init {
+        binding.innerRecyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = personAdapter
+            isNestedScrollingEnabled = false   // ✅ VERY IMPORTANT
+        }
+    }
 
     fun bind(item: CreateData,position: Int) = with(binding) {
 
+
+  /*      personAdapter.submitList(item.marketer ?: emptyList())*/
         tvSNo.text = "S.No. ${position + 1}"
         tvCustomerName.text = Html.fromHtml(
             "<b>Customer Name | </b> ${item.accountName}",
+            Html.FROM_HTML_MODE_LEGACY
+        )
+        tvPersonName.text = Html.fromHtml(
+            "<b>Person Name | </b> ${item.personName}",
             Html.FROM_HTML_MODE_LEGACY
         )
 

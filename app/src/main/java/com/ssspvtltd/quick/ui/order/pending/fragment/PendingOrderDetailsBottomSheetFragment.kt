@@ -52,7 +52,11 @@ import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -400,91 +404,95 @@ class PendingOrderDetailsBottomSheetFragment :
     //     }
     // }
 
-    private fun downloadPdfToDownloads(context: Context, pdfUrl: String, isSharing: Boolean) {
-        // Step 1:
-        // Get the Downloads directory
+    private fun downloadPdfToDownloads(
+        context: Context,
+        pdfUrl: String,
+        isSharing: Boolean
+    ) {
 
-        println("PDF_FILE_PATH 0 $pdfUrl")
+        lifecycleScope.launch {
 
-        val pdfFile: File = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            File(
-                context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-                pdfUrl.substringAfterLast("/")
-            )
-        } else {
-            File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                pdfUrl.substringAfterLast("/")
-            )
-        }
-
-        // Step 2: Download the file
-        try {
-            StrictMode.setThreadPolicy(ThreadPolicy.Builder().permitAll().build())
-            val url = URL(pdfUrl)
-            val connection = url.openConnection() as HttpURLConnection
-            connection.connect()
-
-            val inputStream = connection.inputStream
-            val outputStream = FileOutputStream(pdfFile)
-
-            val buffer = ByteArray(1024)
-            var bytesRead: Int
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-
-            inputStream.close()
-            outputStream.close()
-
-            // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
-            return
-        }
-        println("PDF_FILE_PATH $pdfFile")
-        if (isSharing) {
             try {
-                if (pdfFile.exists()) {
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        pdfFile
+
+                withContext(Dispatchers.IO) {
+
+                    val pdfFile: File =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+
+                            File(
+                                context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                                pdfUrl.substringAfterLast("/")
+                            )
+
+                        } else {
+
+                            File(
+                                Environment.getExternalStoragePublicDirectory(
+                                    Environment.DIRECTORY_DOWNLOADS
+                                ),
+                                pdfUrl.substringAfterLast("/")
+                            )
+                        }
+
+                    val url = URL(pdfUrl)
+
+                    val connection =
+                        url.openConnection() as HttpURLConnection
+
+                    connection.connectTimeout = 15000
+                    connection.readTimeout = 15000
+                    connection.connect()
+
+                    val inputStream = BufferedInputStream(
+                        connection.inputStream
                     )
-                    val intent = Intent(Intent.ACTION_SEND)
-                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    intent.setType("*/*")
-                    intent.putExtra(Intent.EXTRA_STREAM, uri)
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent)
+
+                    val outputStream = BufferedOutputStream(
+                        FileOutputStream(pdfFile)
+                    )
+
+                    val buffer = ByteArray(8 * 1024)
+
+                    var bytesRead: Int
+
+                    while (
+                        inputStream.read(buffer).also {
+                            bytesRead = it
+                        } != -1
+                    ) {
+
+                        outputStream.write(buffer, 0, bytesRead)
+                    }
+
+                    outputStream.flush()
+
+                    inputStream.close()
+                    outputStream.close()
+
+                    withContext(Dispatchers.Main) {
+
+                        if (isSharing) {
+
+                         //   sharePdf(context, pdfFile)
+
+                        } else {
+
+                            openPdf(pdfFile)
+                        }
+                    }
                 }
-            } catch (e: java.lang.Exception) {
+
+            } catch (e: Exception) {
+
                 e.printStackTrace()
+
+                Toast.makeText(
+                    context,
+                    "Failed to download PDF",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-        } else {
-            openPdf(pdfFile)
         }
-
-
-        // Step 3: Open the PDF
-
-        // try {
-        //     val uri: Uri = FileProvider.getUriForFile(
-        //         context,
-        //         "com.ssspvtltd.quick.fileprovider",
-        //         pdfFile
-        //     )
-        //
-        //     val intent = Intent(Intent.ACTION_VIEW)
-        //     intent.setDataAndType(uri, "application/pdf")
-        //     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        //
-        //     context.startActivity(intent)
-        // } catch (e: Exception) {
-        //     e.printStackTrace()
-        //     Toast.makeText(context, "No PDF viewer found", Toast.LENGTH_SHORT).show()
-        // }
     }
 
     companion object {

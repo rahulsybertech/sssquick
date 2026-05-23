@@ -18,6 +18,8 @@ import com.ssspvtltd.quick.networking.safeApiCall
 import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteLeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Response
@@ -105,4 +107,12 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
             apiService.getAllLeadApi()
         }}
+
+    suspend fun deleteLeadForIDReq(id: DeleteLeadRequest) : ResultWrapper<ApiResponse<*>, Response<AccountNameResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.ORDER_PDF_REGENERATE.ordinal) {
+            apiService.deleteLeadForIDApi(id.leadID)
+        }
+    }
+
+
 }

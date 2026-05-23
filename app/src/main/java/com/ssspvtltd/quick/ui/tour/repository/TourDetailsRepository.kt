@@ -19,6 +19,7 @@ import com.ssspvtltd.quick.networking.safeApiCall
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
+import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
@@ -99,6 +100,11 @@ class TourDetailsRepository @Inject constructor(private val apiService: ApiServi
             apiService.getShopCategoryList()
         }
     }
+
+    suspend fun getLeadByLeadIDReq(leadID: String): ResultWrapper<ApiResponse<*>, Response<LeadDetailsByLeadIdRespnse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getLeadByLeadIDApi(leadID)
+        }}
 
 
 

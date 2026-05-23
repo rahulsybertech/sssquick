@@ -100,8 +100,8 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
         toolbar.setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         toolbar.setTitle("Tour Register")
         adapter.onItemEditClick = {
-            val intent = Intent(requireActivity(), CustomerDetailsActivity::class.java)
-            intent.putExtra("id",it.id)
+            val intent = Intent(requireActivity(), TourDetailsActivity::class.java)
+            intent.putExtra("leadId",it.id)
             startActivity(intent)
 
         }
@@ -110,7 +110,7 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
                 .setTitle("Delete Account")
                 .setMessage("Are you sure you want to delete this account?")
                 .setPositiveButton("Yes") { _, _ ->
-                    viewModel.deleteAccountForIDParam(it.id,"","")
+                    viewModel.deleteLeadForIDParam(it.id)
                 }
                 .setNegativeButton("No", null)
                 .show()

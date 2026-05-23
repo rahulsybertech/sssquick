@@ -42,10 +42,12 @@ import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
+import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteLeadRequest
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
 
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
+import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
 import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
@@ -380,6 +382,18 @@ interface ApiService {
         @Query("AccountCode") strAccountCode: String
     ): Response<CreateResponse>
 
+    @POST("api/OrderBook/GetLeadByLeadID")
+    suspend fun getLeadByLeadIDApi(
+        @Query("leadID") leadID: String
+    ): Response<LeadDetailsByLeadIdRespnse>
+
+
+
     @POST("api/OrderBook/GetAllLeadByUserID")
     suspend fun getAllLeadApi(): Response<LeadResponse>// Added >
+
+    @POST("api/OrderBook/DeleteLeadbyLeadID")
+    suspend fun deleteLeadForIDApi(
+        @Query("leadID") leadID: String
+    ): Response<AccountNameResponse>
 }

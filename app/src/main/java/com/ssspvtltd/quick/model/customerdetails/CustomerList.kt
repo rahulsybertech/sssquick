@@ -20,6 +20,7 @@ data class CustomerList(
 
 data class PersonData(
     val activeStatus: Boolean,
+    val approvedStatus: Boolean,
     val name: String,
     val frontImageURL: String?,
     val backImageURL: String?

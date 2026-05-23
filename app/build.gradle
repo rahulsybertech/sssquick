@@ -19,8 +19,8 @@ android {
         applicationId "com.ssspvtltd.quick"
         minSdk 26
         targetSdk 35
-        versionCode = 80
-        versionName = "3.1.36"
+        versionCode = 82
+        versionName = "3.1.38"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -102,6 +102,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
 
     implementation 'androidx.activity:activity-ktx:1.9.3'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
 
 
