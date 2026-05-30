@@ -148,6 +148,19 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         val outputOptions =
             ImageCapture.OutputFileOptions.Builder(
                 contentResolver,
