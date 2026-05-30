@@ -17,6 +17,7 @@ data class Person(
     val id: String?,
     val personName: String,
     val mobileNo: String,
+    val personRemark: String,
     val aadharFrontBase64: String,
     val aadharBackBase64: String,
     val frontURL: String,

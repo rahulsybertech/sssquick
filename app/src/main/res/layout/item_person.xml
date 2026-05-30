@@ -74,6 +74,29 @@
             app:layout_constraintBottom_toBottomOf="@id/layoutPersonMobileNum"
             app:layout_constraintEnd_toEndOf="parent"/>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutPersonRemark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:endIconMode="clear_text"
+            app:layout_constraintTop_toBottomOf="@+id/layoutPersonMobileNum"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/etPersonRemark"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionNext"
+                android:singleLine="true"
+                android:maxLength="250"
+                android:hint="Person remark "
+                android:maxLines="1"
+                android:textAppearance="@style/MyTextStyle"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Aadhaar Front -->
 
         <LinearLayout
@@ -82,7 +105,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonRemark"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintEnd_toStartOf="@id/layoutBack"
@@ -122,10 +145,10 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="15dp"
                     android:layout_height="15dp"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/gallery"/>
+                    android:src="@drawable/photo"/>
             </RelativeLayout>
 
         </LinearLayout>
@@ -136,30 +159,47 @@
             android:id="@+id/layoutBack"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_marginTop="10dp"
             android:gravity="center"
-            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
-            app:layout_constraintStart_toEndOf="@id/layoutFront"
+            android:orientation="vertical"
             app:layout_constraintEnd_toStartOf="@id/layoutButtons"
             app:layout_constraintHorizontal_weight="1"
-            android:layout_marginTop="10dp">
+            app:layout_constraintStart_toEndOf="@id/layoutFront"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonRemark">
 
             <ImageView
                 android:id="@+id/imgBack"
                 android:layout_width="80dp"
+                android:layout_centerHorizontal="true"
                 android:layout_height="60dp"
                 android:background="@drawable/edit_bg"
-                android:padding="10dp"
-               />
+                android:padding="10dp" />
 
-            <TextView
-                android:layout_below="@+id/imgBack"
+            <RelativeLayout
+                android:id="@+id/zoonInOutBack"
+                android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Aadhar Back"
-                android:textAppearance="@style/MyTextStyle"
-                android:textSize="12sp"
-                android:layout_marginTop="4dp"/>
+                android:layout_below="@id/imgBack">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_centerInParent="true"
+                    android:text="Aadhar Back"
+                    android:textAppearance="@style/MyTextStyle"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/photo"
+                    android:visibility="visible" />
+
+            </RelativeLayout>
 
         </RelativeLayout>
 
@@ -170,7 +210,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/layoutPersonMobileNum"
+            app:layout_constraintTop_toBottomOf="@id/layoutPersonRemark"
             app:layout_constraintEnd_toEndOf="parent"
 
             android:layout_marginTop="10dp">

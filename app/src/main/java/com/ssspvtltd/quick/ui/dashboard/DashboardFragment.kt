@@ -23,6 +23,7 @@ import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.databinding.FragmentDashboardBinding
 import com.ssspvtltd.quick.model.DashBoardDataResponse
 import com.ssspvtltd.quick.model.version.CheckVersionResponse
+import com.ssspvtltd.quick.ui.fairOrder.FairOrderActivity
 import com.ssspvtltd.quick.ui.main.MainActivity
 import com.ssspvtltd.quick.ui.order.add.viewmodel.DashBoardViewmodel
 import com.ssspvtltd.quick.ui.order.goodsreturn.activity.GoodsReturnActivity
@@ -101,6 +102,8 @@ class DashboardFragment : Fragment() {
             navController.navigate(R.id.customerListFragment3, bundle)
         }
         binding.rlTourDetails.setOnClickListener {
+        /*    val intent = Intent(requireActivity(), FairOrderActivity::class.java)
+            startActivity(intent)*/
             val bundle = Bundle().apply {
                 putString("id", "")
             }

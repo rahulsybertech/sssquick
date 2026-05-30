@@ -6,7 +6,8 @@
         android:name="android.hardware.camera"
         android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- For older devices to ensure camera hardware is available -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
@@ -41,6 +42,10 @@
             android:exported="true" />
         <activity
             android:name="com.ssspvtltd.quick.ui.order.add.activity.AddImageActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.fairOrder.FairOrderActivity"
             android:exported="false" />
         <activity
             android:name=".ui.customerDetails.CustomerDetailsActivity"

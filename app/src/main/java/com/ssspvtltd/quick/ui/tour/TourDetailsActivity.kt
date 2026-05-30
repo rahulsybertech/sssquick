@@ -8,8 +8,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
 import android.util.Base64
@@ -22,12 +24,20 @@ import android.widget.Filter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -91,8 +101,14 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private var whatppMobileNumber: String? = null
     private var selectedCategoryName: String? = null
     private var selectedCategoryId: String? = null
+    var latitude: Double? = null
+    var longitude : Double?=null
     private var leadId: String? = null
+    var mobileNo: String? = null
     var  customerType="existing"
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+
 
 
 
@@ -134,7 +150,6 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 }
             }
         }
-
 
 
 
@@ -223,6 +238,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         leadId = intent.getStringExtra("leadId")
         checkEditMode()
         initViews()
+        fusedLocationClient =
+            LocationServices.getFusedLocationProviderClient(this)
+        checkLocationPermission()
      //   registerObserver()
       //  registerListener()
         setupFirmDropdown()
@@ -329,8 +347,110 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
     }
+    private fun checkLocationPermission() {
+
+        if (
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+
+            getCurrentLocation()
+
+        } else {
+             val locationPermissionRequest =
+                registerForActivityResult(
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) { permissions ->
+
+                    val fineLocationGranted =
+                        permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+
+                    val coarseLocationGranted =
+                        permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+                    if (fineLocationGranted || coarseLocationGranted) {
+                        getCurrentLocation()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Location permission denied",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+    }
+    @RequiresPermission(
+        anyOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ]
+    )
+    private fun getCurrentLocation() {
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+
+                location?.let {
+
+                     latitude = it.latitude
+                     longitude = it.longitude
+
+                    Log.e("TAG", "Latitude: $latitude")
+                    Log.e("TAG", "Longitude: $longitude")
+                    binding.txtLatLong.text = "Lat, Long: $latitude, $longitude"
+                    getAddressFromLatLng(latitude,longitude)
+                }
+            }
+    }
 
 
+    private fun getAddressFromLatLng(
+        latitude: Double?,
+        longitude: Double?
+    ) {
+
+        try {
+
+            val geocoder = Geocoder(
+                this,
+                Locale.getDefault()
+            )
+
+            val addresses =
+                geocoder.getFromLocation(latitude!!, longitude!!, 1)
+
+            if (!addresses.isNullOrEmpty()) {
+
+                val address = addresses[0]
+
+                val fullAddress = address.getAddressLine(0)
+
+                val city = address.locality
+                val state = address.adminArea
+                val country = address.countryName
+                val pinCode = address.postalCode
+
+                Log.e("TAG", "Full Address: $fullAddress")
+                Log.e("TAG", "City: $city")
+                Log.e("TAG", "State: $state")
+                Log.e("TAG", "Country: $country")
+                Log.e("TAG", "PinCode: $pinCode")
+
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     private fun setLeadData(data: LeadDetails) = with(binding) {
         if (data.accountID.isNullOrEmpty()) {
@@ -599,8 +719,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         return true
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun saveData() {
+         mobileNo = binding.mobileNo1.text.toString()
         val selectedCategoryList = adapter.getSelectedCategories()
+        getCurrentLocation()
         val request = LeadRequest(
             id =
                 if (leadId?.isNotEmpty() == true) {
@@ -624,9 +747,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
 
 
-            ,mobileNo = binding.mobileNo2.text.toString() ?: "",
+            ,mobileNo = mobileNo ?: "",
 
-            whatsappNo = binding.mobileNo2.text.toString() ?: "",
+            whatsappNo = mobileNo?: "",
 
             stateId = selectedStateId ?: "",
 
@@ -658,9 +781,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             companyId = null,
 
-            latitude = "latitude" ?: "",
+            latitude = latitude.toString() ?: "",
 
-            longitude = "longitude" ?: "",
+            longitude = longitude.toString() ?: "",
 
             selfieImage1 =
                 if (selfieList.size > 0)
@@ -706,7 +829,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
         )
 
-        viewModel.submitLead(request)
+       viewModel.submitLead(request)
         val gson = Gson()
 
         val json = gson.toJson(request)

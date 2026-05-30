@@ -15,6 +15,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -30,7 +31,7 @@ class PersonAdapter(
     private val onAadharFrontClick: (Int) -> Unit,
     private val onAadharBackClick: (Int) -> Unit,
     private val onMobileClick: (position: Int, mobile: String) -> Unit,
-    private val zoomIN: (position: Int, mobile: String) -> Unit,
+    private val zoomIN: (position: Int, mobile: String,type:String) -> Unit,
     var onRequestNextFocus: ((Int) -> Unit)? = null,
 ) : RecyclerView.Adapter<PersonAdapter.ViewHolder>() {
     private var focusNamePosition = -1
@@ -39,7 +40,9 @@ class PersonAdapter(
 
         val etName: EditText = itemView.findViewById(R.id.etPersonName)
         val zoomIN: RelativeLayout = itemView.findViewById(R.id.zoomIN)
+        val zoonInOutBack: RelativeLayout = itemView.findViewById(R.id.zoonInOutBack)
         val etPMobileNumber: EditText = itemView.findViewById(R.id.etPMobileNumber)
+        val etPersonRemark: EditText = itemView.findViewById(R.id.etPersonRemark)
         val imgPhoneBook: ImageView = itemView.findViewById(R.id.imgPhoneBook)
       //  val layoutDelete: FrameLayout = itemView.findViewById(R.id.layoutDelete)
    //     val layoutEdit: FrameLayout = itemView.findViewById(R.id.layoutEdit)
@@ -71,6 +74,7 @@ class PersonAdapter(
         }
 
         holder.etName.setText(item.personName ?: "")
+        holder.etPersonRemark.setText(item.personRemark ?: "")
         holder.etPMobileNumber.setText(item.mobileNo ?: "")
 
 
@@ -84,8 +88,53 @@ class PersonAdapter(
         }
         holder.zoomIN.setOnClickListener {
             val pos = holder.bindingAdapterPosition
-                zoomIN(pos, item.frontURL)
 
+            when {
+
+                !item.aadharFrontBase64.isNullOrEmpty() -> {
+
+                    zoomIN(
+                        pos,
+                        item.aadharFrontBase64!!,
+                        "noturl"
+                    )
+                }
+
+                !item.frontURL.isNullOrEmpty() -> {
+
+                    zoomIN(
+                        pos,
+                        item.frontURL,
+                        "url"
+                    )
+                }
+
+                else -> {
+
+                    zoomIN(pos, "", "image not found")
+                }
+            }
+        }
+
+        holder.zoonInOutBack.setOnClickListener {
+            val pos = holder.bindingAdapterPosition
+            when {
+
+                !item.aadharBackBase64.isNullOrEmpty() -> {
+
+                    zoomIN(pos, item.aadharBackBase64!!, "noturl")
+                }
+
+                !item.backURL.isNullOrEmpty() -> {
+
+                    zoomIN(pos, item.backURL, "url")
+                }
+
+                else -> {
+
+                    zoomIN(pos, "", "")
+                }
+            }
         }
 
 
@@ -119,6 +168,29 @@ class PersonAdapter(
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
+
+        val watcherPersonRemark = object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+
+                val text = s.toString()
+
+                // 🚫 Prevent space at start
+                if (text.startsWith(" ")) {
+                    val trimmed = text.trimStart()
+                    holder.etPersonRemark.setText(trimmed)
+                    holder.etPersonRemark.setSelection(trimmed.length)
+                    return
+                }
+
+                val pos = holder.bindingAdapterPosition
+                if (pos != RecyclerView.NO_POSITION) {
+                    list[pos].personRemark = text
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        }
         val watcher1 = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
 
@@ -143,50 +215,54 @@ class PersonAdapter(
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
 
+
         holder.etName.addTextChangedListener(watcher)
+        holder.etPersonRemark.addTextChangedListener(watcherPersonRemark)
         holder.etPMobileNumber.addTextChangedListener(watcher1)
 
         // 🔥 Save watcher in tag
         holder.etName.tag = watcher
+        holder.etPersonRemark.tag = watcherPersonRemark
 
-        if(item.aadharFrontBitmap!=null){
+        if (item.aadharFrontBitmap != null) {
+
             Glide.with(holder.itemView.context)
                 .load(item.aadharFrontBitmap)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .placeholder(R.drawable.empty_photo)
                 .into(holder.imgFront)
 
-        }else if(item.frontURL.isNotEmpty()){
+        } else if (item.frontURL.isNotEmpty()) {
+
             Glide.with(holder.itemView.context)
                 .load(item.frontURL)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .into(holder.imgFront)
-        }
-        else    {
-            Glide.with(holder.imgFront.context)
-                .load(item.frontURL).error(R.drawable.empty_photo)
-                .signature(ObjectKey(System.currentTimeMillis()))
+                .placeholder(R.drawable.empty_photo)
+                .error(R.drawable.empty_photo)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imgFront)
 
+        } else {
 
+            holder.imgFront.setImageResource(R.drawable.empty_photo)
         }
-        if(item.aadharBackBitmap==null){
-
-            Glide.with( holder.imgBack)
-                .load(item.backURL).
-                error(R.drawable.empty_photo)
-                    .signature(ObjectKey(System.currentTimeMillis()))
-                .into( holder.imgBack)
-
-        }
-        else{
-            Glide.with(holder.itemView.context).clear(holder.imgBack)
+        if (item.aadharBackBitmap != null) {
 
             Glide.with(holder.itemView.context)
                 .load(item.aadharBackBitmap)
                 .placeholder(R.drawable.empty_photo)
                 .into(holder.imgBack)
+
+        } else if (item.backURL.isNotEmpty()) {
+
+            Glide.with(holder.itemView.context)
+                .load(item.backURL)
+                .placeholder(R.drawable.empty_photo)
+                .error(R.drawable.empty_photo)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(holder.imgBack)
+
+        } else {
+
+            holder.imgBack.setImageResource(R.drawable.empty_photo)
         }
 
         holder.btnAdd.setOnClickListener {

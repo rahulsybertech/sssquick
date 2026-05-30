@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.provider.ContactsContract
@@ -29,6 +30,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.github.chrisbanes.photoview.PhotoView
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.ssspvtltd.quick.R
@@ -262,6 +264,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                         id = if (it.id.isNullOrEmpty()) null else it.id,
                         personName = it.personName,
                         mobileNo   = it.mobileNo,
+                        personRemark   = it.personRemark,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
                         frontURL = it.frontURL,
@@ -272,6 +275,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                         id = null,
                         personName = it.personName,
                         mobileNo   = it.mobileNo,
+                        personRemark   = it.personRemark,
                         aadharFrontBase64 = it.aadharFrontBase64 ?: "",
                         aadharBackBase64 = it.aadharBackBase64 ?: "",
                         frontURL = it.frontURL,
@@ -299,10 +303,10 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
             )
 
             Log.e("request",request.toString())
-         /*   val gson = Gson()
+            val gson = Gson()
             val json = gson.toJson(request)
 
-            Log.e("request_json", json)*/
+            Log.e("request_json", json)
             viewModel.addCustomerDetailReq(request)
         }
 
@@ -463,6 +467,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
                 val data = list1.first()
 
+                customerId = data.id
                 binding.dropNickName.setText(
                     data.nickName,
                     false
@@ -492,6 +497,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     PersonModel(
                         id = it.id ?: "",
                         personName = it.personName ?: "",
+                        personRemark = it.personRemark ?: "",
                         mobileNo = it.mobileNo ?: "",
                         frontURL = it.frontURL ?: "",
                         backURL = it.backURL ?: ""
@@ -507,6 +513,7 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
                 } else {
 
+                    list.add(PersonModel())
                     personAdapter.updateList(persons)
                 }
             }
@@ -848,8 +855,8 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     )
                 }
             },
-            { position, mobile->
-              showZoomDialog(requireContext(),mobile)
+            { position, mobile,type->
+              showZoomDialog(requireContext(),mobile,type)
             },
             onRequestNextFocus = { nextPosition ->
                 recyclerView.scrollToPosition(nextPosition)
@@ -904,12 +911,14 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
                     PersonModel(
                         id = it.id,
                         personName = it.personName ?: "",
+                        personRemark = it.personRemark ?: "",
                         mobileNo = it.mobileNo ?: "",
                         frontURL = it.frontURL ?: "",
                         backURL = it.backURL ?: ""
                     )
 
                 } ?: emptyList()
+                list.add(PersonModel())
 
                 if (persons.isEmpty()) {
                     personAdapter.updateList(listOf(PersonModel()))
@@ -1006,26 +1015,88 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
         return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
-    
-    
-    private fun showZoomDialog(context: Context, imageUrl: String) {
 
-        val dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+
+    private fun showZoomDialog(
+        context: Context,
+        imageUrl: String,
+        type: String
+    ) {
+
+        if (imageUrl.isEmpty()) {
+
+            Toast.makeText(
+                context,
+                "Image not available",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        val dialog = Dialog(
+            context,
+            android.R.style.Theme_Black_NoTitleBar_Fullscreen
+        )
 
         dialog.setContentView(R.layout.dialog_image_zoom)
 
-        val photoView = dialog.findViewById<com.github.chrisbanes.photoview.PhotoView>(R.id.photoView)
+        val photoView =
+            dialog.findViewById<PhotoView>(R.id.photoView)
 
-        val btnClose = dialog.findViewById<ImageView>(R.id.btnClose)
+        val btnClose =
+            dialog.findViewById<ImageView>(R.id.btnClose)
 
-        Glide.with(context)
-            .load(imageUrl)
-            .into(photoView)
+        try {
+
+            if (type == "url") {
+
+                Glide.with(context)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.empty_photo)
+                    .error(R.drawable.empty_photo)
+                    .into(photoView)
+
+            } else {
+
+                val bitmap = base64ToBitmap(imageUrl)
+
+                Glide.with(context)
+                    .load(bitmap)
+                    .placeholder(R.drawable.empty_photo)
+                    .error(R.drawable.empty_photo)
+                    .into(photoView)
+            }
+
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+
+            Toast.makeText(
+                context,
+                "Failed to load image",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
         btnClose.setOnClickListener {
             dialog.dismiss()
         }
 
         dialog.show()
+    }
+
+    private fun base64ToBitmap(base64String: String): Bitmap {
+
+        val decodedBytes = Base64.decode(
+            base64String,
+            Base64.DEFAULT
+        )
+
+        return BitmapFactory.decodeByteArray(
+            decodedBytes,
+            0,
+            decodedBytes.size
+        )
     }
 }

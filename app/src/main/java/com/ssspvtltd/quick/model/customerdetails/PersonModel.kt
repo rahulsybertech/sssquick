@@ -6,6 +6,7 @@ data class PersonModel(
     var id: String = "",
     var personName: String = "",
     var mobileNo: String = "",
+    var personRemark: String = "",
     var frontURL: String = "",
     var backURL: String = "",
     var aadharFrontBitmap: Bitmap? = null,
