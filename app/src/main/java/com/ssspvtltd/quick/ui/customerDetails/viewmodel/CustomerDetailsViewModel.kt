@@ -139,6 +139,7 @@ class CustomerDetailsViewModel @Inject constructor(
     var isSuccess=false
 
 
+
     fun addCustomerDetailReq(customerDetailsRequest: CustomerDetailsRequest) = viewModelScope.launch {
 
         showProgressBar()

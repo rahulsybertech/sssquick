@@ -124,4 +124,5 @@ class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBindin
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
     }
+
 }
