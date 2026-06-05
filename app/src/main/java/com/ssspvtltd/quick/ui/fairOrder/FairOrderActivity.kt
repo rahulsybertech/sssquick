@@ -19,6 +19,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.BaseViewModel
 import com.ssspvtltd.quick.base.InflateA
@@ -29,10 +30,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
 
+
+
 @AndroidEntryPoint
 class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>()  {
     private lateinit var previewView: PreviewView
+    private lateinit var imageAdapter: ImageAdapter
     private lateinit var imageView: ImageView
+    private val bitmapList = mutableListOf<Bitmap>()
+   // private val imageList = mutableListOf<Bitmap>()
     override val inflate: InflateA<ActivityFairOrderBinding>
         get() = ActivityFairOrderBinding ::inflate
 
@@ -42,7 +48,7 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
     private var imageCapture: ImageCapture? = null
 
     // Store all captured images
-    private val bitmapList = mutableListOf<Bitmap>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +56,7 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
         imageView = binding.imageView
         // Request Camera Permission
         requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-
+        setupRecyclerView()
         // Capture Button
        binding.btnCapture.setOnClickListener {
             capturePhoto()
@@ -61,20 +67,40 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
 
             if (bitmapList.isNotEmpty()) {
 
-                // Merge all images
                 val mergedBitmap =
                     mergeBitmapsVertically(bitmapList)
 
-                // Show merged image
                 imageView.setImageBitmap(mergedBitmap)
 
-                // Save merged image
                 saveBitmap(mergedBitmap)
 
-                // Create PDF
                 createPdf(bitmapList)
             }
         }
+
+    }
+    private fun setupRecyclerView() {
+
+        binding.rvImages.layoutManager =
+            LinearLayoutManager(
+                this,
+                LinearLayoutManager.HORIZONTAL,
+                false
+            )
+
+        imageAdapter = ImageAdapter(bitmapList) { position ->
+
+            bitmapList.removeAt(position)
+
+            imageAdapter.notifyItemRemoved(position)
+
+            imageAdapter.notifyItemRangeChanged(
+                position,
+                bitmapList.size
+            )
+        }
+
+        binding.rvImages.adapter = imageAdapter
     }
 
     // Permission Launcher
@@ -127,6 +153,7 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
 
         val imageCapture = imageCapture ?: return
 
+
         val contentValues = ContentValues().apply {
 
             put(
@@ -147,15 +174,6 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
                 )
             }
         }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -187,8 +205,7 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
                         bitmap?.let { bmp ->
 
                             // Resize image
-                            val resizedBitmap =
-                                resizeBitmap(bmp)
+
 
                             // Check blur
                       /*      if (isImageBlurry(resizedBitmap)) {
@@ -201,6 +218,14 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
 
                                 return
                             }*/
+                            val resizedBitmap = resizeBitmap(bmp)
+
+                            bitmapList.add(resizedBitmap)
+
+                            imageAdapter.notifyItemInserted(
+                                bitmapList.size - 1
+                            )
+
 
                             // Success Alert
                             Toast.makeText(
@@ -209,8 +234,6 @@ class FairOrderActivity  : BaseActivity<ActivityFairOrderBinding, BaseViewModel>
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            // Add image in list
-                            bitmapList.add(resizedBitmap)
                         }
                     }
                 }

@@ -107,7 +107,10 @@
                     android:id="@+id/dropCity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     android:hint="Customer Name *"
+                    android:imeOptions="actionNext"
+                    android:dropDownHeight="250dp"
                     android:maxLines="1"
                     android:textAppearance="@style/MyTextStyle"/>
             </com.google.android.material.textfield.TextInputLayout>

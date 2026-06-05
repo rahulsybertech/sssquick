@@ -23,9 +23,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Merge Images"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvImages"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="horizontal" />
 
     <ImageView
         android:id="@+id/imageView"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:scaleType="fitCenter"/>

@@ -97,8 +97,23 @@ data class LeadRequest(
     val shopImage3: String = "",
 
     val shopImage4: String = "",
+    val shopImage5: String = "",
 
-    val shopImage5: String = ""
+    val selfieImageURL1: String = "",
+    val selfieImageURL2: String = "",
+
+    val shopImageURL1: String = "",
+
+    val shopImageURL2: String = "",
+
+    val shopImageURL3: String = "",
+
+    val shopImageURL4: String = "",
+
+    val shopImageURL5: String = "",
+    val shopImage6: String = ""
+
+
 )
 
 data class ShopCategoryRequest(

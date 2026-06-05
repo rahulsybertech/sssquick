@@ -28,6 +28,7 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -249,6 +250,13 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         setupStateDropdown()
         setupCategoryeDropdown()
         setupSubCategory()
+
+        binding.firmNameNewCustomer.doOnTextChanged { text, _, _, _ ->
+
+            if (!text.isNullOrBlank()) {
+                binding.layouNewCustomer.isErrorEnabled = false
+            }
+        }
         binding.mobileNo2.setOnFocusChangeListener { view, hasFocus ->
             if (hasFocus) {
 
@@ -429,22 +437,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 geocoder.getFromLocation(latitude!!, longitude!!, 1)
 
             if (!addresses.isNullOrEmpty()) {
-
                 val address = addresses[0]
-
                 val fullAddress = address.getAddressLine(0)
 
                 val city = address.locality
+
                 val state = address.adminArea
                 val country = address.countryName
                 val pinCode = address.postalCode
-
                 Log.e("TAG", "Full Address: $fullAddress")
                 Log.e("TAG", "City: $city")
                 Log.e("TAG", "State: $state")
                 Log.e("TAG", "Country: $country")
                 Log.e("TAG", "PinCode: $pinCode")
-
             }
 
         } catch (e: Exception) {
@@ -675,24 +680,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.dropCategory.requestFocus()
                 return false
             }
-        /*    if (adapter.getSelectedCategories().isEmpty()) {
-              //  binding.layouCategory.error = "Select Shop Category"
-                showToast("Select Shop Category")
-             //   binding.dropCategory.requestFocus()
-                return false
-            }*/
-      /*      if (selfieList.isEmpty()) {
-              //  binding.layouCategory.error = "Select Shop Category"
-                showToast("Please pic least one selfie")
-             //   binding.dropCategory.requestFocus()
-                return false
-            }
-            if (bottomList.isEmpty()) {
-                //  binding.layouCategory.error = "Select Shop Category"
-                showToast("Please pic least one shop photo")
-                //   binding.dropCategory.requestFocus()
-                return false
-            }*/
+
         }
 
         // New Customer validation
@@ -700,6 +688,21 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             if (binding.firmNameNewCustomer.text.isNullOrEmpty()) {
                 binding.layouNewCustomer.error = "Enter Firm Name"
+                return false
+            }
+
+            if (binding.dropGrade.text.isNullOrEmpty()) {
+                binding.layouGrade.error = "Select Grade"
+                return false
+            }
+
+            if (binding.dropStation.text.isNullOrEmpty()) {
+                binding.layouStation.error = "Select Station"
+                return false
+            }
+
+            if (binding.dropState.text.isNullOrEmpty()) {
+                binding.layouState.error = "Select State"
                 return false
             }
 
@@ -711,7 +714,13 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             if (!binding.mobileNo1.text.toString()
                     .matches(Regex("^[6-9][0-9]{9}$"))
             ) {
-                binding.layoutMobileNum.error = "Invalid Mobile Number"
+                binding.mobileNo1.error = "Invalid Mobile Number"
+                return false
+            }
+
+            if (binding.dropCategory.text.isNullOrEmpty()) {
+                binding.layouCategory.error = "Select Category"
+                binding.dropCategory.requestFocus()
                 return false
             }
         }
@@ -722,8 +731,94 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun saveData() {
          mobileNo = binding.mobileNo1.text.toString()
+       val edtRemarks = binding.edtRemarks.text.toString()
+       val edtOldAgent = binding.edtOldAgent.text.toString()
+       val edtYearlySale = binding.edtYearlySale.text.toString()
+       selectedGradeName = binding.dropGrade.text.toString()
+       selectedStationName = binding.dropState.text.toString()
+       selectedCategoryName = binding.dropCategory.text.toString()
+       val shopArea = binding.shopArea.text.toString()
+       val workingBranchs = binding.workingBranchs.text.toString()
         val selectedCategoryList = adapter.getSelectedCategories()
         getCurrentLocation()
+        var selfieImage1 = ""
+        var selfieImageURL1 = ""
+
+        if (selfieList.isNotEmpty()) {
+            if (selfieList[0].bitmap != null) {
+                selfieImage1 = bitmapToBase64(selfieList[0])
+            } else {
+                selfieImageURL1 = selfieList[0].imageUrl ?: ""
+            }
+        }
+        var selfieImage2 = ""
+        var selfieImageURL2 = ""
+
+        if (selfieList.size > 1) {
+            if (selfieList[1].bitmap != null) {
+                selfieImage2 = bitmapToBase64(selfieList[1])
+            } else {
+                selfieImageURL2 = selfieList[1].imageUrl ?: ""
+            }
+        }
+
+
+
+
+        var shopImage1 = ""
+        var shopImageURL1 = ""
+
+        var shopImage2 = ""
+        var shopImageURL2 = ""
+
+        var shopImage3 = ""
+        var shopImageURL3 = ""
+
+        var shopImage4 = ""
+        var shopImageURL4 = ""
+
+        var shopImage5 = ""
+        var shopImageURL5 = ""
+
+        if (bottomList.size > 0) {
+            if (bottomList[0].bitmap != null) {
+                shopImage1 = bitmapToBase64(bottomList[0])
+            } else {
+                shopImageURL1 = bottomList[0].imageUrl ?: ""
+            }
+        }
+
+        if (bottomList.size > 1) {
+            if (bottomList[1].bitmap != null) {
+                shopImage2 = bitmapToBase64(bottomList[1])
+            } else {
+                shopImageURL2 = bottomList[1].imageUrl ?: ""
+            }
+        }
+
+        if (bottomList.size > 2) {
+            if (bottomList[2].bitmap != null) {
+                shopImage3 = bitmapToBase64(bottomList[2])
+            } else {
+                shopImageURL3 = bottomList[2].imageUrl ?: ""
+            }
+        }
+
+        if (bottomList.size > 3) {
+            if (bottomList[3].bitmap != null) {
+                shopImage4 = bitmapToBase64(bottomList[3])
+            } else {
+                shopImageURL4 = bottomList[3].imageUrl ?: ""
+            }
+        }
+
+        if (bottomList.size > 4) {
+            if (bottomList[4].bitmap != null) {
+                shopImage5 = bitmapToBase64(bottomList[4])
+            } else {
+                shopImageURL5 = bottomList[4].imageUrl ?: ""
+            }
+        }
         val request = LeadRequest(
             id =
                 if (leadId?.isNotEmpty() == true) {
@@ -767,11 +862,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             gradeName = selectedGradeName ?: "",
 
-            oldAgentName = binding.edtOldAgent.text.toString(),
+            oldAgentName = edtOldAgent,
 
-            yearlySale = binding.edtYearlySale.text.toString(),
+            yearlySale = edtYearlySale,
 
-            remark = binding.edtRemarks.text.toString(),
+            remark = edtRemarks,
             accountID =
                 if (customerType == "existing") {
                     selectedFirmId
@@ -785,40 +880,27 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             longitude = longitude.toString() ?: "",
 
-            selfieImage1 =
-                if (selfieList.size > 0)
-                    bitmapToBase64(selfieList[0])
-                else "",
+            selfieImage1 =selfieImage1,
+            selfieImageURL1 =selfieImageURL1,
 
-            selfieImage2 =
-                if (selfieList.size > 1)
-                    bitmapToBase64(selfieList[1])
-                else "",
+            selfieImage2 =selfieImage2,
+            selfieImageURL2 =selfieImageURL2,
 
-            shopImage1 =
-                if (bottomList.size > 0)
-                    bitmapToBase64(bottomList[0])
-                else "",
 
-            shopImage2 =
-                if (bottomList.size > 1)
-                    bitmapToBase64(bottomList[1])
-                else "",
+            shopImage1 = shopImage1,
+            shopImageURL1 = shopImageURL1,
 
-            shopImage3 =
-                if (bottomList.size > 2)
-                    bitmapToBase64(bottomList[2])
-                else "",
+            shopImage2 = shopImage2,
+            shopImageURL2 = shopImageURL2,
 
-            shopImage4 =
-                if (bottomList.size > 3)
-                    bitmapToBase64(bottomList[3])
-                else "",
+            shopImage3 = shopImage3,
+            shopImageURL3 = shopImageURL3,
 
-            shopImage5 =
-                if (bottomList.size > 4)
-                    bitmapToBase64(bottomList[4])
-                else "",
+            shopImage4 = shopImage4,
+            shopImageURL4 = shopImageURL4,
+
+            shopImage5 = shopImage5,
+            shopImageURL5 = shopImageURL5,
 
             shopCategory = selectedCategoryList.map {
 
@@ -862,8 +944,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             onAdd = {
 
                 selectedImageType = "selfie"
-
-                showImagePicker()
+                checkCameraPermission()
+              //  showImagePicker()
             },
 
             maxCount = 2
@@ -935,7 +1017,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
 
-        binding.mobileNo1.setOnClickListener {
+     /*   binding.mobileNo1.setOnClickListener {
 
             if (ContextCompat.checkSelfPermission(
                     this@TourDetailsActivity,
@@ -951,7 +1033,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     Manifest.permission.READ_CONTACTS
                 )
             }
-        }
+        }*/
 
 
 
@@ -1153,6 +1235,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.layouCustomer.isErrorEnabled = false
         }
     }
+
 
     private fun setupGradeDropdown() {
 
