@@ -9,7 +9,7 @@ import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 class CategoryAdapter(
     private val list: MutableList<ShopCategoryItem>
 ) : RecyclerView.Adapter<CategoryAdapter.ViewHolder>() {
-
+    var isCategoryEditable = false
     inner class ViewHolder(val binding: ItemCategoryBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -35,10 +35,12 @@ class CategoryAdapter(
         holder.binding.checkCategory.setOnCheckedChangeListener(null)
 
         holder.binding.checkCategory.isChecked = item.isSelected
-
+        holder.binding.checkCategory.isEnabled = isCategoryEditable
         holder.binding.checkCategory.setOnCheckedChangeListener { _, isChecked ->
 
-            item.isSelected = isChecked
+            if (holder.binding.checkCategory.isEnabled) {
+                item.isSelected = isChecked
+            }
         }
     }
 

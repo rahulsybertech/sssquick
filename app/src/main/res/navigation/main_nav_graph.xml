@@ -52,6 +52,21 @@
         android:id="@+id/customerListByCustomerCodeFragment"
         android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerListByCustomerCodeFragment"
         android:label="CustomerListByCustomerCodeFragment" />
+    <navigation android:id="@+id/navigation2"
+        app:startDestination="@id/navigation">
+        <navigation
+            android:id="@+id/navigation"
+            app:startDestination="@id/customerDetailsFragment">
+            <fragment
+                android:id="@+id/customerDetailsFragment"
+                android:name="com.ssspvtltd.quick.ui.customerDetails.CustomerDetailsFragment"
+                android:label="CustomerDetailsFragment" />
+        </navigation>
+    </navigation>
+    <fragment
+        android:id="@+id/followUpCallsFragment"
+        android:name="com.ssspvtltd.quick.ui.followupcall.FollowUpCallsFragment"
+        android:label="FollowUpCallsFragment" />
 
     <!--    <dialog-->
     <!--        android:id="@+id/locationFragment"-->

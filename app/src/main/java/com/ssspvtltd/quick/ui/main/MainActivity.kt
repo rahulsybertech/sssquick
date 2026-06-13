@@ -154,6 +154,14 @@ class MainActivity :
                     navController.navigate(R.id.customerDetailsFragment, bundle)
                     false
                 }
+
+                R.id.nav_followupcall -> {
+                    val bundle = Bundle().apply {
+                        putString("source", "Markerter")
+                    }
+                    navController.navigate(R.id.followUpCallsFragment, bundle)
+                    false
+                }
               R.id.nav_customer_wise_fair_details -> {
                     val bundle = Bundle().apply {
                         putString("source", "Markerter")

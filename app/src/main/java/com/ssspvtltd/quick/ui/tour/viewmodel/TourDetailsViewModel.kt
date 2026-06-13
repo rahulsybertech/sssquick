@@ -1,26 +1,22 @@
 package com.ssspvtltd.quick.ui.tour.viewmodel
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.ssspvtltd.quick.base.recycler.viewmodel.RecyclerWidgetViewModel
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.networking.ResultWrapper
-import com.ssspvtltd.quick.ui.order.goodsreturn.repository.GoodsReturnRepository
 import com.ssspvtltd.quick.ui.tour.model.CategoryItem
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
+import com.ssspvtltd.quick.ui.tour.model.Data
 import com.ssspvtltd.quick.ui.tour.model.GradeItem
 import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.StateItem
 import com.ssspvtltd.quick.ui.tour.model.StationItem
-import com.ssspvtltd.quick.ui.tour.model.StationResponse
 import com.ssspvtltd.quick.ui.tour.repository.TourDetailsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,6 +39,28 @@ class TourDetailsViewModel @Inject constructor(
                 val list = response.value.body()
 
                 _frimList.postValue(list!!.AccountNameList)
+            }
+        }
+    }
+
+    private val _accountDetailsByID =
+        MutableLiveData<Data?>()
+
+    val accountDetailsByID: LiveData<Data?> =
+        _accountDetailsByID
+
+    fun getAccountDetailsByID(accountDetailsByID: String?) = viewModelScope.launch {
+        showProgressBar()
+        when (val response = repository.getAccountDetailsByIDReq(accountDetailsByID)) {
+
+            is ResultWrapper.Failure -> apiErrorData(response.error)
+
+            is ResultWrapper.Success -> {
+                hideProgressBar()
+                val list = response.value.body()!!.data
+                //  customerList1=list
+                _accountDetailsByID.value =
+                    list
             }
         }
     }

@@ -11,13 +11,16 @@ import android.graphics.Bitmap
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
-import android.os.Looper
 import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
@@ -32,18 +35,14 @@ import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
 import com.ssspvtltd.quick.databinding.ActivityTourDetailsBinding
 import com.ssspvtltd.quick.model.customer.AccountName
+import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.ui.order.add.adapter.AddImageAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.CategoryAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.ImageAdapter
@@ -258,7 +257,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
         }
         binding.mobileNo2.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
+        /*    if (hasFocus) {
 
                 binding.nestedScrollView.post {
                     binding.nestedScrollView.smoothScrollTo(
@@ -266,7 +265,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                         view.top
                     )
                 }
-            }
+            }*/
         }
 
         binding.shopArea.setOnFocusChangeListener { view, hasFocus ->
@@ -289,6 +288,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                 if(validateForm()){
 
+
+                    binding.edtOldAgent.isFocusableInTouchMode = true
+                    binding.edtOldAgent.requestFocus()
                     isNextScreen = true
 
                     binding.btnNext.text = "Save"
@@ -299,6 +301,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     binding.radioGroupCustomer.visibility = View.GONE
 
                     binding.layoutStepTwo.visibility = View.VISIBLE
+
                 }
 
 
@@ -308,6 +311,15 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
                 if (validateForm()) {
+                          if (selfieList.isEmpty()) {
+                      showToast("At least one selfie image is required")
+                      return@setOnClickListener
+                  }
+                  if (bottomList.isEmpty()) {
+                      showToast("At least one shop image is required")
+                      return@setOnClickListener
+
+                  }
                     saveData()
                 }
 
@@ -350,7 +362,63 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 setLeadData(it)
             }
         }
+      /*  binding.ownerName.filters = arrayOf(
+            InputFilter.LengthFilter(50),
+            InputFilter { source, start, end, dest, dstart, dend ->
+                for (i in start until end) {
+                    val ch = source[i]
+                    if (!ch.isLetter() && ch != ' ') {
+                        return@InputFilter ""
+                    }
+                }
+                null
+            }
+        )*/
 
+        /*binding.ownerName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val text = s.toString()
+                val filteredText = text.replace("\\s{2,}".toRegex(), " ")
+
+                if (text != filteredText) {
+                    binding.ownerName.removeTextChangedListener(this)
+                    binding.ownerName.setText(filteredText)
+                    binding.ownerName.setSelection(filteredText.length)
+                    binding.ownerName.addTextChangedListener(this)
+                }
+            }
+        })*/
+        binding.shopArea.filters = arrayOf(
+            InputFilter.LengthFilter(10),
+         /*   InputFilter { source, start, end, dest, dstart, dend ->
+                for (i in start until end) {
+                    val ch = source[i]
+                    if (!ch.isLetter() && ch != ' ') {
+                        return@InputFilter ""
+                    }
+                }
+                null
+            }*/
+        )
+        binding.edtOldAgent.filters = arrayOf(
+            InputFilter.LengthFilter(50),
+        )
+
+        binding.edtOldAgent.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                binding.edtYearlySale.requestFocus()
+                true
+            } else {
+                false
+            }
+        }
+        binding.edtYearlySale.filters = arrayOf(
+            InputFilter.LengthFilter(10),
+        )
 
 
 
@@ -475,6 +543,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.firmNameNewCustomer.setText(
                 data.firmName ?: ""
             )
+            // All fields editable
+            setFieldsEditable(true)
 
         } else {
 
@@ -496,6 +566,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             )
 
             selectedFirmId = data.accountID
+            // All fields editable
+            setFieldsEditable(false)
         }
         dropCity.setText(data.firmName ?: "", false)
         leadId=data.id
@@ -622,6 +694,127 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         adapter.notifyDataSetChanged()
     }
+
+    private fun setFieldsEditable(isEditable: Boolean) = with(binding) {
+
+       // dropCity.isEnabled = isEditable
+        dropGrade.isEnabled = isEditable
+        dropStation.isEnabled = isEditable
+        dropState.isEnabled = isEditable
+        ownerName.isEnabled = isEditable
+
+        mobileNo1.isEnabled = isEditable
+        mobileNo2.isEnabled = isEditable
+
+        dropCategory.isEnabled = isEditable
+        shopArea.isEnabled = isEditable
+        workingBranchs.isEnabled = isEditable
+        edtOldAgent.isEnabled = isEditable
+        edtYearlySale.isEnabled = isEditable
+
+        firmNameNewCustomer.isEnabled = isEditable
+
+
+
+
+
+     //   txtYearlySale.alpha = 0.7f
+
+        // Only remarks always editable
+        edtRemarks.isEnabled = true
+        edtRemarks.isEnabled = true
+
+        if (::adapter.isInitialized) {
+            adapter.isCategoryEditable = isEditable
+            adapter.notifyDataSetChanged()
+        }
+
+        if (!isEditable) {
+            recyclerCategory.alpha = 0.7f
+            edtOldAgent.alpha = 0.7f
+            binding.edtOldAgent.apply {
+                isEnabled = false
+                alpha = 0.5f
+            }
+
+            binding.txtOldAgent.alpha = 0.5f
+            binding.edtYearlySale.apply {
+                isEnabled = false
+                alpha = 0.5f
+            }
+
+            binding.txtYearlySale.alpha = 0.5f
+            binding.btnSelectAll.alpha = 0.5f
+            btnSelectAll.isClickable=false
+            binding.tvShopCategory.alpha = 0.5f
+
+        } else {
+            recyclerCategory.alpha = 1f
+            recyclerCategory.alpha = 1f
+            edtOldAgent.alpha = 1f
+            binding.edtOldAgent.apply {
+                isEnabled = true
+                alpha = 1f
+            }
+
+            binding.txtOldAgent.alpha = 1f
+            binding.edtYearlySale.apply {
+                isEnabled = true
+                alpha = 1f
+            }
+
+            binding.txtYearlySale.alpha = 1f
+            binding.btnSelectAll.alpha = 1f
+            btnSelectAll.isClickable=true
+            binding.tvShopCategory.alpha = 1f
+
+        }
+
+        // Image buttons/layouts always editable
+        //btnSelfie.isEnabled = true
+      //  btnShopImage.isEnabled = true
+    }
+    private fun clearForm() = with(binding) {
+
+        dropCity.setText("", false)
+        dropGrade.setText("", false)
+        dropStation.setText("", false)
+        dropState.setText("", false)
+        dropCategory.setText("", false)
+
+        ownerName.setText("")
+        mobileNo1.setText("")
+        mobileNo2.setText("")
+        shopArea.setText("")
+        workingBranchs.setText("")
+        edtOldAgent.setText("")
+        edtYearlySale.setText("")
+        edtRemarks.setText("")
+        firmNameNewCustomer.setText("")
+
+        txtLatLong.text = ""
+
+        // Clear IDs
+        leadId = ""
+        selectedFirmId = ""
+        selectedGradeId = ""
+        selectedStationId = ""
+        selectedStateId = ""
+        selectedCategoryId = ""
+
+        // Clear images
+        selfieList.clear()
+        bottomList.clear()
+
+        selfieAdapter.notifyDataSetChanged()
+        bottomAdapter.notifyDataSetChanged()
+
+        // Clear shop categories
+        ShopCategory.forEach {
+            it.isSelected = false
+        }
+     //   adapter.notifyDataSetChanged()
+    }
     private fun checkEditMode() {
 
         if (!leadId.isNullOrEmpty()) {
@@ -629,13 +822,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             // EDIT MODE
             binding.toolbar.setTitle("Edit Lead")
             viewModel.getLeadDetailByLeadID(leadId!!)
+            setCustomerTypeEnabled(false)
 
         } else {
 
             // ADD MODE
-
+            setCustomerTypeEnabled(true)
             binding.toolbar.setTitle("Add Lead")
         }
+    }
+
+    private fun setCustomerTypeEnabled(enabled: Boolean) {
+        binding.rbExisting.isEnabled = enabled
+        binding.rbNew.isEnabled = enabled
     }
     private fun validateForm(): Boolean {
 
@@ -680,6 +879,17 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.dropCategory.requestFocus()
                 return false
             }
+        /*    val area = binding.shopArea.text.toString().trim()
+
+            if (area.isNotEmpty()) {
+                val regex = Regex("^\\d{1,10}(\\s?sqft)?$", RegexOption.IGNORE_CASE)
+
+                if (!regex.matches(area)) {
+                    binding.shopArea.error = "Enter valid area (e.g. 4500 or 4500 sqft)"
+                    return false
+                }
+            }*/
+
 
         }
 
@@ -723,6 +933,18 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.dropCategory.requestFocus()
                 return false
             }
+
+            val area = binding.shopArea.text.toString().trim()
+/*
+
+            if (area.isNotEmpty()) {
+                val regex = Regex("^\\d{1,10}(\\s?sqft)?$", RegexOption.IGNORE_CASE)
+
+                if (!regex.matches(area)) {
+                    binding.shopArea.error = "Enter valid area (e.g. 4500 or 4500 sqft)"
+                    return false
+                }
+            }*/
         }
 
         return true
@@ -731,9 +953,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun saveData() {
          mobileNo = binding.mobileNo1.text.toString()
+        val  mobileNo2 = binding.mobileNo2.text.toString()
        val edtRemarks = binding.edtRemarks.text.toString()
        val edtOldAgent = binding.edtOldAgent.text.toString()
        val edtYearlySale = binding.edtYearlySale.text.toString()
+       val ownerName = binding.ownerName.text.toString()
        selectedGradeName = binding.dropGrade.text.toString()
        selectedStationName = binding.dropState.text.toString()
        selectedCategoryName = binding.dropCategory.text.toString()
@@ -830,7 +1054,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             date = getCurrentDateTime(),
 
-            ownerName = ownerName ?: "",
+            ownerName = ownerName,
 
             /*firmName = selectedFirmName ?: "",*/
 
@@ -844,7 +1068,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             ,mobileNo = mobileNo ?: "",
 
-            whatsappNo = mobileNo?: "",
+            whatsappNo = mobileNo2?: "",
 
             stateId = selectedStateId ?: "",
 
@@ -888,6 +1112,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
             shopImage1 = shopImage1,
+            shopArea = shopArea,
+            workingBranch = workingBranchs,
             shopImageURL1 = shopImageURL1,
 
             shopImage2 = shopImage2,
@@ -930,6 +1156,40 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     private fun initViews() = with(binding) {
 
+
+        binding.radioGroupCustomer.setOnCheckedChangeListener { _, checkedId ->
+
+            when (checkedId) {
+
+                binding.rbExisting.id -> {
+
+                    customerType = "existing"
+
+                    binding.dropCity.setText("")
+
+                    binding.layouCustomer.visibility = View.VISIBLE
+                    binding.layouNewCustomer.visibility = View.GONE
+                    // All fields editable
+                    setFieldsEditable(false)
+                }
+
+                binding.rbNew.id -> {
+
+                    customerType = "new"
+
+                    selectedFirmId = ""
+                    selectedFirmName = ""
+
+                    binding.dropCity.setText("")
+
+                    binding.layouNewCustomer.visibility = View.VISIBLE
+                    binding.layouCustomer.visibility = View.INVISIBLE
+                    setFieldsEditable(true)
+                    clearForm()
+                }
+            }
+        }
+
      //   viewModel.fetchLocation()
         selfieAdapter = ImageAdapter(
             selfieList,
@@ -942,7 +1202,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             },
 
             onAdd = {
-
+                binding.edtRemarks.clearFocus()
                 selectedImageType = "selfie"
                 checkCameraPermission()
               //  showImagePicker()
@@ -962,7 +1222,6 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             },
 
             onAdd = {
-
                 selectedImageType = "bottom"
 
                 showImagePicker()
@@ -978,12 +1237,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 false
             )
 
-        rvBottom.layoutManager =
-            LinearLayoutManager(
-                this@TourDetailsActivity,
-                RecyclerView.HORIZONTAL,
-                false
-            )
+        rvBottom.layoutManager = GridLayoutManager(
+            this@TourDetailsActivity,
+            3
+        )
 
         rvSelfie.adapter = selfieAdapter
 
@@ -1060,35 +1317,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         binding.layouCustomer.visibility = View.VISIBLE
         binding.layouNewCustomer.visibility = View.GONE
+        setFieldsEditable(false)
 
-        binding.radioGroupCustomer.setOnCheckedChangeListener { _, checkedId ->
 
-            when (checkedId) {
-
-                binding.rbExisting.id -> {
-
-                    customerType = "existing"
-
-                    binding.dropCity.setText("")
-
-                    binding.layouCustomer.visibility = View.VISIBLE
-                    binding.layouNewCustomer.visibility = View.GONE
-                }
-
-                binding.rbNew.id -> {
-
-                    customerType = "new"
-
-                    selectedFirmId = ""
-                    selectedFirmName = ""
-
-                    binding.dropCity.setText("")
-
-                    binding.layouNewCustomer.visibility = View.VISIBLE
-                    binding.layouCustomer.visibility = View.INVISIBLE
-                }
-            }
-        }
         // First click -> API call + keyboard open
         binding.dropCity.setOnFocusChangeListener { _, hasFocus ->
 
@@ -1215,6 +1446,171 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selectedItem.name,
                 false
             )
+
+
+            viewModel.getAccountDetailsByID(selectedFirmId)
+
+            viewModel.accountDetailsByID.observe(
+                this
+            )
+            { list1 ->
+
+
+
+                val data = list1
+         /*       binding.dropCity.setText(
+                    data?.firmName,
+                    false
+                )
+                binding.mobileNo1.setText(data?.mobileNo)
+
+                binding.mobileNo2.setText(data?.whatsappNo)
+                binding.dropGrade.setText(data?.gradeName)
+                selectedGradeId=data?.gradeId
+                binding.dropStation.setText(data?.stationName)
+                selectedStationId=data?.stationID
+           //     binding.dropState.setText(data?.stateName)
+                selectedStateId=data?.stateID
+                binding.ownerName.setText(data?.ownerName)
+                binding.mobileNo1.setText(data?.mobileNo)
+                binding.mobileNo2.setText(data?.whatsappNo)
+                binding.dropCategory.setText(data?.categoryName)
+                selectedCategoryId=data?.categoryId
+                binding.shopArea.setText(data?.shopAreaSqft)
+                binding.workingBranchs.setText(data?.branchName)*/
+
+                binding.apply {
+
+
+                    dropCity.setText(data?.firmName ?: "", false)
+                    selectedFirmId = data?.id
+                    // selectedFirmId=data.fi
+
+                    dropGrade.setText(data?.gradeName ?: "", false)
+                    selectedGradeId = data?.gradeId
+
+                    dropStation.setText(data?.stationName ?: "", false)
+                    selectedStationId = data?.stationID
+
+
+                    dropState.setText(data?.stateName ?: "", false)
+                    selectedStateId = data?.stateID
+
+                    ownerName.setText(data?.ownerName ?: "", false)
+
+                    mobileNo1.setText(data?.mobileNo ?: "")
+
+                    mobileNo2.setText(data?.whatsappNo ?: "")
+
+                    dropCategory.setText(data?.categoryName ?: "", false)
+                    selectedCategoryId = data?.categoryId
+
+                    shopArea.setText(data?.shopAreaSqft ?: "")
+
+                    workingBranchs.setText(data?.branchName ?: "")
+
+               //     edtOldAgent.setText(data.oldAgentName ?: "")
+                    /*  Glide.with(holder.itemView.context)
+                      .load(item.imageUrl)
+                      .into(holder.imgPhoto)*/
+
+                /*    data.selfieImageURL1?.let {
+
+                        selfieList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+                    data.selfieImageURL2?.let {
+
+                        selfieList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+
+
+                    data.shopImageURL1?.let {
+
+                        bottomList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+                    data.shopImageURL2?.let {
+
+                        bottomList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+                    data.shopImageURL3?.let {
+
+                        bottomList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+                    data.shopImageURL4?.let {
+
+                        bottomList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }
+
+                    data.shopImageURL5?.let {
+
+                        bottomList.add(
+                            ImageItem(imageUrl = it)
+                        )
+                    }*/
+
+
+
+                /*    selfieAdapter.notifyDataSetChanged()
+
+                    bottomAdapter.notifyDataSetChanged()*/
+
+                    edtYearlySale.setText(data?.yearlySale ?: "")
+
+                   // edtRemarks.setText(data.remark ?: "")
+
+               /*     txtLatLong.text =
+                        "Long, Lat: ${data.longitude}, ${data.latitude}"*/
+
+
+                    // SHOP CATEGORY SELECT
+
+                    val selectedCategories =
+                        data?.shopCategory
+                            ?.split(",")
+                            ?.map { it.trim() }
+                            ?: emptyList()
+
+
+
+                    ShopCategory.forEach { item ->
+
+                        item.isSelected =
+                            selectedCategories.any { selected ->
+
+                                selected.equals(
+                                    item.name,
+                                    ignoreCase = true
+                                )
+                            }
+                    }
+
+
+                }
+
+                adapter.notifyDataSetChanged()
+
+
+
+
+
+            }
 
             // remove focus
             binding.dropCity.clearFocus()
@@ -1624,7 +2020,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     }
 
     private fun showImagePicker() {
-
+        binding.edtRemarks.clearFocus()
         val options = arrayOf("Camera", "Gallery")
 
         AlertDialog.Builder(this)

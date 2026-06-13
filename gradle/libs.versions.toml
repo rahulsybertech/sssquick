@@ -40,6 +40,8 @@ accompanist = "0.32.0"
 coil = "2.6.0"
 compose-foundation = "1.6.7" # or latest stable
 vico = "1.14.0"
+runtime = "1.11.2"
+material3 = "1.4.0"
 
 
 
@@ -104,6 +106,8 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 androidx-datastore-core-android = { group = "androidx.datastore", name = "datastore-core-android", version.ref = "datastoreCoreAndroid" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 
 [plugins]

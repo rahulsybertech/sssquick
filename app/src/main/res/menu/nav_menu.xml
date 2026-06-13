@@ -53,6 +53,10 @@
         android:title="@string/customer_fair_details" />
 
     <item
+        android:id="@+id/nav_followupcall"
+        android:icon="@drawable/pending_lr"
+        android:title="Follow Up" />
+    <item
         android:id="@+id/nav_tour_details"
         android:icon="@drawable/pending_lr"
         android:title="Tour Details" />

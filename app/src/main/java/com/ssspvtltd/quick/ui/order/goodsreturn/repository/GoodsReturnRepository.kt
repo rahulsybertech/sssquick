@@ -8,8 +8,6 @@ import com.ssspvtltd.quick.model.editCustomer.EditCustomerDetailsResponse
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
-import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateRequest
-import com.ssspvtltd.quick.model.order.pending.PendingOrderPDFRegenerateResponse
 import com.ssspvtltd.quick.networking.ApiRequestCode
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ApiService
@@ -19,8 +17,9 @@ import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteLeadRequest
-import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
+import com.ssspvtltd.quick.ui.followupcall.LeadFollowupResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadResponse
+import com.ssspvtltd.quick.ui.tour.model.UpdateLeadResponse
 import kotlinx.coroutines.Dispatchers
 import retrofit2.Response
 import javax.inject.Inject
@@ -113,6 +112,14 @@ class GoodsReturnRepository @Inject constructor(private val apiService: ApiServi
             apiService.deleteLeadForIDApi(id.leadID)
         }
     }
+    suspend fun getfollowpCallReq(id: String?, customerType: String): ResultWrapper<ApiResponse<*>, Response<LeadFollowupResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getfollowpCallApi(id,customerType)
+        }}
 
+    suspend fun getupdateLeadReq(id: String?, remark: String,lat: String,long: String): ResultWrapper<ApiResponse<*>, Response<UpdateLeadResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.updateLeadlApi(id,remark,lat,long)
+        }}
 
 }
