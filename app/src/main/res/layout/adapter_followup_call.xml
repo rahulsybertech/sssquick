@@ -31,23 +31,22 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Call Button -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnCall"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@android:drawable/ic_menu_call"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/phone_call"
             app:backgroundTint="#25D366"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:maxImageSize="20dp"
-            app:tint="@android:color/white" />
+            />
 
         <!-- Sub Party -->
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvSubPartyLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
             android:text="Sub Party"
             android:textColor="#666666"
             android:textSize="12sp"
@@ -163,10 +162,8 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:text="Lead Date | "
             android:textSize="12sp"
-
             app:layout_constraintStart_toStartOf="@id/tvCustomerName"
             app:layout_constraintTop_toBottomOf="@id/tvMobileLabel" />
 
@@ -187,7 +184,6 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:text="Last Followup Date | "
             android:textSize="12sp"
             android:textStyle="bold"

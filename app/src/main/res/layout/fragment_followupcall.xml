@@ -124,6 +124,7 @@
             <!-- Search EditText -->
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/etSearch"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"

@@ -107,6 +107,8 @@ class FollowUpCallsFragment
     override fun onResume() {
         super.onResume()
         callPendingOrderApi(selectedType)
+        binding.etSearch.clearFocus()
+        binding.recyclerView.requestFocus()
     }
     private fun callPendingOrderApi(selectedType: String) {
         lifecycleScope.launch {
@@ -166,8 +168,8 @@ class FollowUpCallsFragment
             if (oldBottom > bottom) {
                 binding.recyclerView.post {
                     binding.recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-                    binding.etSearch.isFocusable = false
-                    binding.etSearch.isFocusableInTouchMode = false
+          /*          binding.etSearch.isFocusable = false
+                    binding.etSearch.isFocusableInTouchMode = false*/
                 }
             }
         }
@@ -190,7 +192,14 @@ class FollowUpCallsFragment
             callUpdateLeadApi(leadData, remark)
         }
         adapter.onRemarkFocus = {  remark ->
-            recyclerView.smoothScrollToPosition(remark)
+            recyclerView.post {
+                val lm = recyclerView.layoutManager as LinearLayoutManager
+                val view = lm.findViewByPosition(remark)
+
+                if (view != null) {
+                    recyclerView.smoothScrollBy(0, 150)
+                }
+            }
         }
         adapter.onItemDeleteClick = {
             val intent = Intent(Intent.ACTION_DIAL)
