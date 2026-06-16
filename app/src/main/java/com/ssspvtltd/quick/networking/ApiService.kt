@@ -12,10 +12,7 @@ import com.ssspvtltd.quick.model.auth.LoginData
 import com.ssspvtltd.quick.model.auth.VerifyOtpData
 import com.ssspvtltd.quick.model.checkincheckout.CheckInRequest
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
-import com.ssspvtltd.quick.model.customer.NickName
 import com.ssspvtltd.quick.model.customer.NickNameResponse
-import com.ssspvtltd.quick.model.customerdetails.CustomerList
-import com.ssspvtltd.quick.model.editCustomer.EditCustomerData
 import com.ssspvtltd.quick.model.editCustomer.EditCustomerDetailsResponse
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
@@ -42,9 +39,10 @@ import com.ssspvtltd.quick.model.version.CheckVersionResponse
 import com.ssspvtltd.quick.ui.customerDetails.model.CreateResponse
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.CustomerDetailsRequest
 import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteAccountRequest
-import com.ssspvtltd.quick.ui.customerDetails.modelRequest.DeleteLeadRequest
+import com.ssspvtltd.quick.ui.followupcall.LeadFollowupResponse
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
+import com.ssspvtltd.quick.ui.tour.model.GetAccountDetailByIdResponse
 
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
@@ -53,6 +51,7 @@ import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.StateResponse
 import com.ssspvtltd.quick.ui.tour.model.StationResponse
+import com.ssspvtltd.quick.ui.tour.model.UpdateLeadResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -389,6 +388,12 @@ interface ApiService {
     ): Response<LeadDetailsByLeadIdRespnse>
 
 
+    @POST("api/OrderBook/GetAccountDetailbyID")
+    suspend fun getAccountDetailsByIDReqApi(
+        @Query("accountId") accountId: String?
+    ): Response<GetAccountDetailByIdResponse>
+
+
 
     @POST("api/OrderBook/GetAllLeadByUserID")
     suspend fun getAllLeadApi(): Response<LeadResponse>// Added >
@@ -397,4 +402,18 @@ interface ApiService {
     suspend fun deleteLeadForIDApi(
         @Query("leadID") leadID: String
     ): Response<AccountNameResponse>
+
+    @POST("api/Report/LeadFollowupDetail")
+    suspend fun getfollowpCallApi(
+        @Query("marketerID") marketerID: String?, @Query("reportNo") reportNo: String
+    ): Response<LeadFollowupResponse>
+
+
+    @POST("api/OrderBook/UpdateLeadFollowup")
+    suspend fun updateLeadlApi(
+        @Query("LeadID") marketerID: String?,
+        @Query("Remark") reemark: String,
+        @Query("latitude") latitude: String,
+        @Query("longitude") longitude: String,
+    ): Response<UpdateLeadResponse>
 }

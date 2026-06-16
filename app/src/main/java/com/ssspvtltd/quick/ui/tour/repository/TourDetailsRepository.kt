@@ -1,16 +1,6 @@
 package com.ssspvtltd.quick.ui.tour.repository
 
-import android.annotation.SuppressLint
-import android.location.Location
-import android.os.Looper
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import com.ssspvtltd.quick.model.GetStockInOfficeOrderDetailsRequest
 import com.ssspvtltd.quick.model.customer.AccountNameResponse
-import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.networking.ApiRequestCode
 import com.ssspvtltd.quick.networking.ApiResponse
 import com.ssspvtltd.quick.networking.ApiService
@@ -18,18 +8,14 @@ import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.networking.safeApiCall
 import com.ssspvtltd.quick.ui.tour.model.CategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.CommonResponse
+import com.ssspvtltd.quick.ui.tour.model.GetAccountDetailByIdResponse
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
-import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.StateResponse
-import com.ssspvtltd.quick.ui.tour.model.StationItem
 import com.ssspvtltd.quick.ui.tour.model.StationResponse
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -104,6 +90,11 @@ class TourDetailsRepository @Inject constructor(private val apiService: ApiServi
     suspend fun getLeadByLeadIDReq(leadID: String): ResultWrapper<ApiResponse<*>, Response<LeadDetailsByLeadIdRespnse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
             apiService.getLeadByLeadIDApi(leadID)
+        }}
+
+    suspend fun getAccountDetailsByIDReq(accountId: String?): ResultWrapper<ApiResponse<*>, Response<GetAccountDetailByIdResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getAccountDetailsByIDReqApi(accountId)
         }}
 
 

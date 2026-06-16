@@ -49,12 +49,12 @@ class ImageAdapter(
             when {
 
                 item.bitmap != null -> {
-
+                    holder.imgDelete.visibility = View.VISIBLE
                     holder.imgPhoto.setImageBitmap(item.bitmap)
                 }
 
                 item.imageUrl != null -> {
-
+                    holder.imgDelete.visibility = View.VISIBLE
                     Glide.with(holder.itemView.context)
                         .load(item.imageUrl)
                         .into(holder.imgPhoto)

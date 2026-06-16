@@ -24,7 +24,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 @AndroidEntryPoint
-class TourRegisterListFragment     : BaseFragment<FragmentTourRegisterListBinding, CustomerDetailsViewModel>() {
+class TourRegisterListFragment
+    : BaseFragment<FragmentTourRegisterListBinding, CustomerDetailsViewModel>() {
     private val adapter by lazy { TourRegisterAdapter() }
     override val inflate: InflateF<FragmentTourRegisterListBinding>
         get() = FragmentTourRegisterListBinding::inflate

@@ -79,6 +79,7 @@ data class LeadRequest(
     val yearlySale: String = "",
 
     val shopArea: String = "",
+    val workingBranchs: String = "",
 
     val remark: String = "",
 

@@ -273,6 +273,12 @@ class DashboardFragment : Fragment() {
 
                 tvTotalSale.text = (dashBoardData?.totalSaleCount ?: 0).toString()
                 tvFairCustomerDetails.text = dashBoardData?.fairCustomerCount.toString()
+
+
+                dashBoardData?.leadCount?.let {
+                    tviconTourDetails.text = it
+                }
+
                // println("GET_AMOUNT ${dashBoardData?.totalSaleAmt}")
                 val totalAmount = dashBoardData?.totalSaleAmt
                     ?.toString()

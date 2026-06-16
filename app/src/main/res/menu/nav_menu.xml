@@ -52,10 +52,14 @@
         android:icon="@drawable/pending_lr"
         android:title="@string/customer_fair_details" />
 
-   <!-- <item
+    <item
+        android:id="@+id/nav_followupcall"
+        android:icon="@drawable/pending_lr"
+        android:title="Follow Up" />
+    <item
         android:id="@+id/nav_tour_details"
         android:icon="@drawable/pending_lr"
-        android:title="Tour Details" />-->
+        android:title="Tour Details" />
     <item
         android:id="@+id/nav_customer_wise_fair_details"
         android:icon="@drawable/pending_lr"

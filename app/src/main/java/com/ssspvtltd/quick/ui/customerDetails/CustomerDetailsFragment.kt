@@ -453,7 +453,8 @@ class CustomerDetailsFragment : BaseFragment<FragmentCustomerDetailsBinding, Cus
 
             viewModel.accountDetailsForID.observe(
                 viewLifecycleOwner
-            ) { list1 ->
+            )
+            { list1 ->
 
                 if (list1.isNullOrEmpty()) {
 
