@@ -18,19 +18,46 @@
         android:padding="14dp">
 
         <!-- Customer Name -->
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvCustomerName"
+        <LinearLayout
+            android:id="@+id/customerRow"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#222222"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/btnCall"
+            android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tvCustomerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                android:text="Cust Name:" />
+
+            <TextView
+                android:id="@+id/tvCustomerName1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="2"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:ellipsize="end" />
+        </LinearLayout>
 
         <!-- Call Button -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/btnCallLead"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/phone_call"
+            app:backgroundTint="#25D366"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="15dp"
+            app:layout_constraintBottom_toTopOf="@+id/edtRemark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="5dp"/>
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnCall"
             android:layout_width="30dp"
@@ -38,9 +65,10 @@
             android:src="@drawable/phone_call"
             app:backgroundTint="#25D366"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:maxImageSize="20dp"
-            />
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="5dp"/>
 
         <!-- Sub Party -->
         <androidx.appcompat.widget.AppCompatTextView
@@ -50,17 +78,16 @@
             android:text="Sub Party"
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
-            app:layout_constraintTop_toBottomOf="@id/tvCustomerName" />
+            app:layout_constraintStart_toStartOf="@id/customerRow"
+            app:layout_constraintTop_toBottomOf="@id/customerRow" />
 
         <TextView
             android:id="@+id/tvSubParty"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:text=""
+            android:singleLine="true"
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/btnCall"
             app:layout_constraintStart_toEndOf="@id/tvSubPartyLabel"
             app:layout_constraintTop_toTopOf="@id/tvSubPartyLabel" />
@@ -70,20 +97,22 @@
             android:id="@+id/tvMobileLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:text="Mobile No | "
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
+            app:layout_constraintStart_toStartOf="@id/customerRow"
             app:layout_constraintTop_toBottomOf="@id/tvSubPartyLabel" />
 
         <TextView
             android:id="@+id/tvMobileNo"
             android:layout_width="0dp"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:text=""
             android:textSize="12sp"
-            android:textStyle="bold"
+
             app:layout_constraintEnd_toStartOf="@id/btnCall"
             app:layout_constraintStart_toEndOf="@id/tvMobileLabel"
             app:layout_constraintTop_toTopOf="@id/tvMobileLabel" />
@@ -93,21 +122,19 @@
             android:id="@+id/tvSaleLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last 1 Year Sale | "
+            android:text="Last 1 Year Sale : "
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
-            app:layout_constraintTop_toBottomOf="@id/tvMobileLabel" />
+            app:layout_constraintStart_toStartOf="@id/customerRow"
+            app:layout_constraintTop_toBottomOf="@id/tvSubPartyLabel" />
 
         <TextView
             android:id="@+id/tvLastYearSale"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:text=""
-            android:textColor="#E53935"
+            android:textColor="#666666"
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@id/btnCall"
             app:layout_constraintStart_toEndOf="@id/tvSaleLabel"
             app:layout_constraintTop_toTopOf="@id/tvSaleLabel" />
@@ -116,41 +143,36 @@
             android:id="@+id/tvPartyTypeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Party Type | "
+            android:text="Party Type : "
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
+            app:layout_constraintStart_toStartOf="@id/customerRow"
             app:layout_constraintTop_toBottomOf="@id/tvSaleLabel" />
 
         <TextView
             android:id="@+id/tvPartyType"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text=""
+            android:text="Na"
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/tvPartyTypeLabel"
-            app:layout_constraintEnd_toStartOf="@id/btnCall"
             app:layout_constraintTop_toTopOf="@id/tvPartyTypeLabel" />
         <TextView
             android:id="@+id/tvClubTypeLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Club Type | "
+            android:text="     Club Type : "
             android:textColor="#666666"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
-            app:layout_constraintTop_toBottomOf="@id/tvPartyTypeLabel" />
+            app:layout_constraintStart_toEndOf="@id/tvPartyType"
+            app:layout_constraintTop_toBottomOf="@id/tvSaleLabel" />
 
         <TextView
             android:id="@+id/tvClubType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
             android:text=""
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintStart_toEndOf="@id/tvClubTypeLabel"
             app:layout_constraintEnd_toStartOf="@id/btnCall"
             app:layout_constraintTop_toTopOf="@id/tvClubTypeLabel" />
@@ -162,9 +184,9 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lead Date | "
+            android:text="Lead Date :"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
+            app:layout_constraintStart_toStartOf="@id/customerRow"
             app:layout_constraintTop_toBottomOf="@id/tvMobileLabel" />
 
         <TextView
@@ -172,10 +194,8 @@
             android:id="@+id/tvLeadDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
             android:text="17/06/2026"
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@id/tvLeadDateLabel"
             app:layout_constraintStart_toEndOf="@id/tvLeadDateLabel" />
         <!-- Last Followup Date -->
@@ -184,10 +204,9 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Last Followup Date | "
+            android:text="Last Followup Date :"
             android:textSize="12sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
+            app:layout_constraintStart_toStartOf="@id/customerRow"
             app:layout_constraintTop_toBottomOf="@id/tvLeadDateLabel" />
 
         <TextView
@@ -195,15 +214,14 @@
             android:id="@+id/tvLastFollowupDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
             android:text="17/06/2026"
             android:textSize="12sp"
-            android:textStyle="bold"
             app:layout_constraintBaseline_toBaselineOf="@id/tvLastFollowup"
             app:layout_constraintStart_toEndOf="@id/tvLastFollowup" />
 
         <!-- Remark -->
         <TextView
+
             android:id="@+id/tvRemark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -211,36 +229,35 @@
             android:text="Remarks"
             android:visibility="gone"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvCustomerName"
+            app:layout_constraintStart_toStartOf="@id/customerRow"
             app:layout_constraintTop_toBottomOf="@id/tvLastFollowup" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edtRemark"
             android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:visibility="gone"
+            android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@android:drawable/edit_text"
             android:paddingHorizontal="8dp"
             android:textSize="12sp"
-            android:minLines="3"
-            android:textAlignment="viewStart"
+            android:visibility="gone"
+            android:inputType="textMultiLine"
+            android:maxLines="3"
+            android:gravity="top|start"
             app:layout_constraintEnd_toStartOf="@id/btnFollowup"
             app:layout_constraintStart_toEndOf="@id/tvRemark"
-            app:layout_constraintTop_toTopOf="@id/tvRemark"
-            tools:text="Customer interested" />
-
+            app:layout_constraintTop_toTopOf="@id/tvRemark"/>
         <!-- Green Followup Button -->
         <Button
             android:id="@+id/btnFollowup"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_marginStart="8dp"
             android:backgroundTint="#00AA00"
             android:minWidth="0dp"
             android:textColor="@color/white"
-            android:text="Followup"
+            android:text="@string/submit"
             android:textAllCaps="false"
             android:textSize="10sp"
             app:layout_constraintEnd_toStartOf="@id/btnFollowup2"

@@ -8,8 +8,10 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ssspvtltd.quick.base.BaseFragment
 import com.ssspvtltd.quick.base.InflateF
 import com.ssspvtltd.quick.databinding.FragmentFollowupcallBinding
@@ -26,7 +28,7 @@ import kotlinx.coroutines.launch
 class FollowUpCallsFragment
     : BaseFragment<FragmentFollowupcallBinding, FollowUpCallsViewModel>() {
     private val adapter by lazy { FollowUpCallsAdapter() }
-    private var selectedType = "3" // Existing Customer
+    private var selectedType = "1" // Existing Customer
     override val inflate: InflateF<FragmentFollowupcallBinding>
         get() = FragmentFollowupcallBinding::inflate
 
@@ -46,25 +48,36 @@ class FollowUpCallsFragment
     }
     private fun setupTabs() = with(binding) {
 
-      /*  cardExisting.setOnClickListener {
-            if (selectedType != "1") {
-                selectedType = "1"
-                selectTab(0)
-                callPendingOrderApi(selectedType)
-            }
-        }
+          cardExisting.setOnClickListener {
+              if (selectedType != "1") {
+                  etSearch.setText("")
+                  etSearch.clearFocus()
+                  binding.root.requestFocus()
+                  selectedType = "1"
+                  selectTab(0)
+                  callPendingOrderApi(selectedType)
+              }
+          }
 
-        cardOther.setOnClickListener {
-            if (selectedType != "2") {
-                selectedType = "2"
-                selectTab(1)
-                callPendingOrderApi(selectedType)
-            }
-        }*/
+          cardOther.setOnClickListener {
+              if (selectedType != "2") {
+                  selectedType = "2"
+                  etSearch.setText("")
+                  etSearch.clearFocus()
+
+                  binding.root.requestFocus()
+                  selectTab(1)
+                  callPendingOrderApi(selectedType)
+              }
+          }
 
         cardLeads.setOnClickListener {
             if (selectedType != "3") {
                 selectedType = "3"
+                etSearch.setText("")
+                etSearch.clearFocus()
+
+                binding.root.requestFocus()
                 selectTab(2)
                 callPendingOrderApi(selectedType)
             }
@@ -128,8 +141,8 @@ class FollowUpCallsFragment
 
 
         viewModel.updateLeadResponse.observe(viewLifecycleOwner) { list ->
-           showToast(list)
-           // callPendingOrderApi(selectedType)
+            showToast(list)
+            // callPendingOrderApi(selectedType)
         }
     }
 
@@ -137,10 +150,25 @@ class FollowUpCallsFragment
     private fun registerObserver() {
         viewModel.getAllLeadByUserIDtList.observe(viewLifecycleOwner) { list ->
             if (!list.isNullOrEmpty()) {
+
                 binding.recyclerView.visibility = View.VISIBLE
-                adapter.submitList(list)
+
+                adapter.submitList(
+                    list.sortedByDescending { it.leadNo }
+                )
+
+                binding.recyclerView.post {
+                    val layoutManager =
+                        binding.recyclerView.layoutManager as LinearLayoutManager
+
+                    val lastVisible = layoutManager.findLastVisibleItemPosition() + 1
+
+                    binding.tvPositionCount.text = "$lastVisible/${list.size}"
+                }
+
             } else {
                 binding.recyclerView.visibility = View.GONE
+                binding.tvPositionCount.text = "0/0"
             }
         }
 
@@ -148,7 +176,7 @@ class FollowUpCallsFragment
 
             if (isSuccess) {
                 showToast("Delete Account Successfully")
-               // viewModel.getAllLeadtList()
+                // viewModel.getAllLeadtList()
             } else {
 
                 showToast("Customer Add Failed")
@@ -158,31 +186,45 @@ class FollowUpCallsFragment
     }
 
     private fun initViews() = with(binding) {
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+      //  recyclerView.adapter = adapter
         binding.etSearch.apply {
             isFocusableInTouchMode = true
             isFocusable = true
         }
-        binding.recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+   /*     binding.recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (oldBottom > bottom) {
                 binding.recyclerView.post {
                     binding.recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-          /*          binding.etSearch.isFocusable = false
-                    binding.etSearch.isFocusableInTouchMode = false*/
+                    *//*          binding.etSearch.isFocusable = false
+                              binding.etSearch.isFocusableInTouchMode = false*//*
                 }
             }
-        }
-        adapter.selectedType="3"
+        }*/
+        adapter.selectedType="1"
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                val currentPosition = layoutManager.findFirstVisibleItemPosition() + 1
+                val totalCount = adapter.itemCount
+
+                binding.tvPositionCount.text = "$currentPosition/$totalCount"
+            }
+        })
     }
 
     private fun registerListener() = with(binding) {
 
-        requireActivity().window.setSoftInputMode(
+/*        requireActivity().window.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
-        false
+        false*/
 
         toolbar.setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
         toolbar.setTitle("Follow Up Calls")
@@ -192,14 +234,14 @@ class FollowUpCallsFragment
             callUpdateLeadApi(leadData, remark)
         }
         adapter.onRemarkFocus = {  remark ->
-            recyclerView.post {
+        /*    recyclerView.post {
                 val lm = recyclerView.layoutManager as LinearLayoutManager
                 val view = lm.findViewByPosition(remark)
 
                 if (view != null) {
                     recyclerView.smoothScrollBy(0, 150)
                 }
-            }
+            }*/
         }
         adapter.onItemDeleteClick = {
             val intent = Intent(Intent.ACTION_DIAL)
@@ -218,4 +260,3 @@ class FollowUpCallsFragment
         imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
     }
 }
-

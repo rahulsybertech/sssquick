@@ -16,6 +16,9 @@ import com.ssspvtltd.quick.databinding.AdapterTourRegisterListBinding
 import com.ssspvtltd.quick.ui.customerDetails.allAccount.PersonAdapter
 import com.ssspvtltd.quick.ui.followupcall.LeadData
 import com.ssspvtltd.quick.ui.tour.model.LeadItem
+import com.ssspvtltd.quick.utils.CommaSparateAmount
+import com.ssspvtltd.quick.utils.DateTimeFormat
+import com.ssspvtltd.quick.utils.DateTimeUtils
 
 
 class FollowUpCallsAdapter : MultiViewAdapter() {
@@ -74,16 +77,22 @@ class PendingLrViewHolder(
             )
         }
         tvMobileNo.text=item.mobileNo
-       tvLastYearSale.text="₹"+item.netAmt
-        tvLastFollowupDate.text=item.lastFollowupDate
+        tvLastYearSale.text=CommaSparateAmount.formatIndianAmount(item.netAmt)
+
+        tvLastFollowupDate.text = DateTimeUtils.formatDate(
+            item.lastFollowupDate,
+            DateTimeFormat.DATE_TIME_FORMAT5,
+            DateTimeFormat.DATE_TIME_FORMAT6
+        )
+
         if(selectedType == "3"){
-            tvCustomerName.text = Html.fromHtml(
-                "<b>Lead No. | </b> ${item.leadNo}",
-                Html.FROM_HTML_MODE_LEGACY
-            )
-            tvSubPartyLabel.setText("Lead Name | ")
+            tvCustomerName1.text = item.leadNo
+            tvCustomerName.setText("Lead No. : ")
+            tvSubPartyLabel.setText("Lead Name : ")
             tvSubParty.text=item.accountName
             tvRemark.visibility= View.VISIBLE
+            btnCall.visibility= View.INVISIBLE
+            btnCallLead.visibility= View.VISIBLE
             edtRemark.visibility= View.VISIBLE
             tvLastYearSale.visibility= View.GONE
             tvSaleLabel.visibility= View.GONE
@@ -98,15 +107,21 @@ class PendingLrViewHolder(
             tvClubType.visibility= View.GONE
             tvLeadDateLabel.visibility= View.VISIBLE
             tvLeadDate.visibility= View.VISIBLE
-            tvLeadDate.text=item.date
+
+            tvLeadDate.text = DateTimeUtils.formatDate(
+                item.date,
+                DateTimeFormat.DATE_TIME_FORMAT5,
+                DateTimeFormat.DATE_TIME_FORMAT6
+            )
 
         }else{
-            tvCustomerName.text = Html.fromHtml(
-                "<b>Customer Name | </b> ${item.accountName}",
-                Html.FROM_HTML_MODE_LEGACY
-            )
-            tvSubPartyLabel.setText("Sub Party | ")
+
+            tvCustomerName.setText("Cust Name : ")
+            tvCustomerName1.text = item.accountName
+            tvSubPartyLabel.setText("Sub Party : ")
             tvSubParty.text=item.subParty
+            btnCall.visibility= View.VISIBLE
+            btnCallLead.visibility= View.INVISIBLE
             tvRemark.visibility= View.GONE
             tvLastYearSale.visibility= View.VISIBLE
             tvSaleLabel.visibility= View.VISIBLE
@@ -127,11 +142,11 @@ class PendingLrViewHolder(
         }
 
         edtRemark.setText(item.remark)
-        edtRemark.setOnFocusChangeListener { _, hasFocus ->
+    /*    edtRemark.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 onRemarkFocus?.invoke(position)
             }
-        }
+        }*/
 
 
         // ✅ Edit click
@@ -145,6 +160,9 @@ class PendingLrViewHolder(
             onItemEditClick?.invoke(item, edtRemark.text.toString(), position)
         }
         btnCall.setOnClickListener {
+            onItemDeleteClick?.invoke(item)
+        }
+        btnCallLead.setOnClickListener {
             onItemDeleteClick?.invoke(item)
         }
 

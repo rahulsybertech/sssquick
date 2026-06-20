@@ -130,13 +130,13 @@ class TourDetailsViewModel @Inject constructor(
     private val _stationList = MutableLiveData<List<StationItem>>()
     val stationList: LiveData<List<StationItem>> = _stationList
 
-    fun getStationList() {
+    fun getStationList(selectedStateId: String?) {
 
         viewModelScope.launch {
 
             _loading.value = true
             showProgressBar()
-            when (val response = repository.getgetStationList()) {
+            when (val response = repository.getgetStationList(selectedStateId)) {
 
                 is ResultWrapper.Failure -> apiErrorData(response.error)
 

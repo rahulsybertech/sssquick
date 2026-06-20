@@ -15,6 +15,7 @@ import com.ssspvtltd.quick.model.order.add.addImage.ImageModel
 class AddImageAdapter : MultiViewAdapter() {
     internal var addImageListener: (() -> Unit)? = null
     internal var deleteImageListener: ((ImageModel , Int) -> Unit)? = null
+    internal var imagePreviewListener: ((ImageModel) -> Unit)? = null
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BaseViewHolder {
         when (viewType) {
             ImageViewType.ADD_IMAGE.id -> {
@@ -25,15 +26,28 @@ class AddImageAdapter : MultiViewAdapter() {
                 binding.btnDelete.isVisible = false
                 return BaseViewHolder(binding).apply {
                     itemView.setOnClickListener { addImageListener?.invoke() }
+
                 }
             }
 
             ImageViewType.IMAGE.id -> {
-                val binding = ItemAddImageBinding
-                    .inflate(LayoutInflater.from(parent.context), parent, false)
+                val binding = ItemAddImageBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+
                 binding.btnDelete.isVisible = true
+
                 return ImageViewHolder(binding).apply {
-                    this.binding.btnDelete.setOnClickListener {
+
+                    binding.imageView.setOnClickListener {
+                        getItemOrNull<ImageModel>(bindingAdapterPosition)?.let { image ->
+                            imagePreviewListener?.invoke(image)
+                        }
+                    }
+
+                    binding.btnDelete.setOnClickListener {
                         getItemOrNull<ImageModel>(bindingAdapterPosition)?.let {
                             deleteImageListener?.invoke(it, layoutPosition)
                         }

@@ -3,19 +3,19 @@ package com.ssspvtltd.quick.ui.tour
 import android.Manifest
 import android.R
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
-import android.text.Editable
 import android.text.InputFilter
-import android.text.TextWatcher
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -24,17 +24,23 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
@@ -42,7 +48,6 @@ import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
 import com.ssspvtltd.quick.databinding.ActivityTourDetailsBinding
 import com.ssspvtltd.quick.model.customer.AccountName
-import com.ssspvtltd.quick.model.customerdetails.PersonModel
 import com.ssspvtltd.quick.ui.order.add.adapter.AddImageAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.CategoryAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.ImageAdapter
@@ -58,6 +63,8 @@ import com.ssspvtltd.quick.ui.tour.model.StationItem
 import com.ssspvtltd.quick.ui.tour.viewmodel.TourDetailsViewModel
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -232,9 +239,24 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     override val inflate: InflateA<ActivityTourDetailsBinding> get() = ActivityTourDetailsBinding::inflate
     override fun initViewModel(): TourDetailsViewModel = getViewModel()
-
+    private var doubleBackToExitPressedOnce = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+
+            if (doubleBackToExitPressedOnce) {
+                finish()
+            } else {
+                doubleBackToExitPressedOnce = true
+
+                Toast.makeText(
+                    this@TourDetailsActivity,
+                    "Press back again to exit",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
         leadId = intent.getStringExtra("leadId")
         checkEditMode()
         initViews()
@@ -280,6 +302,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
         }
 
+
         binding.btnNext.setOnClickListener {
 
             if (!isNextScreen) {
@@ -289,8 +312,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 if(validateForm()){
 
 
-                    binding.edtOldAgent.isFocusableInTouchMode = true
-                    binding.edtOldAgent.requestFocus()
+                  /*  binding.edtOldAgent.isFocusableInTouchMode = true
+                    binding.edtOldAgent.requestFocus()*/
                     isNextScreen = true
 
                     binding.btnNext.text = "Save"
@@ -341,6 +364,28 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
         }
 
+        binding.imgBack.setOnClickListener {
+            if (isNextScreen) {
+
+                // STEP 2 → STEP 1
+                isNextScreen = false
+
+                binding.btnNext.text = "Next"
+
+                binding.btnBack.visibility = View.GONE
+
+                binding.mainLayout.visibility = View.VISIBLE
+                binding.radioGroupCustomer.visibility = View.VISIBLE
+
+                binding.layoutStepTwo.visibility = View.GONE
+
+            } else {
+
+                // STEP 1 → Finish Activity
+                finish()
+            }
+        }
+
         binding.btnBack.setOnClickListener {
 
             isNextScreen = false
@@ -354,6 +399,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             binding.layoutStepTwo.visibility = View.GONE
         }
+
+
 
         viewModel.getleadDetailByLedId.observe(this) { data ->
 
@@ -692,10 +739,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
 
-        adapter.notifyDataSetChanged()
+       // adapter.notifyDataSetChanged()
     }
 
     private fun setFieldsEditable(isEditable: Boolean) = with(binding) {
+
 
        // dropCity.isEnabled = isEditable
         dropGrade.isEnabled = isEditable
@@ -820,7 +868,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         if (!leadId.isNullOrEmpty()) {
 
             // EDIT MODE
-            binding.toolbar.setTitle("Edit Lead")
+            binding.txtTitle.setText("Edit Lead")
             viewModel.getLeadDetailByLeadID(leadId!!)
             setCustomerTypeEnabled(false)
 
@@ -828,7 +876,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             // ADD MODE
             setCustomerTypeEnabled(true)
-            binding.toolbar.setTitle("Add Lead")
+            binding.txtTitle.setText("Add Lead")
         }
     }
 
@@ -847,20 +895,21 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 return false
             }
 
-            if (binding.dropGrade.text.isNullOrEmpty()) {
+         /*   if (binding.dropGrade.text.isNullOrEmpty()) {
                 binding.layouGrade.error = "Select Grade"
                 return false
             }
-
+*/
+            if (binding.dropState.text.isNullOrEmpty()) {
+                binding.layouState.error = "Select State"
+                return false
+            }
             if (binding.dropStation.text.isNullOrEmpty()) {
                 binding.layouStation.error = "Select Station"
                 return false
             }
 
-            if (binding.dropState.text.isNullOrEmpty()) {
-                binding.layouState.error = "Select State"
-                return false
-            }
+
 
             if (binding.mobileNo1.text.isNullOrEmpty()) {
                 binding.layoutMobileNum.error = "Enter Mobile No"
@@ -901,18 +950,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 return false
             }
 
-            if (binding.dropGrade.text.isNullOrEmpty()) {
+        /*    if (binding.dropGrade.text.isNullOrEmpty()) {
                 binding.layouGrade.error = "Select Grade"
                 return false
-            }
+            }*/
 
-            if (binding.dropStation.text.isNullOrEmpty()) {
-                binding.layouStation.error = "Select Station"
+
+
+            if (selectedStateId!!.isBlank()) {
+                binding.layouState.error = "Select State"
                 return false
             }
-
-            if (binding.dropState.text.isNullOrEmpty()) {
-                binding.layouState.error = "Select State"
+            if (binding.dropStation.text.isNullOrEmpty()) {
+                binding.layouStation.error = "Select Station"
                 return false
             }
 
@@ -1201,14 +1251,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 selfieAdapter.notifyDataSetChanged()
             },
 
+
             onAdd = {
                 binding.edtRemarks.clearFocus()
                 selectedImageType = "selfie"
                 checkCameraPermission()
               //  showImagePicker()
             },
+            { position, mobile,type->
+                showZoomDialog(this@TourDetailsActivity,mobile,type)
+            },
 
-            maxCount = 2
+
+            maxCount = 2,
         )
 
         bottomAdapter = ImageAdapter(
@@ -1223,12 +1278,17 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             onAdd = {
                 selectedImageType = "bottom"
-
-                showImagePicker()
+                checkCameraPermission()
+              //  showImagePicker()
+            },
+            { position, mobile,type->
+                showZoomDialog(this@TourDetailsActivity,mobile,type)
             },
 
             maxCount = 5
         )
+
+
 
         rvSelfie.layoutManager =
             LinearLayoutManager(
@@ -1296,6 +1356,91 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
     }
+    private fun showZoomDialog(
+        context: Context,
+        imageUrl: ImageItem,
+        type: String
+    ) {
+
+        if (type=="image not found") {
+
+            Toast.makeText(
+                context,
+                "Image not available",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }else{
+
+            val dialog = Dialog(
+                context,
+                android.R.style.Theme_Black_NoTitleBar_Fullscreen
+            )
+
+            dialog.setContentView(com.ssspvtltd.quick.R.layout.dialog_image_zoom)
+
+            val photoView =
+                dialog.findViewById<PhotoView>(com.ssspvtltd.quick.R.id.photoView)
+
+            val btnClose =
+                dialog.findViewById<ImageView>(com.ssspvtltd.quick.R.id.btnClose)
+
+            try {
+
+                if (type == "url") {
+
+                    Glide.with(context)
+                        .load(imageUrl.imageUrl)
+                        .placeholder(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .error(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .into(photoView)
+
+                } else {
+
+
+
+                    Glide.with(context)
+                        .load(imageUrl.bitmap)
+                        .placeholder(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .error(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .into(photoView)
+                }
+
+            }
+            catch (e: Exception) {
+
+                e.printStackTrace()
+
+                Toast.makeText(
+                    context,
+                    "Failed to load image",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            btnClose.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
+
+    }
+    private fun base64ToBitmap(base64String: String): Bitmap {
+
+        val decodedBytes = Base64.decode(
+            base64String,
+            Base64.DEFAULT
+        )
+
+        return BitmapFactory.decodeByteArray(
+            decodedBytes,
+            0,
+            decodedBytes.size
+        )
+    }
+
     private fun openContactList() {
 
         val intent = Intent(
@@ -1634,12 +1779,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
     private fun setupGradeDropdown() {
-
         // click
         binding.dropGrade.setOnClickListener {
-
             if (!isGradeApiCalled) {
-
                 isGradeApiCalled = true
 
                 viewModel.getGradeList()
@@ -1711,27 +1853,49 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
         // clear icon click support
-        binding.dropGrade.setOnDismissListener {
+      /*  binding.dropGrade.setOnDismissListener {
 
             binding.dropGrade.clearFocus()
-        }
+        }*/
     }
 
     private fun setupStationDropdown() {
 
+        binding.layouState.setEndIconOnClickListener {
+
+            binding.dropState.setText("", false)
+
+            selectedStateId = ""
+            selectedStateName = ""
+
+            // Clear Station
+            binding.dropStation.setText("", false)
+
+            selectedStationId = ""
+            selectedStationName = ""
+
+            stationData = emptyList()
+
+            isStationApiCalled = false
+        }
+
+
         // click
         binding.dropStation.setOnClickListener {
+
+            if (selectedStateId!!.isBlank()) {
+                showToast("Select State First")
+                return@setOnClickListener
+            }
 
             if (!isStationApiCalled) {
 
                 isStationApiCalled = true
 
-                // First API Call
-                viewModel.getStationList()
+                viewModel.getStationList(selectedStateId)
 
             } else {
 
-                // Already loaded
                 binding.dropStation.showDropDown()
             }
         }
@@ -1739,20 +1903,22 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         // focus
         binding.dropStation.setOnFocusChangeListener { _, hasFocus ->
 
-            if (hasFocus) {
+            if (!hasFocus) return@setOnFocusChangeListener
 
-                if (!isStationApiCalled) {
+            if (selectedStateId!!.isBlank()) {
+                showToast("Select State First")
+                return@setOnFocusChangeListener
+            }
 
-                    isStationApiCalled = true
+            if (!isStationApiCalled) {
 
-                    // First API Call
-                    viewModel.getStationList()
+                isStationApiCalled = true
 
-                } else {
+                viewModel.getStationList(selectedStateId)
 
-                    // Already loaded
-                    binding.dropStation.showDropDown()
-                }
+            } else {
+
+                binding.dropStation.showDropDown()
             }
         }
 
@@ -1798,10 +1964,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
         // dismiss support
-        binding.dropStation.setOnDismissListener {
+    /*    binding.dropStation.setOnDismissListener {
 
             binding.dropStation.clearFocus()
-        }
+        }*/
     }
 
     private fun setupStateDropdown() {
@@ -1820,6 +1986,31 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                 // Already loaded
                 binding.dropState.showDropDown()
+            }
+        }
+
+        binding.dropState.doAfterTextChanged {
+
+            if (it.isNullOrEmpty()) {
+
+                selectedStateId = ""
+                selectedStateName = ""
+
+                binding.dropStation.setText("", false)
+
+                selectedStationId = ""
+                selectedStationName = ""
+
+                stationData = emptyList()
+
+                binding.dropStation.setAdapter(null)
+
+                isStationApiCalled = false
+                // Show all states again
+                binding.dropState.post {
+                    if(it!!.isNotEmpty())
+                    binding.dropState.showDropDown()
+                }
             }
         }
 
@@ -1875,6 +2066,15 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             // ✅ IMPORTANT FIX
             binding.dropState.clearFocus()
             binding.dropState.isCursorVisible = false
+            // Reset Station
+            selectedStationId = ""
+            selectedStationName = ""
+
+            binding.dropStation.setText("", false)
+
+            stationData = emptyList()
+
+            isStationApiCalled = false
 
             // hide keyboard
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -1886,10 +2086,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
         // clear focus when dropdown dismiss
-        binding.dropState.setOnDismissListener {
+     /*   binding.dropState.setOnDismissListener {
 
             binding.dropState.clearFocus()
-        }
+        }*/
     }
 
     private fun setupCategoryeDropdown() {
@@ -1973,10 +2173,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
         // clear focus when dropdown dismiss
-        binding.dropCategory.setOnDismissListener {
+  /*      binding.dropCategory.setOnDismissListener {
 
             binding.dropState.clearFocus()
-        }
+        }*/
     }
 
     private fun setupSubCategory() {

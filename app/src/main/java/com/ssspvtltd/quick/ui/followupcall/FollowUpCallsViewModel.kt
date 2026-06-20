@@ -317,7 +317,7 @@ class FollowUpCallsViewModel @Inject constructor(
         }
 
         val filteredList = filterList.filter { customer ->
-            customer.accountName?.contains(query, ignoreCase = true) == true
+            customer.accountName?.contains(query, ignoreCase = true) == true||
             customer.subParty?.contains(query, ignoreCase = true) == true ||
                     customer.mobileNo?.contains(query, ignoreCase = true) == true ||
                     customer.leadNo?.contains(query, ignoreCase = true) == true ||

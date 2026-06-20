@@ -366,7 +366,7 @@ interface ApiService {
     suspend fun getGradeList(): Response<GradeResponse>// Added >
 
        @POST("api/OrderBook/GetAllStationName")
-    suspend fun getStationList(): Response<StationResponse>// Added >
+    suspend fun getStationList( @Query("stateId") stateId: String?): Response<StationResponse>// Added >
 
     @POST("api/OrderBook/GetAllStateName")
     suspend fun getStateList(): Response<StateResponse>// Added >

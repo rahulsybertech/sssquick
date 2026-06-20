@@ -7,7 +7,7 @@ import com.ssspvtltd.quick.base.recycler.data.CommonViewType
 data class LeadFollowupResponse(
     val status: Boolean,
     val message: String,
-    val data: List<LeadData>
+    val data: ArrayList<LeadData>
 )
 
 data class LeadData(

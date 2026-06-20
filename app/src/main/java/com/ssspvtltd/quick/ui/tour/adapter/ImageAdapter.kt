@@ -1,5 +1,6 @@
 package com.ssspvtltd.quick.ui.tour.adapter
 
+import android.app.Dialog
 import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,9 @@ class ImageAdapter(
     private val imageList: MutableList<ImageItem>,
     private val onDelete: (Int) -> Unit,
     private val onAdd: () -> Unit,
-    private val maxCount: Int
+    private val zoomIN: (position: Int, mobile: ImageItem,type:String) -> Unit,
+    private val maxCount: Int,
+
 ) : RecyclerView.Adapter<ImageAdapter.ImageVH>() {
 
     inner class ImageVH(view: View) : RecyclerView.ViewHolder(view) {
@@ -63,6 +66,36 @@ class ImageAdapter(
 
             holder.imgDelete.setOnClickListener {
                 onDelete(position)
+            }
+
+            holder.imgPhoto.setOnClickListener {
+                val pos = holder.bindingAdapterPosition
+
+                when {
+
+                    item.bitmap!=null -> {
+
+                        zoomIN(
+                            pos,
+                            item,
+                            "noturl"
+                        )
+                    }
+
+                    item.imageUrl!=null -> {
+
+                        zoomIN(
+                            pos,
+                            item,
+                            "url"
+                        )
+                    }
+
+                    else -> {
+
+                        zoomIN(pos, item, "image not found")
+                    }
+                }
             }
 
         } else {

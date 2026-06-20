@@ -65,9 +65,9 @@ class TourDetailsRepository @Inject constructor(private val apiService: ApiServi
             apiService.getGradeList()
         }}
 
-    suspend fun getgetStationList(): ResultWrapper<ApiResponse<*>, Response<StationResponse>> {
+    suspend fun getgetStationList(selectedStateId: String?): ResultWrapper<ApiResponse<*>, Response<StationResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
-            apiService.getStationList()
+            apiService.getStationList(selectedStateId)
         }
     }
     suspend fun getgetStateList(): ResultWrapper<ApiResponse<*>, Response<StateResponse>> {

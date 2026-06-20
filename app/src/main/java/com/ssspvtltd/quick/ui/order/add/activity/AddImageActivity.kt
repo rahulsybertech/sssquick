@@ -1,6 +1,7 @@
 package com.ssspvtltd.quick.ui.order.add.activity
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,6 +12,8 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts.GetMultipleContents
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import com.bumptech.glide.Glide
+import com.github.chrisbanes.photoview.PhotoView
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -87,6 +90,19 @@ class AddImageActivity : BaseActivity<ActivityAddImageBinding, AddImageViewModel
                 SharedEditImageUriList.imageUris = SharedEditImageUriList.imageUris?.filter { it != Uri.parse(image.filePath) }?.toTypedArray()?.toList()
             }
             viewModel.deleteFileFromList(image, position)
+        }
+        mAdapter.imagePreviewListener = { image ->
+
+            val dialog = Dialog(this )
+            dialog.setContentView(R.layout.dailog_date_range)
+
+            val photoView = dialog.findViewById<PhotoView>(R.id.photoView)
+
+            Glide.with(this)
+                .load(image.filePath)
+                .into(photoView)
+
+            dialog.show()
         }
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

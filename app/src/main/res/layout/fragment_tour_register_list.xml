@@ -131,12 +131,10 @@
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:backgroundTint="@color/red_200"
-            android:layout_margin="16dp"
             app:cornerRadius="20dp"
             app:icon="@drawable/ic_baseline_plus_24"
             app:iconGravity="textStart"
             app:iconPadding="6dp"
-
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
