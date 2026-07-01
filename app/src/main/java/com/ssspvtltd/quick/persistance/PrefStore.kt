@@ -69,6 +69,7 @@ class PrefStore @Inject constructor(
 
 object PrefKeys {
     val KEY_ACCESS_TOKEN = stringPreferencesKey("KEY_ACCESS_TOKEN")
+    val USER_TYPE = stringPreferencesKey("USER_TYPE")
     val KEY_USER_NAME = stringPreferencesKey("USER_NAME")
     val COUNT = stringPreferencesKey("COUNT")
     val KEY_IS_USER_LOGEDIN = booleanPreferencesKey("IS_USER_LOGEDIN")

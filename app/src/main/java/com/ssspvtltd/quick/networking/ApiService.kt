@@ -47,6 +47,7 @@ import com.ssspvtltd.quick.ui.tour.model.GetAccountDetailByIdResponse
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResourceResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadResponse
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.StateResponse
@@ -367,6 +368,9 @@ interface ApiService {
 
        @POST("api/OrderBook/GetAllStationName")
     suspend fun getStationList( @Query("stateId") stateId: String?): Response<StationResponse>// Added >
+
+       @POST("api/OrderBook/GetLeadSource")
+    suspend fun getLeadResource(): Response<LeadResourceResponse>// Added >
 
     @POST("api/OrderBook/GetAllStateName")
     suspend fun getStateList(): Response<StateResponse>// Added >

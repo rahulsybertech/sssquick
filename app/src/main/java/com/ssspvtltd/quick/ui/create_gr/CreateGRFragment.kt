@@ -1973,8 +1973,6 @@ class CreateGRFragment : BaseFragment<FragmentCreateGrBinding, AddOrderViewModel
 
         viewModel.nickNameList.observe(viewLifecycleOwner) {
 
-
-
             nicNaneData = it?.filterNonEmptyFields()
             //nick name list
             if (!::nickNameAdapter.isInitialized) {

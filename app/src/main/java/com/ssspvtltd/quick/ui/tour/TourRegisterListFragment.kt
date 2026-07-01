@@ -92,7 +92,7 @@ class TourRegisterListFragment
 
         btnAddCustomer.setOnClickListener {
             val intent = Intent(requireActivity(), TourDetailsActivity::class.java)
-         //   intent.putExtra("id",it.id)
+            //   intent.putExtra("id",it.id)
             startActivity(intent) }
 
 
@@ -118,7 +118,7 @@ class TourRegisterListFragment
         }
         etSearch.textChanges().debounce(100).onEach {
             viewModel.searchValue = binding.etSearch.text.toString()
-            viewModel.filterList( viewModel.searchValue )
+            viewModel.filterList12( viewModel.searchValue )
         }.launchIn(lifecycleScope)
     }
     private fun hideKeyboard() {

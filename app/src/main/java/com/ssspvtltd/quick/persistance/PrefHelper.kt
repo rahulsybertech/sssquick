@@ -13,6 +13,15 @@ class PrefHelper(private val prefStore: PrefStore) {
         return prefStore.getValue(PrefKeys.KEY_ACCESS_TOKEN)
     }
 
+    suspend fun setUserType(token: String?) {
+        prefStore.setValue(PrefKeys.USER_TYPE, token.orEmpty())
+    }
+    suspend fun getUserType(): String? {
+        return prefStore.getValue(PrefKeys.USER_TYPE).firstOrNull()
+    }
+
+
+
     suspend fun setAccessToken(token: String?) {
         prefStore.setValue(PrefKeys.KEY_ACCESS_TOKEN, token.orEmpty())
     }

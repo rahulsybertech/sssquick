@@ -12,6 +12,7 @@ import com.ssspvtltd.quick.ui.tour.model.GetAccountDetailByIdResponse
 import com.ssspvtltd.quick.ui.tour.model.GradeResponse
 import com.ssspvtltd.quick.ui.tour.model.LeadDetailsByLeadIdRespnse
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResourceResponse
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryResponse
 import com.ssspvtltd.quick.ui.tour.model.StateResponse
 import com.ssspvtltd.quick.ui.tour.model.StationResponse
@@ -68,6 +69,11 @@ class TourDetailsRepository @Inject constructor(private val apiService: ApiServi
     suspend fun getgetStationList(selectedStateId: String?): ResultWrapper<ApiResponse<*>, Response<StationResponse>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
             apiService.getStationList(selectedStateId)
+        }
+    }
+    suspend fun getLeadResource(): ResultWrapper<ApiResponse<*>, Response<LeadResourceResponse>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.DASHBOARD_DATA.ordinal) {
+            apiService.getLeadResource()
         }
     }
     suspend fun getgetStateList(): ResultWrapper<ApiResponse<*>, Response<StateResponse>> {

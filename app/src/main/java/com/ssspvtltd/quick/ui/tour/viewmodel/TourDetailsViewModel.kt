@@ -12,6 +12,7 @@ import com.ssspvtltd.quick.ui.tour.model.Data
 import com.ssspvtltd.quick.ui.tour.model.GradeItem
 import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResource
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.StateItem
 import com.ssspvtltd.quick.ui.tour.model.StationItem
@@ -145,6 +146,31 @@ class TourDetailsViewModel @Inject constructor(
                     val list = response.value.body()
 
                     _stationList.postValue(list!!.data)
+                }
+            }
+        }
+    }
+
+
+
+    private val _leadResourceList = MutableLiveData<List<LeadResource>>()
+    val leadResourceList: LiveData<List<LeadResource>> = _leadResourceList
+
+    fun getleadResourceList() {
+
+        viewModelScope.launch {
+
+            _loading.value = true
+            showProgressBar()
+            when (val response = repository.getLeadResource()) {
+
+                is ResultWrapper.Failure -> apiErrorData(response.error)
+
+                is ResultWrapper.Success -> {
+                    hideProgressBar()
+                    val list = response.value.body()
+
+                    _leadResourceList.postValue(list!!.data)
                 }
             }
         }

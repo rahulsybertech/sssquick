@@ -14,7 +14,7 @@ data class LeadRequest(
 
     val marketerName: String = "",
 
-    val leadTypeName: String = "",
+    val leadTypeName: String? = "",
 
     val ownerName: String = "",
 

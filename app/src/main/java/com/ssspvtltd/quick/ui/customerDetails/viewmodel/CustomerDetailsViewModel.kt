@@ -174,6 +174,7 @@ class CustomerDetailsViewModel @Inject constructor(
     private val _allAccountList = MutableLiveData<List<CustomerList>>()
     val allAccountList: LiveData<List<CustomerList>> = _allAccountList
     private var customerList1 = listOf<CustomerList>()
+    private var customerList12 = listOf<LeadItem> ()
 
     fun fatchAllAccountList() = viewModelScope.launch {
         showProgressBar()
@@ -206,6 +207,37 @@ class CustomerDetailsViewModel @Inject constructor(
 
         _allAccountList.value = filteredList
     }
+
+    fun filterList12(query: String) {
+        if (query.isBlank()) {
+            _getAllLeadtList.value = customerList12
+            return
+        }
+
+        val filteredList = customerList12.filter { customer ->
+            customer.firmName?.contains(query, ignoreCase = true) == true ||
+                    customer.stationName?.contains(query, ignoreCase = true) == true ||
+                    customer.gradeName?.contains(query, ignoreCase = true) == true
+        }
+
+        _getAllLeadtList.value = filteredList
+    }
+
+/*    fun filterList1(query: String) {
+        if (query.isBlank()) {
+            _allAccountList.value = customerList12
+            return
+        }
+
+        val filteredList = customerList1.filter { customer ->
+            customer.nickName?.contains(query, ignoreCase = true) == true
+            customer.marketerMame?.contains(query, ignoreCase = true) == true ||
+                    customer.marketerMame?.contains(query, ignoreCase = true) == true ||
+                    customer.accountName?.contains(query, ignoreCase = true) == true
+        }
+
+        _allAccountList.value = filteredList
+    }*/
 
     private val _deleteAccountForID = MutableLiveData<Boolean>()
     val deleteAccountForID: LiveData<Boolean> = _deleteAccountForID
@@ -320,7 +352,7 @@ class CustomerDetailsViewModel @Inject constructor(
             is ResultWrapper.Success -> {
                 hideProgressBar()
                 val list = response.value.body()!!.data
-              //  customerList1=list
+                customerList12 = response.value.body()!!.data
                 _getAllLeadtList.postValue(list)
             }
         }

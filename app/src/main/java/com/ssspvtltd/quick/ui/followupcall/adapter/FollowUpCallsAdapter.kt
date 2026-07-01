@@ -16,7 +16,6 @@ import com.ssspvtltd.quick.databinding.AdapterTourRegisterListBinding
 import com.ssspvtltd.quick.ui.customerDetails.allAccount.PersonAdapter
 import com.ssspvtltd.quick.ui.followupcall.LeadData
 import com.ssspvtltd.quick.ui.tour.model.LeadItem
-import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.DateTimeFormat
 import com.ssspvtltd.quick.utils.DateTimeUtils
 
@@ -77,14 +76,8 @@ class PendingLrViewHolder(
             )
         }
         tvMobileNo.text=item.mobileNo
-        tvLastYearSale.text=CommaSparateAmount.formatIndianAmount(item.netAmt)
-
-        tvLastFollowupDate.text = DateTimeUtils.formatDate(
-            item.lastFollowupDate,
-            DateTimeFormat.DATE_TIME_FORMAT5,
-            DateTimeFormat.DATE_TIME_FORMAT6
-        )
-
+       tvLastYearSale.text="₹"+item.netAmt
+        tvLastFollowupDate.text=item.lastFollowupDate
         if(selectedType == "3"){
             tvCustomerName1.text = item.leadNo
             tvCustomerName.setText("Lead No. : ")

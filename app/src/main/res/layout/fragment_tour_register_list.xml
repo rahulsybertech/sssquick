@@ -64,6 +64,7 @@
                 android:drawableTint="@color/red_200"
                 android:fontFamily="@font/roboto_light"
                 android:gravity="center|start"
+                android:singleLine="true"
                 android:hint="@string/search_by_name"
                 android:imeOptions="actionSearch"
                 android:lines="1"

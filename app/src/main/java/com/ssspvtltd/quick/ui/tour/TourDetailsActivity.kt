@@ -19,13 +19,10 @@ import android.text.InputFilter
 import android.util.Base64
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
-import android.widget.Filter
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,7 +32,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,6 +39,7 @@ import com.bumptech.glide.Glide
 import com.github.chrisbanes.photoview.PhotoView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.textfield.TextInputLayout
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.BaseActivity
 import com.ssspvtltd.quick.base.InflateA
@@ -50,12 +47,19 @@ import com.ssspvtltd.quick.databinding.ActivityTourDetailsBinding
 import com.ssspvtltd.quick.model.customer.AccountName
 import com.ssspvtltd.quick.ui.order.add.adapter.AddImageAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.CategoryAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.FirmAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.GradeAdapter
 import com.ssspvtltd.quick.ui.tour.adapter.ImageAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.LeadResourceAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.StateAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.StationAdapter
+import com.ssspvtltd.quick.ui.tour.adapter.TourCategoryAdapter
 import com.ssspvtltd.quick.ui.tour.model.CategoryItem
 import com.ssspvtltd.quick.ui.tour.model.GradeItem
 import com.ssspvtltd.quick.ui.tour.model.ImageItem
 import com.ssspvtltd.quick.ui.tour.model.LeadDetails
 import com.ssspvtltd.quick.ui.tour.model.LeadRequest
+import com.ssspvtltd.quick.ui.tour.model.LeadResource
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryItem
 import com.ssspvtltd.quick.ui.tour.model.ShopCategoryRequest
 import com.ssspvtltd.quick.ui.tour.model.StateItem
@@ -63,8 +67,6 @@ import com.ssspvtltd.quick.ui.tour.model.StationItem
 import com.ssspvtltd.quick.ui.tour.viewmodel.TourDetailsViewModel
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -76,11 +78,13 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private val mAdapter by lazy { AddImageAdapter() }
     private var isGradeApiCalled = false
     private var isStationApiCalled = false
+    private var isLeadResourceApiCalled = false
     private var isStateApiCalled = false
     private var isCategoryApiCalled = false
     var customerData: List<AccountName> = emptyList()
     var gradeData: List<GradeItem> = emptyList()
     var stationData: List<StationItem> = emptyList()
+    var leadResourceData: List<LeadResource> = emptyList()
     var stateData: List<StateItem> = emptyList()
     var categoryData: List<CategoryItem> = emptyList()
     var ShopCategory: List<ShopCategoryItem> = emptyList()
@@ -100,7 +104,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     private var selectedGradeName: String? = null
     private var selectedGradeId: String? = null
     private var selectedStateName: String? = null
+
     private var selectedStateId: String? = null
+    private var selectedLeadResocureId: String? = null
+    private var selectedLeadResocureName: String? = null
     private var selectedStationName: String? = null
     private var selectedStationId: String? = null
     private var ownerName: String? = null
@@ -268,7 +275,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         setupFirmDropdown()
         setupGradeDropdown()
         setupStationDropdown()
-        setupStateDropdown()
+        setupLeadResourceDropdown()
+      //  setupStateDropdown()
+        stateList()
         setupCategoryeDropdown()
         setupSubCategory()
 
@@ -334,15 +343,22 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
                 if (validateForm()) {
-                          if (selfieList.isEmpty()) {
-                      showToast("At least one selfie image is required")
-                      return@setOnClickListener
-                  }
-                  if (bottomList.isEmpty()) {
-                      showToast("At least one shop image is required")
-                      return@setOnClickListener
 
-                  }
+                    val leadSource = binding.dropLeadSource.text.toString().trim()
+
+                    if (leadSource == "MARKETER VISIT") {
+
+                        if (selfieList.isEmpty()) {
+                            showToast("At least one selfie image is required")
+                            return@setOnClickListener
+                        }
+
+                        if (bottomList.isEmpty()) {
+                            showToast("At least one shop image is required")
+                            return@setOnClickListener
+                        }
+                    }
+
                     saveData()
                 }
 
@@ -467,7 +483,14 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             InputFilter.LengthFilter(10),
         )
 
+        binding.mobileNo1.doAfterTextChanged { text ->
 
+            val mobile = text.toString().trim()
+
+            binding.layoutMobileNum.error =
+                if (mobile.matches(Regex("^[6-9][0-9]{9}$"))) null
+                else binding.layoutMobileNum.error
+        }
 
     }
     private fun checkLocationPermission() {
@@ -583,21 +606,27 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             binding.layouNewCustomer.visibility =
                 View.VISIBLE
+            binding.layouLeadSource.visibility =
+                View.VISIBLE
 
             binding.layouCustomer.visibility =
-                View.INVISIBLE
+                View.GONE
 
             binding.firmNameNewCustomer.setText(
                 data.firmName ?: ""
             )
             // All fields editable
             setFieldsEditable(true)
+            binding.layouGrade.endIconMode =
+                TextInputLayout.END_ICON_DROPDOWN_MENU
 
         } else {
 
             // EXISTING CUSTOMER
 
             binding.rbExisting.isChecked = true
+            binding.layouGrade.endIconMode =
+                TextInputLayout.END_ICON_CLEAR_TEXT
 
             customerType = "existing"
 
@@ -605,6 +634,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 View.VISIBLE
 
             binding.layouNewCustomer.visibility =
+                View.GONE
+            binding.layouLeadSource.visibility =
                 View.GONE
 
             binding.dropCity.setText(
@@ -629,6 +660,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         dropState.setText(data.stateName ?: "", false)
         selectedStateId=data.stateId
+        dropLeadSource.setText(data.leadTypeName ?: "", false)
+        selectedLeadResocureId=data.leadTypeId
 
         ownerName.setText(data.ownerName ?: "", false)
 
@@ -889,8 +922,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         // Existing Customer validation
         if (binding.rbExisting.isChecked) {
 
-            if (binding.dropCity.text.isNullOrEmpty()) {
-                binding.layouCustomer.error = "Select Firm Name"
+            if (selectedFirmId!!.isBlank()) {
+               // binding.layouCustomer.error = "Select Firm Name"
                 binding.dropCity.requestFocus()
                 return false
             }
@@ -946,7 +979,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         else if (binding.rbNew.isChecked) {
 
             if (binding.firmNameNewCustomer.text.isNullOrEmpty()) {
-                binding.layouNewCustomer.error = "Enter Firm Name"
+            //    binding.layouNewCustomer.error = "Enter Firm Name"
+                binding.layouNewCustomer.requestFocus()
                 return false
             }
 
@@ -958,31 +992,55 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
             if (selectedStateId!!.isBlank()) {
-                binding.layouState.error = "Select State"
+                binding.layouState.requestFocus()
+              //  binding.layouState.error = "Select State"
                 return false
             }
-            if (binding.dropStation.text.isNullOrEmpty()) {
+            if (selectedStationId.isNullOrBlank()) {
+                binding.layouStation.requestFocus()
+              //  binding.layouStation.error = "Select Station"
+                return false
+            }
+       /*     if (binding.dropStation.text.isNullOrEmpty()) {
                 binding.layouStation.error = "Select Station"
                 return false
-            }
+            }*/
 
             if (binding.mobileNo1.text.isNullOrEmpty()) {
-                binding.layoutMobileNum.error = "Enter Mobile No"
+              //  binding.layoutMobileNum.error = "Enter Mobile No"
+                binding.layoutMobileNum.requestFocus()
                 return false
             }
 
             if (!binding.mobileNo1.text.toString()
                     .matches(Regex("^[6-9][0-9]{9}$"))
             ) {
-                binding.mobileNo1.error = "Invalid Mobile Number"
+                binding.layoutMobileNum.requestFocus()
+               // binding.mobileNo1.error = "Invalid Mobile Number"
                 return false
             }
 
-            if (binding.dropCategory.text.isNullOrEmpty()) {
+            if (binding.dropLeadSource.text.toString() == "MARKETER VISIT") {
+                if (selectedCategoryId.isNullOrEmpty()) {
+                    // binding.layouCategory.error = "Select Category"
+                    binding.dropCategory.requestFocus()
+                    return false
+                }
+            }
+      /*      if (!binding.dropLeadSource.text.toString().equals("TOUR VISIT")) {
+                if (selectedCategoryId!!.isEmpty()){
+                    showToast("select al-least one category")
+                    return false
+                }
+                binding.dropCategory.requestFocus()
+            }*/
+
+         /*   if (binding.dropCategory.text.isNullOrEmpty()) {
+
                 binding.layouCategory.error = "Select Category"
                 binding.dropCategory.requestFocus()
                 return false
-            }
+            }*/
 
             val area = binding.shopArea.text.toString().trim()
 /*
@@ -1011,6 +1069,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
        selectedGradeName = binding.dropGrade.text.toString()
        selectedStationName = binding.dropState.text.toString()
        selectedCategoryName = binding.dropCategory.text.toString()
+       selectedLeadResocureName = binding.dropLeadSource.text.toString()
        val shopArea = binding.shopArea.text.toString()
        val workingBranchs = binding.workingBranchs.text.toString()
         val selectedCategoryList = adapter.getSelectedCategories()
@@ -1101,6 +1160,13 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     null
                 },
             leadNo = 1,
+            leadTypeId =   if (selectedLeadResocureId?.isNotEmpty() == true) {
+                selectedLeadResocureId
+            } else {
+                null
+            },
+
+            leadTypeName = selectedLeadResocureName,
 
             date = getCurrentDateTime(),
 
@@ -1116,7 +1182,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
 
 
-            ,mobileNo = mobileNo ?: "",
+            , mobileNo = mobileNo ?: "",
 
             whatsappNo = mobileNo2?: "",
 
@@ -1128,11 +1194,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             stationName = selectedStationName ?: "",
 
-            categoryId = selectedCategoryId ?: "",
+            categoryId = if (selectedCategoryId?.isNotEmpty() == true) {
+                selectedCategoryId
+            } else {
+                null
+            },
 
             categoryName = selectedCategoryName ?: "",
 
-            gradeID = selectedGradeId ?: "",
+            gradeID = if (selectedGradeId?.isNotEmpty() == true) {
+                selectedGradeId
+            } else {
+                null
+            },
 
             gradeName = selectedGradeName ?: "",
 
@@ -1219,6 +1293,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     binding.layouCustomer.visibility = View.VISIBLE
                     binding.layouNewCustomer.visibility = View.GONE
+                    binding.layouLeadSource.visibility = View.GONE
                     // All fields editable
                     setFieldsEditable(false)
                 }
@@ -1233,7 +1308,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     binding.dropCity.setText("")
 
                     binding.layouNewCustomer.visibility = View.VISIBLE
-                    binding.layouCustomer.visibility = View.INVISIBLE
+                    binding.layouLeadSource.visibility = View.VISIBLE
+                    binding.layouCustomer.visibility = View.GONE
                     setFieldsEditable(true)
                     clearForm()
                 }
@@ -1463,7 +1539,15 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         binding.layouCustomer.visibility = View.VISIBLE
         binding.layouNewCustomer.visibility = View.GONE
         setFieldsEditable(false)
+        binding.dropCity.setOnClickListener {
 
+            if (!binding.dropCity.isPopupShowing) {
+                binding.dropCity.showDropDown()
+            }else{
+                // clickOnNickNameList()
+            }
+
+        }
 
         // First click -> API call + keyboard open
         binding.dropCity.setOnFocusChangeListener { _, hasFocus ->
@@ -1490,16 +1574,70 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
         }
 
+        // Clear State & Station
+
+
+        binding.dropCity.doAfterTextChanged { editable ->
+
+            val currentText = editable?.toString()?.trim() ?: ""
+
+            if (currentText.isEmpty()) {
+
+                selectedFirmId = ""
+                selectedFirmName = ""
+
+            } else if (currentText != selectedFirmName) {
+
+                // User modified text manually
+                selectedFirmId = ""
+                selectedFirmName = ""
+            }
+        }
+        binding.layouCustomer.setEndIconOnClickListener {
+
+            // State
+            binding.dropGrade.setText("", false)
+            binding.dropCity.setText("", false)
+            binding.dropState.setText("", false)
+            binding.dropStation.setText("", false)
+            binding.ownerName.setText("", false)
+            binding.mobileNo1.setText("", false)
+            binding.dropCategory.setText("", false)
+            selectedStateId = ""
+            selectedStateName = ""
+
+            // Station
+
+            selectedStationId = ""
+            selectedStationName = ""
+
+            selectedGradeId = ""
+            selectedGradeName = ""
+
+            selectedCategoryId = ""
+            selectedCategoryName = ""
+
+            isFirmApiCalled = true
+        }
+
         // observe API list
         viewModel.frimList.observe(this) { list ->
 
             customerData = list
 
-            val adapter = object : ArrayAdapter<AccountName>(
+
+            val adapter = FirmAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
+                customerData
+            )
+         /*   val adapter = object : ArrayAdapter<AccountName>(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
                 ArrayList(customerData)
-            ) {
+            )
+            {
 
                 private var fullList: List<AccountName> = customerData
 
@@ -1570,7 +1708,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     return view
                 }
             }
-
+*/
             binding.dropCity.setAdapter(adapter)
 
             binding.dropCity.threshold = 1
@@ -1780,6 +1918,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     private fun setupGradeDropdown() {
         // click
+
         binding.dropGrade.setOnClickListener {
             if (!isGradeApiCalled) {
                 isGradeApiCalled = true
@@ -1815,11 +1954,18 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             gradeData = list
 
-            val adapter = ArrayAdapter(
+
+            val adapter = GradeAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
+                gradeData
+            )
+          /*  val adapter = ArrayAdapter(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
                 gradeData
-            )
+            )*/
 
             binding.dropGrade.setAdapter(adapter)
 
@@ -1852,6 +1998,23 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.layouGrade.error = null
         }
 
+        binding.dropGrade.doAfterTextChanged { editable ->
+
+            val currentText = editable?.toString()?.trim() ?: ""
+
+            if (currentText.isEmpty()) {
+
+                selectedGradeId = ""
+                selectedGradeName = ""
+
+            } else if (currentText != selectedGradeName) {
+
+                // User modified text manually
+                selectedGradeId = ""
+                selectedGradeName = ""
+            }
+        }
+
         // clear icon click support
       /*  binding.dropGrade.setOnDismissListener {
 
@@ -1861,51 +2024,110 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     private fun setupStationDropdown() {
 
+        // Clear State & Station
         binding.layouState.setEndIconOnClickListener {
 
+            // State
             binding.dropState.setText("", false)
-
             selectedStateId = ""
             selectedStateName = ""
 
-            // Clear Station
+            // Station
             binding.dropStation.setText("", false)
-
             selectedStationId = ""
             selectedStationName = ""
 
             stationData = emptyList()
+            binding.dropStation.setAdapter(null)
 
             isStationApiCalled = false
         }
 
-
-        // click
+        // Station Click
         binding.dropStation.setOnClickListener {
 
-            if (selectedStateId!!.isBlank()) {
+            if (selectedStateId.isNullOrBlank()) {
                 showToast("Select State First")
                 return@setOnClickListener
             }
 
             if (!isStationApiCalled) {
-
                 isStationApiCalled = true
-
                 viewModel.getStationList(selectedStateId)
-
             } else {
-
                 binding.dropStation.showDropDown()
             }
         }
 
-        // focus
+        // API Response
+        viewModel.stationList.observe(this) { list ->
+
+            stationData = list ?: emptyList()
+
+            val adapter = StationAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
+                stationData
+            )
+
+            binding.dropStation.setAdapter(adapter)
+
+            if (stationData.isNotEmpty()) {
+                binding.dropStation.showDropDown()
+            }
+        }
+
+        // Item Selection
+        binding.dropStation.setOnItemClickListener { parent, _, position, _ ->
+
+            val selectedItem =
+                parent.getItemAtPosition(position) as StationItem
+
+            selectedStationId = selectedItem.id
+            selectedStationName = selectedItem.name
+
+            binding.dropStation.setText(selectedItem.name, false)
+
+            binding.dropStation.clearFocus()
+            binding.dropStation.isCursorVisible = false
+
+            // Hide Keyboard
+            val imm =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+            imm.hideSoftInputFromWindow(
+                binding.dropStation.windowToken,
+                0
+            )
+
+            binding.layouStation.error = null
+        }
+
+        // Text Change
+        binding.dropStation.doAfterTextChanged { editable ->
+
+            val currentText = editable?.toString()?.trim() ?: ""
+
+            if (currentText.isEmpty()) {
+
+                selectedStationId = ""
+                selectedStationName = ""
+
+            } else if (currentText != selectedStationName) {
+
+                // User modified text manually
+                selectedStationId = ""
+                selectedStationName = ""
+            }
+        }
+
+        // Optional: Load stations on focus
         binding.dropStation.setOnFocusChangeListener { _, hasFocus ->
 
             if (!hasFocus) return@setOnFocusChangeListener
 
-            if (selectedStateId!!.isBlank()) {
+            if (selectedStateId.isNullOrBlank()) {
                 showToast("Select State First")
                 return@setOnFocusChangeListener
             }
@@ -1913,7 +2135,6 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             if (!isStationApiCalled) {
 
                 isStationApiCalled = true
-
                 viewModel.getStationList(selectedStateId)
 
             } else {
@@ -1921,53 +2142,104 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.dropStation.showDropDown()
             }
         }
+    }
 
-        // observe API response
-        viewModel.stationList.observe(this) { list ->
+    private fun setupLeadResourceDropdown() {
 
-            stationData = list
+        // Clear State & Station
+        binding.layouLeadSource.setEndIconOnClickListener {
 
-            val adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                stationData
-            )
+            // State
+            binding.dropLeadSource.setText("", false)
+            selectedLeadResocureId = ""
+            selectedLeadResocureName = ""
 
-            binding.dropStation.setAdapter(adapter)
+           /* // Station
+            binding.dropStation.setText("", false)
+            selectedStationId = ""
+            selectedStationName = ""*/
 
-            // auto open dropdown
-            binding.dropStation.showDropDown()
+         /*   stationData = emptyList()
+            binding.dropStation.setAdapter(null)
+
+            isStationApiCalled = false*/
         }
 
-        // item click
-        binding.dropStation.setOnItemClickListener { parent, _, position, _ ->
+        // Station Click
+        binding.dropLeadSource.setOnClickListener {
+
+
+            if (!isLeadResourceApiCalled) {
+                isLeadResourceApiCalled = true
+                viewModel.getleadResourceList()
+            } else {
+                binding.dropLeadSource.showDropDown()
+            }
+        }
+
+        // API Response
+        viewModel.leadResourceList.observe(this) { list ->
+
+            leadResourceData = list ?: emptyList()
+
+            val adapter = LeadResourceAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
+                leadResourceData
+            )
+
+            binding.dropLeadSource.setAdapter(adapter)
+
+            if (leadResourceData.isNotEmpty()) {
+                binding.dropLeadSource.showDropDown()
+            }
+        }
+
+        // Item Selection
+        binding.dropLeadSource.setOnItemClickListener { parent, _, position, _ ->
 
             val selectedItem =
-                parent.getItemAtPosition(position) as StationItem
+                parent.getItemAtPosition(position) as LeadResource
 
-            selectedStationId=selectedItem.id
-            selectedStationName=selectedItem.name
-            binding.dropStation.setText(
-                selectedItem.name,
-                false
+            selectedLeadResocureId = selectedItem.id
+            selectedLeadResocureName = selectedItem.leadTypeName
+
+            binding.dropLeadSource.setText(selectedItem.leadTypeName, false)
+
+            binding.dropLeadSource.clearFocus()
+            binding.dropLeadSource.isCursorVisible = false
+
+            // Hide Keyboard
+            val imm =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+            imm.hideSoftInputFromWindow(
+                binding.dropLeadSource.windowToken,
+                0
             )
-            // ✅ IMPORTANT FIX
-            binding.dropStation.clearFocus()
-            binding.dropStation.isCursorVisible = false
 
-            // hide keyboard
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
-
-            // remove error
-            binding.layouStation.error = null
+            binding.layouLeadSource.error = null
         }
 
-        // dismiss support
-    /*    binding.dropStation.setOnDismissListener {
+        // Text Change
+        binding.dropLeadSource.doAfterTextChanged { editable ->
 
-            binding.dropStation.clearFocus()
-        }*/
+            val currentText = editable?.toString()?.trim() ?: ""
+
+            if (currentText.isEmpty()) {
+
+                selectedLeadResocureId = ""
+                selectedLeadResocureName = ""
+
+            } else if (currentText != selectedLeadResocureName) {
+
+                // User modified text manually
+                selectedLeadResocureId = ""
+                selectedLeadResocureName = ""
+            }
+        }
+
     }
 
     private fun setupStateDropdown() {
@@ -2092,6 +2364,116 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }*/
     }
 
+    private fun stateList(){
+
+        // click
+        binding.dropState.setOnClickListener {
+
+            if (!isStateApiCalled) {
+
+                isStateApiCalled = true
+
+                // First API Call
+                viewModel.getStateList()
+
+            } else {
+
+                // Already loaded
+                binding.dropState.showDropDown()
+            }
+        }
+
+
+        binding.dropState.doAfterTextChanged {
+
+            if (it.isNullOrEmpty()) {
+
+                selectedStateId = ""
+                selectedStateName = ""
+
+                binding.dropStation.setText("", false)
+
+                selectedStationId = ""
+                selectedStationName = ""
+
+                stationData = emptyList()
+
+                binding.dropStation.setAdapter(null)
+
+                isStationApiCalled = false
+                // Show all states again
+                binding.dropState.post {
+                    if(it!!.isNotEmpty())
+                        binding.dropState.showDropDown()
+                }
+            }
+        }
+
+
+        // observe API response
+        viewModel.stateList.observe(this) { list ->
+
+            stateData = list
+
+
+            val  nickNameAdapter = StateAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
+                stateData
+            )
+
+
+
+            binding.dropState.setAdapter(nickNameAdapter)
+
+            // auto open dropdown
+            binding.dropState.showDropDown()
+        }
+
+
+        binding.dropState.setOnItemClickListener { parent, _, position, _ ->
+
+            val selectedItem =
+                parent.getItemAtPosition(position) as StateItem
+            selectedStateId=selectedItem.id
+            selectedStateName=selectedItem.name
+            binding.dropState.setText(
+                selectedItem.name,
+                false
+            )
+
+            // ✅ IMPORTANT FIX
+            binding.dropState.clearFocus()
+            binding.dropState.isCursorVisible = false
+            // Reset Station
+            selectedStationId = ""
+            selectedStationName = ""
+
+            binding.dropStation.setText("", false)
+
+            stationData = emptyList()
+
+            isStationApiCalled = false
+
+            // hide keyboard
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
+
+            // remove error
+            binding.layouState.error = null
+
+        }
+
+
+
+
+        /*  viewModel.getPurchaseParty(null,null, false)
+          if (::purchasePartyAdapter.isInitialized) purchasePartyAdapter.updateType(false)
+          isNickNameSelected = false*/
+
+    }
+
     private fun setupCategoryeDropdown() {
 
         // click
@@ -2108,6 +2490,24 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                 // Already loaded
                 binding.dropCategory.showDropDown()
+            }
+        }
+
+        // Text Change
+        binding.dropCategory.doAfterTextChanged { editable ->
+
+            val currentText = editable?.toString()?.trim() ?: ""
+
+            if (currentText.isEmpty()) {
+
+                selectedCategoryName = ""
+                selectedCategoryId = ""
+
+            } else if (currentText != selectedCategoryName) {
+
+                // User modified text manually
+                selectedCategoryName = ""
+                selectedCategoryId = ""
             }
         }
 
@@ -2136,9 +2536,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             categoryData = list
 
-            val adapter = ArrayAdapter(
+
+
+
+         /*   val adapter = TourCategoryAdapter(
                 this,
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.simple_dropdown_item_1line,
+                categoryData
+            )*/
+
+            val  adapter = TourCategoryAdapter(
+                true,
+                this,
+                com.ssspvtltd.quick.R.layout.item_saleparty,
                 categoryData
             )
 

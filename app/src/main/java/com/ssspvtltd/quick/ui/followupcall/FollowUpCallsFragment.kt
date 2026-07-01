@@ -48,28 +48,28 @@ class FollowUpCallsFragment
     }
     private fun setupTabs() = with(binding) {
 
-          cardExisting.setOnClickListener {
-              if (selectedType != "1") {
-                  etSearch.setText("")
-                  etSearch.clearFocus()
-                  binding.root.requestFocus()
-                  selectedType = "1"
-                  selectTab(0)
-                  callPendingOrderApi(selectedType)
-              }
-          }
+        cardExisting.setOnClickListener {
+            if (selectedType != "1") {
+                etSearch.setText("")
+                etSearch.clearFocus()
+                binding.root.requestFocus()
+                selectedType = "1"
+                selectTab(0)
+                callPendingOrderApi(selectedType)
+            }
+        }
 
-          cardOther.setOnClickListener {
-              if (selectedType != "2") {
-                  selectedType = "2"
-                  etSearch.setText("")
-                  etSearch.clearFocus()
+        cardOther.setOnClickListener {
+            if (selectedType != "2") {
+                selectedType = "2"
+                etSearch.setText("")
+                etSearch.clearFocus()
 
-                  binding.root.requestFocus()
-                  selectTab(1)
-                  callPendingOrderApi(selectedType)
-              }
-          }
+                binding.root.requestFocus()
+                selectTab(1)
+                callPendingOrderApi(selectedType)
+            }
+        }
 
         cardLeads.setOnClickListener {
             if (selectedType != "3") {
@@ -189,16 +189,16 @@ class FollowUpCallsFragment
         val layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
-      //  recyclerView.adapter = adapter
+        //  recyclerView.adapter = adapter
         binding.etSearch.apply {
             isFocusableInTouchMode = true
             isFocusable = true
         }
-   /*     binding.recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
-            if (oldBottom > bottom) {
-                binding.recyclerView.post {
-                    binding.recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-                    *//*          binding.etSearch.isFocusable = false
+        /*     binding.recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+                 if (oldBottom > bottom) {
+                     binding.recyclerView.post {
+                         binding.recyclerView.smoothScrollToPosition(adapter.itemCount - 1)
+                         *//*          binding.etSearch.isFocusable = false
                               binding.etSearch.isFocusableInTouchMode = false*//*
                 }
             }
@@ -234,14 +234,14 @@ class FollowUpCallsFragment
             callUpdateLeadApi(leadData, remark)
         }
         adapter.onRemarkFocus = {  remark ->
-        /*    recyclerView.post {
-                val lm = recyclerView.layoutManager as LinearLayoutManager
-                val view = lm.findViewByPosition(remark)
+            /*    recyclerView.post {
+                    val lm = recyclerView.layoutManager as LinearLayoutManager
+                    val view = lm.findViewByPosition(remark)
 
-                if (view != null) {
-                    recyclerView.smoothScrollBy(0, 150)
-                }
-            }*/
+                    if (view != null) {
+                        recyclerView.smoothScrollBy(0, 150)
+                    }
+                }*/
         }
         adapter.onItemDeleteClick = {
             val intent = Intent(Intent.ACTION_DIAL)

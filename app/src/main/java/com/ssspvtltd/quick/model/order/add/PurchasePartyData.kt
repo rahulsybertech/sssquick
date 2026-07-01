@@ -9,4 +9,5 @@ data class PurchasePartyData(
     val nickNameStatus: String?,
     val fontColor: String?,
     val eInvoiceStatus: Boolean?,
+    val isOrderImage: Boolean?,
 )

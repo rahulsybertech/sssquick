@@ -139,76 +139,108 @@
 
 
                 <!-- Customer Dropdown -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layouCustomer"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
 
+
+                <LinearLayout
+                    android:id="@+id/layoutRow"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:endIconMode="clear_text"
+                    android:orientation="vertical"
+                    android:visibility="visible"
+                    android:layout_marginTop="8dp"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/dropCity"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layouCustomer"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Firm Name * "
-                        android:singleLine="true"
-                        android:imeOptions="actionNext"
-                        android:dropDownHeight="250dp"
-                        android:maxLines="1"
-                        android:inputType="text"
-                        android:textAppearance="@style/MyTextStyle"/>
+                        app:endIconMode="clear_text"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
 
-                </com.google.android.material.textfield.TextInputLayout>
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layouNewCustomer"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:visibility="gone"
-                    android:layout_height="wrap_content"
-                    app:endIconMode="clear_text"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
+                        <AutoCompleteTextView
+                            android:id="@+id/dropCity"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Firm Name * "
+                            android:singleLine="true"
+                            android:imeOptions="actionNext"
+                            android:dropDownHeight="250dp"
+                            android:maxLines="1"
+                            android:inputType="text"
+                            android:textAppearance="@style/MyTextStyle"/>
 
-                    <AutoCompleteTextView
-                        android:id="@+id/firmNameNewCustomer"
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:visibility="gone"
+                        android:id="@+id/layouNewCustomer"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Firm Name * "
-                        android:singleLine="true"
-                        android:imeOptions="actionNext"
-                        android:maxLines="1"
-                        android:inputType="text"
-                        android:textAppearance="@style/MyTextStyle"/>
+                        android:layout_marginBottom="8dp"
+                        app:endIconMode="clear_text">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <AutoCompleteTextView
+                            android:id="@+id/firmNameNewCustomer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:editable="true"
+                            android:hint="Firm Name * "
+                            android:singleLine="true"
+                            android:imeOptions="actionNext"
+                            android:maxLines="1"
+                            android:inputType="text"
+                            android:textAppearance="@style/MyTextStyle"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layouLeadSource"
+                        android:visibility="gone"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/dropLeadSource"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Lead Source *"
+                            android:dropDownHeight="250dp"
+                            android:singleLine="true"
+                            android:textAppearance="@style/MyTextStyle"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layouGrade"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:endIconMode="clear_text"
+                        android:layout_marginTop="15dp">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/dropGrade"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Grade"
+                            android:maxLines="1"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:inputType="none"
+                            android:cursorVisible="false"
+                            android:textAppearance="@style/MyTextStyle"/>
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
 
                 <!-- Customer Dropdown -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layouGrade"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:endIconMode="clear_text"
-                    android:layout_marginTop="15dp"
-                    app:layout_constraintTop_toBottomOf="@+id/layouCustomer"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
 
-                    <AutoCompleteTextView
-                        android:id="@+id/dropGrade"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Grade"
-                        android:maxLines="1"
-                        android:inputType="text"
-                        android:textAppearance="@style/MyTextStyle"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layouStation"
@@ -239,7 +271,7 @@
                     android:layout_height="wrap_content"
                     app:endIconMode="clear_text"
                     android:layout_marginTop="10dp"
-                    app:layout_constraintTop_toBottomOf="@+id/layouGrade"
+                    app:layout_constraintTop_toBottomOf="@+id/layoutRow"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent">
 

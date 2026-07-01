@@ -134,6 +134,7 @@ class AddOrderFragment
     private lateinit var dispatchAdapter: DispatchAdapter
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private var isNickNameSelected = true
+    private var isOrderImage = "false"
     private var isSchemeHasData = false
     private lateinit var salePartyAdapter: SalePartyAdapter
     private var editData: EditOrderDataNew? = null
@@ -455,6 +456,7 @@ class AddOrderFragment
         }
         binding.placeOrder.setOnClickListener {
             if (validate())
+
                 binding.apply {
                 //   binding.placeOrder.isEnabled = false
 
@@ -871,9 +873,11 @@ class AddOrderFragment
         binding.etNicName.setOnFocusChangeListener { v, hasFocus ->
                 if (!hasFocus) {
                     isNickNameSelected=true
+
                     if (isNickNameSelected) {
                         var isMatchFound = false
                         nicNaneData?.forEach { it ->
+                       //  isOrderImage   = it.isOrderImage.toString()
                             if (it.nickName.equals(binding.etNicName.text.trim().toString(), ignoreCase = true)) {
 
                                 isMatchFound = true
@@ -955,6 +959,8 @@ class AddOrderFragment
             }
         }
     }
+410595789633
+    BGHPT6125K
 
 //not use
     private fun remark(){
@@ -1017,6 +1023,7 @@ class AddOrderFragment
                     binding.etPurchasePartyNew.hideKeyBoard()
                     binding.etPurchasePartyNew.setText(purchasePartyDataWithNicName!!.get(0).accountName)
                     purchasePartyId = purchasePartyDataWithNicName!!.get(0).id.toString()
+                    purchasePartyId = purchasePartyDataWithNicName!!.get(0).id.toString()
                     addItemViewModel.getItemsList(purchasePartyId)
 
                 }else{
@@ -1044,7 +1051,7 @@ class AddOrderFragment
                     val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
 
                     Log.i("TaG", "selected purchase party --------->${purPartyItem}")
-
+                //    isOrderImage=purPartyItem.isOrderImage.toString()
                     eInvoiceStatus = purPartyItem.eInvoiceStatus == true
                     apiResponseDispatchType()
                     binding.etPurchasePartyNew.setText(purPartyItem.accountName)
@@ -2179,7 +2186,8 @@ class AddOrderFragment
                             accountName = "",
                             nickNameStatus = null,
                             fontColor = "#999999",           // gray text (optional)
-                            eInvoiceStatus = false
+                            eInvoiceStatus = false,
+                            isOrderImage = false
                         )
                     )
                 }
@@ -2218,7 +2226,7 @@ class AddOrderFragment
 
                 // val purPartyItem = parent.getItemAtPosition(position)  as PurchasePartyData
                 val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
-
+                isOrderImage=purPartyItem.isOrderImage.toString()
                 Log.i("TaG", "selected purchase party --------->${purPartyItem}")
                 eInvoiceStatus = purPartyItem.eInvoiceStatus == true
                 apiResponseDispatchType()
@@ -2460,6 +2468,9 @@ class AddOrderFragment
             tvAddItem.setBackgroundResource(R.drawable.red_outline)
             tvAddItem.error = "You need to add some item"
             return false
+        }else if (isOrderImage == "true" && viewModel.addImageDataList.isEmpty()) {
+            showToast("Please add at-least one image")
+            return false
         }
         return true
     }
@@ -2595,6 +2606,7 @@ class AddOrderFragment
             } else {
                 originalList
             }
+
             dispatchAdapter = DispatchAdapter(requireContext(), R.layout.item_saleparty, filteredList)
 
 
@@ -2641,7 +2653,7 @@ class AddOrderFragment
                             accountName = "",
                             nickNameStatus = null,
                             fontColor = "#999999",            // gray text (optional)
-                            eInvoiceStatus = false
+                            eInvoiceStatus = false, isOrderImage = false,
                         )
                     )
                 }
@@ -2670,9 +2682,10 @@ class AddOrderFragment
 
                 isNichNameSelect=true
 
+
                 // val purPartyItem = parent.getItemAtPosition(position)  as PurchasePartyData
                 val purPartyItem = parent.getItemAtPosition(position) as PurchasePartyData
-
+                isOrderImage=purPartyItem.isOrderImage.toString()
                 Log.i("TaG", "selected purchase party --------->${purPartyItem}")
                 eInvoiceStatus = purPartyItem.eInvoiceStatus == true
                 apiResponseDispatchType()

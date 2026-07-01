@@ -71,6 +71,7 @@ class LoginViewModel @Inject constructor(
                 prefHelper.setUserName(response.value.data?.name)
                 println("Access_Token - ${response.value.data?.accessToken}")
                 prefHelper.setAccessToken(response.value.data?.accessToken)
+                prefHelper.setUserType(response.value.data?.userType)
                 prefHelper.setMarketerMobile(response.value.data?.mobile)
                 prefHelper.setMarketerCode(response.value.data?.marketerCode)
                 prefHelper.setAccountId(response.value.data?.accountId)

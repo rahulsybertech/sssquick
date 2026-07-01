@@ -8,6 +8,7 @@ data class VerifyOtpData(
     var marketerCode: String,
     var accountId: String,
     var finYearId: String,
+    var userType: String,
     var userId: String,
     var branchCompanyId: String,
     var appName: String,

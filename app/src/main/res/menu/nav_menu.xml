@@ -9,10 +9,10 @@
         android:id="@+id/nav_checkinout"
         android:icon="@drawable/ic_check_in_out"
         android:title="Check In &amp; Out" />
-    <item
+    <!--<item
         android:id="@+id/addOrderFragment"
         android:icon="@drawable/add_order"
-        android:title="@string/add_order" />
+        android:title="@string/add_order" />-->
     <item
         android:id="@+id/pendingorderFragment"
         android:icon="@drawable/pending_lr"

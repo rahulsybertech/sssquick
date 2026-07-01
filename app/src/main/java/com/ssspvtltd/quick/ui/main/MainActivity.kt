@@ -177,11 +177,11 @@ class MainActivity :
                     startActivity(intent)
                     false
                 }
-             /*   R.id.nav_tour_details -> {
+                R.id.nav_tour_details -> {
                     val intent = Intent(this, TourDetailsActivity::class.java)
                     startActivity(intent)
                     false
-                }*/
+                }
                 R.id.nav_pending_lr -> {
                     val intent = Intent(this, PendingLrActivity::class.java)
                     startActivity(intent)
@@ -291,26 +291,53 @@ class MainActivity :
         navigationBarView: NavigationBarView,
         navController: NavController
     ) {
-        navigationBarView.setOnItemSelectedListener { item ->// 2131296328
-            Log.i("TaG","my nav ItemId -=-=-=> ${item.itemId}")
-            if (item.itemId != R.id.addOrderFragment || runBlocking { viewModel.prefHelper.getCheckinStatus() } == true) {
-                NavigationUI.onNavDestinationSelected(item, navController, false)
-            } else {
-                val intent = Intent(this, CheckInCheckOutActivity::class.java)
-                SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE).apply {
-                    titleText = ""
-                    contentText = "You need to checkIn First."
-                    setCancelable(false)
-                    confirmText = "OK"
-                    cancelText =  "Cancel"
-                    confirmButtonBackgroundColor = getColor( R.color.error_text)
-                    this.setConfirmClickListener {
-                        dismiss()
-                        startActivity(intent)
-                    }
-                }.show()
-                // viewModel.showMsgAlert(message = "Checkin First")
-                false
+        navigationBarView.setOnItemSelectedListener { item ->
+
+            Log.i("TAG", "ItemId = ${item.itemId}")
+
+            val isMarketer = runBlocking {
+                viewModel.prefHelper.getUserType().equals("Marketer", ignoreCase = true)
+            }
+
+            if (isMarketer) {
+
+                val isCheckedIn = runBlocking {
+                    viewModel.prefHelper.getCheckinStatus() == true
+                }
+
+                if (item.itemId != R.id.addOrderFragment || isCheckedIn) {
+                    NavigationUI.onNavDestinationSelected(item, navController, false)
+                } else {
+                    val intent = Intent(this, CheckInCheckOutActivity::class.java)
+
+                    SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE).apply {
+                        titleText = ""
+                        contentText = "You need to check in first."
+                        setCancelable(false)
+                        confirmText = "OK"
+                        cancelText = "Cancel"
+                        confirmButtonBackgroundColor = getColor(R.color.error_text)
+
+                        setConfirmClickListener {
+                            dismiss()
+                            startActivity(intent)
+                        }
+
+                        setCancelClickListener {
+                            dismiss()
+                        }
+                    }.show()
+
+                    false
+                }
+
+            }else {
+                if (item.itemId == R.id.addOrderFragment) {
+                    showToast("You are not allowed to add an order.")
+                    false
+                } else {
+                    NavigationUI.onNavDestinationSelected(item, navController, false)
+                }
             }
         }
         val weakReference = WeakReference(navigationBarView)
