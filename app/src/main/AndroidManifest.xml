@@ -90,6 +90,7 @@
             android:windowSoftInputMode="adjustNothing" />
         <activity
             android:name=".ui.tour.TourDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity

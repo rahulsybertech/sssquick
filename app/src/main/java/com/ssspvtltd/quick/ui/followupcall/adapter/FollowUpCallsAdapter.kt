@@ -21,6 +21,13 @@ import com.ssspvtltd.quick.utils.DateTimeUtils
 
 
 class FollowUpCallsAdapter : MultiViewAdapter() {
+
+    private val list = mutableListOf<LeadData>()
+
+
+
+
+    override fun getItemCount(): Int = list.size
     internal var onItemEditClick: ((LeadData,remark:String,position: Int) -> Unit)? = null
     internal var onItemDeleteClick: ((LeadData) -> Unit)? = null
     var onRemarkFocus: ((Int) -> Unit)? = null

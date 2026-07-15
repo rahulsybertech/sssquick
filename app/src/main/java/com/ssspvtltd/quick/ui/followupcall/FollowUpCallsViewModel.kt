@@ -270,7 +270,29 @@ class FollowUpCallsViewModel @Inject constructor(
             }
         }
     }
+    private val _loading = MutableLiveData(false)
+    val loading: LiveData<Boolean> = _loading
 
+    fun getfollowpCallList1(marketerId: String?, customerType: String) = viewModelScope.launch {
+
+        _loading.value = true
+
+        when (val response = repository.getfollowpCallReq(marketerId, customerType)) {
+
+            is ResultWrapper.Success -> {
+
+                _loading.value = false
+
+                _getAllLeadtList.value =
+                    response.value.body()?.data ?: emptyList()
+            }
+
+            is ResultWrapper.Failure -> {
+
+                _loading.value = false
+            }
+        }
+    }
     private suspend fun fatchCustomerListByCoustomerCode(search: String) {
 
         when (val response = repository.customerListByCustomerCodeReq(search)) {
@@ -289,21 +311,58 @@ class FollowUpCallsViewModel @Inject constructor(
     private val _getAllLeadtList = MutableLiveData<List<LeadData>>()
     val getAllLeadByUserIDtList: LiveData<List<LeadData>> = _getAllLeadtList
 
+    private val _getAllLeadtList1 = MutableLiveData<List<LeadData>>()
+    val getAllLeadByUserIDtList1: LiveData<List<LeadData>> = _getAllLeadtList1
+
+    fun clearList() {
+        _getAllLeadtList.value = emptyList()
+        _getAllLeadtList1.value = emptyList()
+    }
 
     fun getfollowpCallList(marketerId: String?, customerType: String) = viewModelScope.launch {
+
+        _getAllLeadtList.value = emptyList()   // Clear LiveData first
+
         showProgressBar()
 
-        when (val response = repository.getfollowpCallReq(marketerId,customerType)) {
+        when (val response = repository.getfollowpCallReq(marketerId, customerType)) {
 
-            is ResultWrapper.Failure -> apiErrorData(response.error)
+            is ResultWrapper.Success -> {
+
+                hideProgressBar()
+                //filterList = response.value.body()?.data ?: emptyList()
+                _getAllLeadtList.value =
+                    response.value.body()?.data ?: emptyList()
+            }
+
+            is ResultWrapper.Failure -> {
+                hideProgressBar()
+            }
+        }
+    }
+
+
+
+    fun getfollowpCallList2(marketerId: String?, customerType: String) = viewModelScope.launch {
+
+        _getAllLeadtList1.postValue(emptyList()) // Clear old data immediately
+
+        showProgressBar()
+
+        when (val response = repository.getfollowpCallReq(marketerId, customerType)) {
+
+            is ResultWrapper.Failure -> {
+                hideProgressBar()
+                apiErrorData(response.error)
+            }
 
             is ResultWrapper.Success -> {
                 hideProgressBar()
-                val list = response.value.body()!!.data
-                //  customerList1=list
-                filterList=list
-                _getAllLeadtList.postValue(list)
 
+                val list = response.value.body()?.data ?: emptyList()
+
+              //  filterList = list
+                _getAllLeadtList1.postValue(list.toList())
             }
         }
     }

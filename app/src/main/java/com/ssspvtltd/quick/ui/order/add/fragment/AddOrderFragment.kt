@@ -959,8 +959,6 @@ class AddOrderFragment
             }
         }
     }
-410595789633
-    BGHPT6125K
 
 //not use
     private fun remark(){

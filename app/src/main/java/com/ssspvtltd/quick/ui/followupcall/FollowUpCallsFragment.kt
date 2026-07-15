@@ -27,7 +27,11 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class FollowUpCallsFragment
     : BaseFragment<FragmentFollowupcallBinding, FollowUpCallsViewModel>() {
-    private val adapter by lazy { FollowUpCallsAdapter() }
+    private val adapter by lazy { com.ssspvtltd.quick.ui.followupcall.FollowUpCallsAdapter() }
+
+    private val existingAdapter by lazy { FollowUpCallsAdapter() }
+    private val otherAdapter by lazy { FollowUpCallsAdapter() }
+    private val leadsAdapter by lazy { FollowUpCallsAdapter() }
     private var selectedType = "1" // Existing Customer
     override val inflate: InflateF<FragmentFollowupcallBinding>
         get() = FragmentFollowupcallBinding::inflate
@@ -50,35 +54,52 @@ class FollowUpCallsFragment
 
         cardExisting.setOnClickListener {
             if (selectedType != "1") {
+                recyclerView.visibility=View.GONE
                 etSearch.setText("")
                 etSearch.clearFocus()
                 binding.root.requestFocus()
                 selectedType = "1"
                 selectTab(0)
+
+                adapter.clearList()
+                adapter.submitList(emptyList())
+                binding.tvPositionCount.text = "0/0"
+                binding.recyclerView.scrollToPosition(0)
                 callPendingOrderApi(selectedType)
             }
         }
 
         cardOther.setOnClickListener {
             if (selectedType != "2") {
+                recyclerView.visibility=View.GONE
                 selectedType = "2"
                 etSearch.setText("")
                 etSearch.clearFocus()
-
+                adapter.clearList()
                 binding.root.requestFocus()
                 selectTab(1)
+
+                adapter.submitList(emptyList())
+                binding.tvPositionCount.text = "0/0"
+            binding.recyclerView.scrollToPosition(0)
+
                 callPendingOrderApi(selectedType)
             }
         }
 
         cardLeads.setOnClickListener {
             if (selectedType != "3") {
+                recyclerView.visibility=View.GONE
                 selectedType = "3"
                 etSearch.setText("")
                 etSearch.clearFocus()
-
+                adapter.clearList()
                 binding.root.requestFocus()
                 selectTab(2)
+
+                adapter.submitList(emptyList())
+                binding.tvPositionCount.text = "0/0"
+                binding.recyclerView.scrollToPosition(0)
                 callPendingOrderApi(selectedType)
             }
         }
@@ -149,27 +170,24 @@ class FollowUpCallsFragment
 
     private fun registerObserver() {
         viewModel.getAllLeadByUserIDtList.observe(viewLifecycleOwner) { list ->
-            if (!list.isNullOrEmpty()) {
 
-                binding.recyclerView.visibility = View.VISIBLE
+            if (list.isEmpty()) {
 
-                adapter.submitList(
-                    list.sortedByDescending { it.leadNo }
-                )
-
-                binding.recyclerView.post {
-                    val layoutManager =
-                        binding.recyclerView.layoutManager as LinearLayoutManager
-
-                    val lastVisible = layoutManager.findLastVisibleItemPosition() + 1
-
-                    binding.tvPositionCount.text = "$lastVisible/${list.size}"
-                }
-
-            } else {
+                adapter.submitList(emptyList())
                 binding.recyclerView.visibility = View.GONE
-                binding.tvPositionCount.text = "0/0"
+
+                return@observe
             }
+
+            adapter.submitList(list.sortedByDescending { it.leadNo })
+
+            binding.recyclerView.visibility = View.VISIBLE
+            val layoutManager =
+                binding.recyclerView.layoutManager as LinearLayoutManager
+
+            val lastVisible = layoutManager.findLastVisibleItemPosition() + 1
+
+            binding.tvPositionCount.text = "0/${list.size}"
         }
 
         viewModel.deleteAccountForID.observe(viewLifecycleOwner) { isSuccess ->

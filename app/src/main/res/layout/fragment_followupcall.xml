@@ -112,7 +112,7 @@
     <!-- Search container -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/searchContainer"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"

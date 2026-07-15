@@ -75,7 +75,7 @@ class PendingLrViewHolder(
             Html.FROM_HTML_MODE_LEGACY
         )
         tvGrade.text = Html.fromHtml(
-            "<b>Grade | </b> ${item.gradeName}",
+            "<b>Mobile No | </b> ${item.mobileNo}",
             Html.FROM_HTML_MODE_LEGACY
         )
         tvState.text = Html.fromHtml(

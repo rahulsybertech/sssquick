@@ -275,7 +275,12 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         setupFirmDropdown()
         setupGradeDropdown()
         setupStationDropdown()
+        if (!isLeadResourceApiCalled) {
+            isLeadResourceApiCalled = true
+            viewModel.getleadResourceList()
+        }
         setupLeadResourceDropdown()
+
       //  setupStateDropdown()
         stateList()
         setupCategoryeDropdown()
@@ -2167,6 +2172,9 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         // Station Click
         binding.dropLeadSource.setOnClickListener {
+            binding.dropLeadSource.showDropDown()
+        }
+     /*   binding.dropLeadSource.setOnClickListener {
 
 
             if (!isLeadResourceApiCalled) {
@@ -2175,7 +2183,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             } else {
                 binding.dropLeadSource.showDropDown()
             }
-        }
+        }*/
 
         // API Response
         viewModel.leadResourceList.observe(this) { list ->
@@ -2191,8 +2199,20 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             binding.dropLeadSource.setAdapter(adapter)
 
-            if (leadResourceData.isNotEmpty()) {
-                binding.dropLeadSource.showDropDown()
+            // Default selection
+            val defaultItem = leadResourceData.firstOrNull {
+                it.leadTypeName.equals("Marketer Visit", ignoreCase = true)
+            }
+
+            if (defaultItem != null) {
+
+                selectedLeadResocureId = defaultItem.id
+                selectedLeadResocureName = defaultItem.leadTypeName
+
+                binding.dropLeadSource.setText(
+                    defaultItem.leadTypeName,
+                    false
+                )
             }
         }
 
