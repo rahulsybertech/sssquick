@@ -41,9 +41,13 @@ data class LeadItem(
 
     @SerializedName("stationName")
     val stationName: String = "",
+    @SerializedName("Station_name")
+    val station_Name: String = "",
 
     @SerializedName("mobileNo")
-    val mobileNo: String = ""
+    val mobileNo: String = "",
+    @SerializedName("leadNo")
+    val leadNo: String = ""
 ): BaseWidget {
     override val viewType: BaseViewType = CommonViewType.HEADER
     override fun getUniqueId() : String = id

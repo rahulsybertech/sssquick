@@ -198,31 +198,39 @@ class PendingOrderDetailsBottomSheetFragment :
         showImagePreviewDialog(requireContext(), url)
     }
 
-    private fun showImagePreviewDialog(context: Context, imageUrl: String) {
+    private fun showImagePreviewDialog(
+        context: Context,
+        imageUrl: String
+    ) {
 
-        val imageView = ImageView(context)
+        Log.e("TAG", "Image URL: $imageUrl")
 
-        imageView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        imageView.adjustViewBounds = true
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        val imageView = ImageView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
 
-        val builder = AlertDialog.Builder(context)
-        builder.setView(imageView)
-        builder.setCancelable(false)
-        builder.setPositiveButton("Close") { dialog, _ ->
-            dialog.dismiss()
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
         }
 
-        val dialog = builder.create()
+        val dialog = AlertDialog.Builder(context)
+            .setView(imageView)
+            .setCancelable(false)
+            .setPositiveButton("Close") { d, _ ->
+                d.dismiss()
+            }
+            .create()
+
         dialog.show()
 
         Glide.with(context)
-            .load(imageUrl)
+            .load(imageUrl.trim())
             .placeholder(R.drawable.ic_image1)
+            .error(R.drawable.ic_image1)
             .listener(object : RequestListener<Drawable> {
+
                 override fun onResourceReady(
                     resource: Drawable,
                     model: Any,
@@ -230,7 +238,12 @@ class PendingOrderDetailsBottomSheetFragment :
                     dataSource: DataSource,
                     isFirstResource: Boolean
                 ): Boolean {
-                    Log.d("TaG", "Image loaded successfully")
+
+                    Log.d(
+                        "TAG",
+                        "Image loaded successfully"
+                    )
+
                     return false
                 }
 
@@ -240,13 +253,29 @@ class PendingOrderDetailsBottomSheetFragment :
                     target: Target<Drawable>,
                     isFirstResource: Boolean
                 ): Boolean {
-                    dialog.dismiss()
-                    Toast.makeText(context, "Image load failed", Toast.LENGTH_SHORT).show()
+
+                    Log.e(
+                        "TAG",
+                        "Failed URL = $imageUrl"
+                    )
+
+                    Log.e(
+                        "TAG",
+                        "Glide Error = ${e?.message}"
+                    )
+
+                    e?.logRootCauses("Glide")
+
+                    Toast.makeText(
+                        context,
+                        "Image load failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                     return false
                 }
             })
             .into(imageView)
-
     }
 
     @SuppressLint("MissingInflatedId")

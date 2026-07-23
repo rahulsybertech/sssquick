@@ -31,6 +31,7 @@ data class LeadRequest(
     val stationId: String? = null,
 
     val stationName: String = "",
+    val station_Name: String = "",
 
     val stationSubDistrictName: String = "",
 

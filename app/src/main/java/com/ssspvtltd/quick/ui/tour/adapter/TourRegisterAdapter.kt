@@ -78,14 +78,26 @@ class PendingLrViewHolder(
             "<b>Mobile No | </b> ${item.mobileNo}",
             Html.FROM_HTML_MODE_LEGACY
         )
+        tvLedNo.text = Html.fromHtml(
+            "<b>Lead No. </b> ${item.leadNo}",
+            Html.FROM_HTML_MODE_LEGACY
+        )
         tvState.text = Html.fromHtml(
             "<b>State | </b> ${item.stateName}",
             Html.FROM_HTML_MODE_LEGACY
         )
-        tvStation.text = Html.fromHtml(
-            "<b>Station | </b> ${item.stationName}",
-            Html.FROM_HTML_MODE_LEGACY
-        )
+        if(item.stationName.equals("OTHER")){
+            tvStation.text = Html.fromHtml(
+                "<b>Station | </b> ${item.station_Name}",
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        }else{
+            tvStation.text = Html.fromHtml(
+                "<b>Station | </b> ${item.stationName}",
+                Html.FROM_HTML_MODE_LEGACY
+            )
+        }
+
 
 
         // ✅ Edit click

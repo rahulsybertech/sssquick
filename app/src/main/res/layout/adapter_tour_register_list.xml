@@ -27,6 +27,16 @@
             app:layout_constraintTop_toTopOf="parent"
             android:text="S.No: 1" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvLedNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text=""
+            app:layout_constraintStart_toEndOf="@id/tvSNo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
         <!-- Customer Name -->
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tvCustomerName"

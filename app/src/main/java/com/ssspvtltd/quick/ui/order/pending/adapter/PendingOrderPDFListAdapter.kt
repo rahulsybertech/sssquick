@@ -37,8 +37,8 @@ class PendingOrderPDFListAdapter(private val pdfs: List<PendingOrderItem.PdfPath
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val binding = holder.binding
 
-        // binding.image.setImageResource(R.drawable.ic_pdf)
-        binding.image.setAnimation(R.raw.pdf_ani)
+       //  binding.image.setImageResource(R.drawable.ic_pdf)
+     //   binding.image.setAnimation(R.raw.pdf_ani)
         binding.llImg.setOnClickListener {
             mCallBack( (pdfs?.get(position)?.pdfUrl ?: "").toString())
 

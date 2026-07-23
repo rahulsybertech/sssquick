@@ -217,6 +217,7 @@ class CustomerDetailsViewModel @Inject constructor(
         val filteredList = customerList12.filter { customer ->
             customer.firmName?.contains(query, ignoreCase = true) == true ||
                     customer.stationName?.contains(query, ignoreCase = true) == true ||
+                    customer.leadNo?.contains(query, ignoreCase = true) == true ||
                     customer.mobileNo?.contains(query, ignoreCase = true) == true ||
                     customer.gradeName?.contains(query, ignoreCase = true) == true
         }

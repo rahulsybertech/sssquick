@@ -4,6 +4,7 @@ import android.Manifest
 import android.R
 import android.app.Activity
 import android.app.Dialog
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -12,6 +13,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Geocoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -74,7 +76,12 @@ import java.util.Locale
 
 @AndroidEntryPoint
 class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetailsViewModel>() {
+    companion object {
+        private const val MAX_IMAGE_SIZE =
+            500 * 1024
+    }
     private var imageUri: Uri? = null
+
     private val mAdapter by lazy { AddImageAdapter() }
     private var isGradeApiCalled = false
     private var isStationApiCalled = false
@@ -137,33 +144,151 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
 
+    //private lateinit var imageUri: Uri
     private val cameraLauncher =
         registerForActivityResult(
-            ActivityResultContracts.TakePicturePreview()
-        ) { bitmap ->
+            ActivityResultContracts.TakePicture()
+        ) { success ->
 
-            bitmap?.let {
+            if (success) {
 
-                if (selectedImageType == "selfie") {
+                val inputStream =
+                    contentResolver.openInputStream(imageUri!!)
 
-                    if (selfieList.size < 2) {
+                val originalBitmap =
+                    BitmapFactory.decodeStream(inputStream)
 
-                        selfieList.add(ImageItem(bitmap = bitmap))
+                inputStream?.close()
 
-                        selfieAdapter.notifyDataSetChanged()
-                    }
+                originalBitmap?.let {
 
-                } else {
+                    val compressedBytes =
+                        compressTo500KB(it)
 
-                    if (bottomList.size < 5) {
+                    if (compressedBytes != null) {
 
-                        bottomList.add(ImageItem(bitmap = bitmap))
+                        Log.e(
+                            "IMAGE",
+                            "Compressed Size = ${compressedBytes.size / 1024} KB"
+                        )
 
-                        bottomAdapter.notifyDataSetChanged()
+                        val finalBitmap =
+                            BitmapFactory.decodeByteArray(
+                                compressedBytes,
+                                0,
+                                compressedBytes.size
+                            )
+
+                        if (selectedImageType == "selfie") {
+
+                            if (selfieList.size < 2) {
+
+                                selfieList.add(
+                                    ImageItem(finalBitmap)
+                                )
+
+                                selfieAdapter.notifyItemInserted(
+                                    selfieList.lastIndex
+                                )
+                            }
+
+                        } else {
+
+                            if (bottomList.size < 5) {
+
+                                bottomList.add(
+                                    ImageItem(finalBitmap)
+                                )
+
+                                bottomAdapter.notifyItemInserted(
+                                    bottomList.lastIndex
+                                )
+                            }
+                        }
+
+                    } else {
+
+                        showToast(
+                            "Unable to compress below 500 KB"
+                        )
                     }
                 }
             }
         }
+
+
+
+
+
+
+    private val MAX_IMAGE_SIZE =
+        500 * 1024
+
+
+
+    fun compressTo500KB(
+        bitmap: Bitmap
+    ): ByteArray? {
+
+        var currentBitmap = bitmap
+        var quality = 100
+
+        while (true) {
+
+            val stream =
+                ByteArrayOutputStream()
+
+            currentBitmap.compress(
+                Bitmap.CompressFormat.JPEG,
+                quality,
+                stream
+            )
+
+            Log.e(
+                "IMAGE",
+                "Quality=$quality Size=${stream.size() / 1024} KB"
+            )
+
+            if (stream.size() <= MAX_IMAGE_SIZE) {
+
+                Log.e(
+                    "IMAGE",
+                    "Returning ${stream.size() / 1024} KB"
+                )
+
+                return stream.toByteArray()
+            }
+
+            if (quality > 20) {
+
+                quality -= 10
+                continue
+            }
+
+            val width =
+                (currentBitmap.width * 0.5).toInt()
+
+            val height =
+                (currentBitmap.height * 0.5).toInt()
+
+            if (width < 100 ||
+                height < 100
+            ) {
+
+                return null
+            }
+
+            currentBitmap =
+                Bitmap.createScaledBitmap(
+                    currentBitmap,
+                    width,
+                    height,
+                    true
+                )
+
+            quality = 100
+        }
+    }
 
 
 
@@ -264,6 +389,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 ).show()
             }
         }
+
         leadId = intent.getStringExtra("leadId")
         checkEditMode()
         initViews()
@@ -351,7 +477,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     val leadSource = binding.dropLeadSource.text.toString().trim()
 
-                    if (leadSource == "MARKETER VISIT") {
+                    if (leadSource == "MARKETER VISIT" || leadSource == "TOUR VISIT") {
 
                         if (selfieList.isEmpty()) {
                             showToast("At least one selfie image is required")
@@ -408,7 +534,17 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         }
 
         binding.btnBack.setOnClickListener {
+            if (customerType != "existing") {
+                if (selectedLeadResocureName == "MARKETER VISIT" ||
+                    selectedLeadResocureName == "TOUR VISIT") {
 
+                    isNextScreen = true
+                    binding.btnNext.text = "NEXT"
+                } else {
+                    isNextScreen = false
+                    binding.btnNext.text = "SAVE"
+                }
+            }
             isNextScreen = false
 
             binding.btnNext.text = "Next"
@@ -625,7 +761,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.layouGrade.endIconMode =
                 TextInputLayout.END_ICON_DROPDOWN_MENU
 
-        } else {
+        }
+        else {
 
             // EXISTING CUSTOMER
 
@@ -652,6 +789,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             // All fields editable
             setFieldsEditable(false)
         }
+
         dropCity.setText(data.firmName ?: "", false)
         leadId=data.id
        // selectedFirmId=data.fi
@@ -661,6 +799,16 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         dropStation.setText(data.stationName ?: "", false)
         selectedStationId=data.stationId
+        if(data.stationName.equals("OTHER")){
+
+        }
+        if (data.stationName.equals("Other", ignoreCase = true)) {
+            binding.layoutStationM.visibility = View.VISIBLE
+            binding.editStation.setText(data.station_Name)
+        } else {
+            binding.layoutStationM.visibility = View.GONE
+            binding.editStation.setText("")
+        }
 
 
         dropState.setText(data.stateName ?: "", false)
@@ -685,7 +833,17 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
       /*  Glide.with(holder.itemView.context)
             .load(item.imageUrl)
             .into(holder.imgPhoto)*/
+        if (customerType != "existing") {
+            if (selectedLeadResocureName == "MARKETER VISIT" ||
+                selectedLeadResocureName == "TOUR VISIT") {
 
+                isNextScreen = false
+                binding.btnNext.text = "NEXT"
+            } else {
+                isNextScreen = true
+                binding.btnNext.text = "SAVE"
+            }
+        }
         data.selfieImageURL1?.let {
 
             selfieList.add(
@@ -927,8 +1085,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         // Existing Customer validation
         if (binding.rbExisting.isChecked) {
 
-            if (selectedFirmId!!.isBlank()) {
-               // binding.layouCustomer.error = "Select Firm Name"
+            if (selectedFirmId.isNullOrBlank()) {
+                // binding.layouCustomer.error = "Select Firm Name"
                 binding.dropCity.requestFocus()
                 return false
             }
@@ -1001,10 +1159,33 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
               //  binding.layouState.error = "Select State"
                 return false
             }
-            if (selectedStationId.isNullOrBlank()) {
-                binding.layouStation.requestFocus()
-              //  binding.layouStation.error = "Select Station"
+            val station = binding.dropStation.text.toString().trim()
+
+            if (station.isEmpty()) {
+                binding.layouStation.error = "Select Station"
+                binding.dropStation.requestFocus()
                 return false
+            }
+
+            if (station.equals("Other", ignoreCase = true)) {
+
+                if (binding.editStation.text.toString().trim().isEmpty()) {
+                    binding.layoutStationM.error = "Enter Station Name"
+                    binding.editStation.requestFocus()
+                    return false
+                }
+
+                binding.layoutStationM.error = null
+
+            } else {
+
+                if (selectedStationId.isNullOrBlank()) {
+                    binding.layouStation.error = "Select a valid Station"
+                    binding.dropStation.requestFocus()
+                    return false
+                }
+
+                binding.layouStation.error = null
             }
        /*     if (binding.dropStation.text.isNullOrEmpty()) {
                 binding.layouStation.error = "Select Station"
@@ -1075,6 +1256,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
        selectedStationName = binding.dropState.text.toString()
        selectedCategoryName = binding.dropCategory.text.toString()
        selectedLeadResocureName = binding.dropLeadSource.text.toString()
+
+        if (customerType != "existing") {
+            if (selectedLeadResocureName == "MARKETER VISIT" ||
+                selectedLeadResocureName == "TOUR VISIT") {
+
+                isNextScreen = true
+                binding.btnNext.text = "NEXT"
+            } else {
+                isNextScreen = false
+                binding.btnNext.text = "SAVE"
+            }
+        }
+
        val shopArea = binding.shopArea.text.toString()
        val workingBranchs = binding.workingBranchs.text.toString()
         val selectedCategoryList = adapter.getSelectedCategories()
@@ -1117,6 +1311,21 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
         var shopImage5 = ""
         var shopImageURL5 = ""
+        val stationName =
+            if (binding.dropStation.text.toString().equals("Other", ignoreCase = true)) {
+                binding.editStation.text.toString().trim()
+            } else {
+                binding.dropStation.text.toString() ?: ""
+            }
+
+        val stationId =
+            if (binding.dropStation.text.toString().equals("Other", ignoreCase = true)) {
+                null
+            } else if (selectedStationId?.isNotEmpty() == true) {
+                selectedStationId
+            } else {
+                null
+            }
 
         if (bottomList.size > 0) {
             if (bottomList[0].bitmap != null) {
@@ -1195,9 +1404,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             stateName = selectedStateName ?: "",
 
-            stationId = selectedStationId ?: "",
+            stationId = selectedStationId,
 
             stationName = selectedStationName ?: "",
+            station_Name = stationName ?: "",
 
             categoryId = if (selectedCategoryId?.isNotEmpty() == true) {
                 selectedCategoryId
@@ -1293,6 +1503,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 binding.rbExisting.id -> {
 
                     customerType = "existing"
+                    isNextScreen = false
+                    binding.btnNext.text = "NEXT"
 
                     binding.dropCity.setText("")
 
@@ -1316,6 +1528,15 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     binding.layouLeadSource.visibility = View.VISIBLE
                     binding.layouCustomer.visibility = View.GONE
                     setFieldsEditable(true)
+                    if (selectedLeadResocureName == "MARKETER VISIT" ||
+                        selectedLeadResocureName == "TOUR VISIT") {
+
+                        isNextScreen = false
+                        binding.btnNext.text = "NEXT"
+                    } else {
+                        isNextScreen = true
+                        binding.btnNext.text = "SAVE"
+                    }
                     clearForm()
                 }
             }
@@ -2086,42 +2307,40 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         // Item Selection
         binding.dropStation.setOnItemClickListener { parent, _, position, _ ->
 
-            val selectedItem =
-                parent.getItemAtPosition(position) as StationItem
+            val selectedItem = parent.getItemAtPosition(position) as StationItem
 
             selectedStationId = selectedItem.id
             selectedStationName = selectedItem.name
 
             binding.dropStation.setText(selectedItem.name, false)
 
+            if (selectedItem.name.equals("Other", ignoreCase = true)) {
+                binding.layoutStationM.visibility = View.VISIBLE
+            } else {
+                binding.layoutStationM.visibility = View.GONE
+                binding.editStation.setText("")
+            }
+
             binding.dropStation.clearFocus()
             binding.dropStation.isCursorVisible = false
-
-            // Hide Keyboard
-            val imm =
-                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
-            imm.hideSoftInputFromWindow(
-                binding.dropStation.windowToken,
-                0
-            )
-
-            binding.layouStation.error = null
         }
 
         // Text Change
         binding.dropStation.doAfterTextChanged { editable ->
 
-            val currentText = editable?.toString()?.trim() ?: ""
+            val text = editable?.toString()?.trim().orEmpty()
 
-            if (currentText.isEmpty()) {
+         /*   if (text.equals("Other", ignoreCase = true)) {
+                binding.layoutStationM.visibility = View.VISIBLE
+            } else {
+                binding.layoutStationM.visibility = View.GONE
+                binding.editStation.setText("")
+            }*/
 
+            if (text.isEmpty()) {
                 selectedStationId = ""
                 selectedStationName = ""
-
-            } else if (currentText != selectedStationName) {
-
-                // User modified text manually
+            } else if (!text.equals(selectedStationName, ignoreCase = true)) {
                 selectedStationId = ""
                 selectedStationName = ""
             }
@@ -2213,6 +2432,18 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     defaultItem.leadTypeName,
                     false
                 )
+                    if (selectedLeadResocureName == "MARKETER VISIT" ||
+                        selectedLeadResocureName == "TOUR VISIT") {
+
+                        isNextScreen = false
+                        binding.btnNext.text = "NEXT"
+                    } else {
+                        isNextScreen = true
+                        binding.btnNext.text = "SAVE"
+                    }
+
+
+
             }
         }
 
@@ -2226,6 +2457,19 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             selectedLeadResocureName = selectedItem.leadTypeName
 
             binding.dropLeadSource.setText(selectedItem.leadTypeName, false)
+
+            if (customerType != "existing") {
+                if (selectedLeadResocureName == "MARKETER VISIT" ||
+                    selectedLeadResocureName == "TOUR VISIT") {
+
+                    isNextScreen = false
+                    binding.btnNext.text = "NEXT"
+                } else {
+                    isNextScreen = true
+                    binding.btnNext.text = "SAVE"
+                }
+            }
+
 
             binding.dropLeadSource.clearFocus()
             binding.dropLeadSource.isCursorVisible = false
@@ -2262,127 +2506,6 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
     }
 
-    private fun setupStateDropdown() {
-
-        // click
-        binding.dropState.setOnClickListener {
-
-            if (!isStateApiCalled) {
-
-                isStateApiCalled = true
-
-                // First API Call
-                viewModel.getStateList()
-
-            } else {
-
-                // Already loaded
-                binding.dropState.showDropDown()
-            }
-        }
-
-        binding.dropState.doAfterTextChanged {
-
-            if (it.isNullOrEmpty()) {
-
-                selectedStateId = ""
-                selectedStateName = ""
-
-                binding.dropStation.setText("", false)
-
-                selectedStationId = ""
-                selectedStationName = ""
-
-                stationData = emptyList()
-
-                binding.dropStation.setAdapter(null)
-
-                isStationApiCalled = false
-                // Show all states again
-                binding.dropState.post {
-                    if(it!!.isNotEmpty())
-                    binding.dropState.showDropDown()
-                }
-            }
-        }
-
-        // focus
-        binding.dropState.setOnFocusChangeListener { _, hasFocus ->
-
-            if (hasFocus) {
-
-                if (!isStateApiCalled) {
-
-                    isStateApiCalled = true
-
-                    // First API Call
-                    viewModel.getStateList()
-
-                } else {
-
-                    // Already loaded
-                    binding.dropState.showDropDown()
-                }
-            }
-        }
-
-        // observe API response
-        viewModel.stateList.observe(this) { list ->
-
-            stateData = list
-
-            val adapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                stateData
-            )
-
-            binding.dropState.setAdapter(adapter)
-
-            // auto open dropdown
-            binding.dropState.showDropDown()
-        }
-
-        // item click
-        binding.dropState.setOnItemClickListener { parent, _, position, _ ->
-
-            val selectedItem =
-                parent.getItemAtPosition(position) as StateItem
-            selectedStateId=selectedItem.id
-            selectedStateName=selectedItem.name
-            binding.dropState.setText(
-                selectedItem.name,
-                false
-            )
-
-            // ✅ IMPORTANT FIX
-            binding.dropState.clearFocus()
-            binding.dropState.isCursorVisible = false
-            // Reset Station
-            selectedStationId = ""
-            selectedStationName = ""
-
-            binding.dropStation.setText("", false)
-
-            stationData = emptyList()
-
-            isStationApiCalled = false
-
-            // hide keyboard
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(binding.dropCity.windowToken, 0)
-
-            // remove error
-            binding.layouState.error = null
-
-        }
-
-        // clear focus when dropdown dismiss
-     /*   binding.dropState.setOnDismissListener {
-
-            binding.dropState.clearFocus()
-        }*/
-    }
 
     private fun stateList(){
 
@@ -2667,7 +2790,30 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
     }
 
     private fun openCamera() {
-        cameraLauncher.launch(null)
+        imageUri = createImageUri()
+
+        cameraLauncher.launch(imageUri!!)
+     //   cameraLauncher.launch(null)
+    }
+    private fun createImageUri(): Uri {
+
+        val contentValues = ContentValues().apply {
+
+            put(
+                MediaStore.Images.Media.DISPLAY_NAME,
+                "IMG_${System.currentTimeMillis()}.jpg"
+            )
+
+            put(
+                MediaStore.Images.Media.MIME_TYPE,
+                "image/jpeg"
+            )
+        }
+
+        return contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )!!
     }
     private fun checkCameraPermission() {
 

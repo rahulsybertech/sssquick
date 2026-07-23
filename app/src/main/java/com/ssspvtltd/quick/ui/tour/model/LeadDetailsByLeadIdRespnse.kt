@@ -25,6 +25,7 @@ data class LeadDetails(
     val stateName: String?,
     val stationId: String?,
     val stationName: String?,
+    val station_Name: String?,
     val stationSubDistrictName: String?,
     val appInstallStatus: String?,
     val insertStatus: String?,
