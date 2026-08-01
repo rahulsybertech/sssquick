@@ -630,7 +630,6 @@
                 android:id="@+id/tilNickNameList"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
-                android:dropDownHeight="wrap_content"
                 android:dropDownWidth="match_parent"
                 android:overlapAnchor="false"
                 android:layout_height="wrap_content"

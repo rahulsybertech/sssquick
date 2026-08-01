@@ -186,10 +186,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                                 selfieList.add(
                                     ImageItem(finalBitmap)
                                 )
-
-                                selfieAdapter.notifyItemInserted(
+                                selfieAdapter.notifyDataSetChanged()
+                           /*     selfieAdapter.notifyItemInserted(
                                     selfieList.lastIndex
-                                )
+                                )*/
                             }
 
                         } else {
@@ -200,9 +200,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                                     ImageItem(finalBitmap)
                                 )
 
-                                bottomAdapter.notifyItemInserted(
+                                bottomAdapter.notifyDataSetChanged()
+                              /*  bottomAdapter.notifyItemInserted(
                                     bottomList.lastIndex
-                                )
+                                )*/
                             }
                         }
 
@@ -222,11 +223,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
 
     private val MAX_IMAGE_SIZE =
-        500 * 1024
+        50 * 1024
 
 
 
-    fun compressTo500KB(
+/*    fun compressTo500KB(
         bitmap: Bitmap
     ): ByteArray? {
 
@@ -266,10 +267,10 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             }
 
             val width =
-                (currentBitmap.width * 0.5).toInt()
+                (currentBitmap.width * 0.8).toInt()
 
             val height =
-                (currentBitmap.height * 0.5).toInt()
+                (currentBitmap.height * 0.8).toInt()
 
             if (width < 100 ||
                 height < 100
@@ -288,8 +289,87 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             quality = 100
         }
+    }*/
+
+
+
+
+    fun compressTo500KB(bitmap: Bitmap): ByteArray? {
+
+        var currentBitmap = resizeBitmap(bitmap)
+
+        var quality = 100
+
+        while (true) {
+
+            val stream = ByteArrayOutputStream()
+
+            currentBitmap.compress(
+                Bitmap.CompressFormat.JPEG,
+                quality,
+                stream
+            )
+
+            Log.e(
+                "IMAGE",
+                "Width=${currentBitmap.width}, " +
+                        "Height=${currentBitmap.height}, " +
+                        "Quality=$quality, " +
+                        "Size=${stream.size() / 1024} KB"
+            )
+
+            // Success
+            if (stream.size() <= MAX_IMAGE_SIZE) {
+                return stream.toByteArray()
+            }
+
+            // Reduce quality first
+            if (quality > 50) {
+                quality -= 5
+                continue
+            }
+
+            // Reduce dimensions by 20%
+            val width = (currentBitmap.width * 0.8).toInt()
+            val height = (currentBitmap.height * 0.8).toInt()
+
+            // Prevent image from becoming too small
+            if (width < 600 || height < 600) {
+                return stream.toByteArray()
+            }
+
+            currentBitmap = Bitmap.createScaledBitmap(
+                currentBitmap,
+                width,
+                height,
+                true
+            )
+
+            // Reset quality after resizing
+            quality = 100
+        }
     }
 
+    private fun resizeBitmap(bitmap: Bitmap): Bitmap {
+
+        val maxWidth = 1000
+        val maxHeight = 1200
+
+        val ratio = minOf(
+            maxWidth.toFloat() / bitmap.width,
+            maxHeight.toFloat() / bitmap.height
+        )
+
+        val width = (bitmap.width * ratio).toInt()
+        val height = (bitmap.height * ratio).toInt()
+
+        return Bitmap.createScaledBitmap(
+            bitmap,
+            width,
+            height,
+            true
+        )
+    }
 
 
     private val galleryLauncher =
@@ -786,6 +866,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             )
 
             selectedFirmId = data.accountID
+            selectedFirmName=data.firmName
+            Log.e("First", "Lead ID: $selectedFirmId")
             // All fields editable
             setFieldsEditable(false)
         }
@@ -834,8 +916,8 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             .load(item.imageUrl)
             .into(holder.imgPhoto)*/
         if (customerType != "existing") {
-            if (selectedLeadResocureName == "MARKETER VISIT" ||
-                selectedLeadResocureName == "TOUR VISIT") {
+            if (binding.dropLeadSource.text.toString() == "MARKETER VISIT" ||
+                binding.dropLeadSource.text.toString() == "TOUR VISIT") {
 
                 isNextScreen = false
                 binding.btnNext.text = "NEXT"
@@ -843,7 +925,12 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                 isNextScreen = true
                 binding.btnNext.text = "SAVE"
             }
-        }
+        }  else {
+            isNextScreen = false
+            binding.btnNext.text = "NEXT"
+
+
+    }
         data.selfieImageURL1?.let {
 
             selfieList.add(
@@ -945,6 +1032,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
         dropGrade.isEnabled = isEditable
         dropStation.isEnabled = isEditable
         dropState.isEnabled = isEditable
+        binding.layouState.setEnabled(isEditable);
         ownerName.isEnabled = isEditable
 
         mobileNo1.isEnabled = isEditable
@@ -1520,6 +1608,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
                     customerType = "new"
 
                     selectedFirmId = ""
+                    Log.e("First", "Lead ID: $selectedFirmId")
                     selectedFirmName = ""
 
                     binding.dropCity.setText("")
@@ -1951,6 +2040,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
             selectedFirmName=selectedItem.name
             selectedFirmId=selectedItem.id
+            Log.e("First", "Lead ID: $selectedFirmId")
             binding.dropCity.setText(
                 selectedItem.name,
                 false
@@ -1993,6 +2083,7 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
 
                     dropCity.setText(data?.firmName ?: "", false)
                     selectedFirmId = data?.id
+                    Log.e("First", "Lead ID: $selectedFirmId")
                     // selectedFirmId=data.fi
 
                     dropGrade.setText(data?.gradeName ?: "", false)

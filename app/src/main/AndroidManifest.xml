@@ -95,7 +95,7 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="com.ssspvtltd.quick.ui.main.MainActivity"
-            android:windowSoftInputMode="adjustNothing"
+            android:windowSoftInputMode="stateHidden|adjustResize"
             android:exported="true"
            />
         <activity
