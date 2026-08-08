@@ -18,9 +18,9 @@ android {
     defaultConfig {
         applicationId "com.ssspvtltd.quick"
         minSdk 26
-        targetSdk 35
-        versionCode = 93
-        versionName = "3.1.49"
+        targetSdk 36
+        versionCode = 94
+        versionName = "3.1.50"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

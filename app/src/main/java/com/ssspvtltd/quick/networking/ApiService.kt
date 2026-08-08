@@ -18,6 +18,8 @@ import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.mailbox.MailData
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
 import com.ssspvtltd.quick.model.order.add.ItemsData
+import com.ssspvtltd.quick.model.order.add.OrderForAttachData
+import com.ssspvtltd.quick.model.order.add.OrderForAttachResponse
 import com.ssspvtltd.quick.model.order.add.PackTypeData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
@@ -152,6 +154,10 @@ interface ApiService {
     suspend fun purchasePartyListByNickName(
         @Query("nickNameId") nickName: String?,
     ): ApiResponse<List<PurchasePartyData>>
+
+    @POST("api/OrderBook/GetPendingOrderForAttached")
+    suspend fun attachOrderApi(
+    ): ApiResponse<List<OrderForAttachData>>
 
     @POST("api/OrderBook/GetItemList")
     suspend fun itemList(

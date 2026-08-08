@@ -52,7 +52,7 @@ class GoodsReturnFragmentNew : Fragment() {
                 saleBillNo = item.saleBillNo,
                 itemName = item.itemName,
                 qty = item.qty,
-                amount = item.amount,
+                amount = item.amount as Double?,
                 salePartyName = item.salePartyName,
                 subPartyName = item.subPartyName,
                 supplierName = item.supplierName,

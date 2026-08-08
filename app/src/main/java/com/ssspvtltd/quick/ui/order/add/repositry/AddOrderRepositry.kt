@@ -8,6 +8,8 @@ import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
 import com.ssspvtltd.quick.model.order.add.DispatchTypeResponse
 import com.ssspvtltd.quick.model.order.add.ItemsData
+import com.ssspvtltd.quick.model.order.add.OrderForAttachData
+import com.ssspvtltd.quick.model.order.add.OrderForAttachResponse
 import com.ssspvtltd.quick.model.order.add.PackTypeData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
@@ -111,6 +113,12 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
     suspend fun purchasePartyListByNickName(nickNameId:String?): ResultWrapper<ApiResponse<*>, ApiResponse<List<PurchasePartyData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY_WITH_NICKNAME.ordinal) {
             apiService.purchasePartyListByNickName(nickNameId)
+        }
+    }
+
+    suspend fun attechOrderList(): ResultWrapper<ApiResponse<*>, ApiResponse<List<OrderForAttachData>>> {
+        return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY_WITH_NICKNAME.ordinal) {
+            apiService.attachOrderApi()
         }
     }
 

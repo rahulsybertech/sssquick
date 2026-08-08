@@ -2510,8 +2510,11 @@ class TourDetailsActivity : BaseActivity<ActivityTourDetailsBinding, TourDetails
             binding.dropLeadSource.setAdapter(adapter)
 
             // Default selection
-            val defaultItem = leadResourceData.firstOrNull {
+            /*val defaultItem = leadResourceData.firstOrNull {
                 it.leadTypeName.equals("Marketer Visit", ignoreCase = true)
+            }*/
+            val defaultItem = leadResourceData.firstOrNull {
+                it.leadTypeName.equals("TOUR VISIT", ignoreCase = true)
             }
 
             if (defaultItem != null) {

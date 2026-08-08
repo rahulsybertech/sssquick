@@ -31,6 +31,7 @@ import com.ssspvtltd.quick.model.ARG_ADD_IMAGE_LIST
 import com.ssspvtltd.quick.model.ARG_ADD_ITEM_LIST
 import com.ssspvtltd.quick.model.alert.AlertMsg
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
+import com.ssspvtltd.quick.model.order.add.OrderForAttachData
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
 import com.ssspvtltd.quick.model.order.add.SchemeData
@@ -44,6 +45,7 @@ import com.ssspvtltd.quick.model.order.add.salepartydetails.Data
 
 import com.ssspvtltd.quick.model.order.add.salepartyNewList.SubParty
 import com.ssspvtltd.quick.ui.order.add.activity.AddImageActivity
+import com.ssspvtltd.quick.ui.order.add.adapter.AttachAdapter
 import com.ssspvtltd.quick.ui.order.add.adapter.DefaultTransportAdapter
 import com.ssspvtltd.quick.ui.order.add.adapter.DispatchAdapter
 import com.ssspvtltd.quick.ui.order.add.adapter.PackDataAdapter
@@ -99,7 +101,9 @@ class AddOrderFragment
     private var isRgSubparty: Boolean = true
     private var bookingStationId: String = ""
     private var transportId: String = ""
+    private var dataCode: String = ""
     private var dispatchId: String = ""
+    private var attachId: String = ""
     private var transportIdNew: String = ""
     private var schemeId: String = ""
     private var selectedStatus: String = "PENDING"
@@ -113,6 +117,7 @@ class AddOrderFragment
     private var salePartyData: List<SalepartyData> = emptyList()
     var subPartyData = mutableListOf<SubParty>()
     private var dispatchTypeData: List<DispatchTypeList>? = emptyList()
+    private var orderForAttachData: List<OrderForAttachData>? = emptyList()
     private var stationData: List<AllStation>? = emptyList()
     private var stationDataWithRemark: ArrayList<AllStation>? = arrayListOf()
     private var stationDataWithSubparty: ArrayList<AllStation>? = arrayListOf()
@@ -132,6 +137,7 @@ class AddOrderFragment
     private lateinit var nickNameAdapter: PurchasePartyAdapter
     private lateinit var schemeAdapter: SchemeAdapter
     private lateinit var dispatchAdapter: DispatchAdapter
+    private lateinit var attachAdapter: AttachAdapter
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private var isNickNameSelected = true
     private var isOrderImage = "false"
@@ -359,6 +365,16 @@ class AddOrderFragment
             binding.etPurchaseParty.text?.clear()
             binding.ivCallPurchaseParty.visibility=View.GONE
         }
+        binding.tilDispatchType.setEndIconOnClickListener {
+            //Abhinav
+
+            binding.etDispatchType.text?.clear()
+            dispatchId=""
+            binding.etDirectAttach.text?.clear()
+            binding.tilDirectAttach.visibility=View.GONE
+            binding.llDirectAttach.visibility=View.GONE
+            attachId=""
+        }
 
 
         binding.etSubParty.doAfterTextChanged {
@@ -372,6 +388,9 @@ class AddOrderFragment
         }
         binding.etDispatchType.doAfterTextChanged {
             dispatchId = ""
+        }
+        binding.etDirectAttach.doAfterTextChanged {
+            attachId = ""
         }
 
         binding.etPurchasePartyNew.doAfterTextChanged {
@@ -496,6 +515,15 @@ class AddOrderFragment
                         hashMap["TransportId"] = transportId.toRequestBody()
                         hashMap["BstationId"] = bookingStationId.toRequestBody()
                     }
+
+                    if(attachId.isNotEmpty()){
+                        hashMap["AttachedOrderID"] = attachId.toRequestBody()
+                        hashMap["AttachedOrderNo"] = etDirectAttach.text.toString().toRequestBody()
+                    }else{
+                        hashMap["AttachedOrderID"] = "".toRequestBody()
+                        hashMap["AttachedOrderNo"] = "".toRequestBody()
+                    }
+                    Log.e("AttachedOrderID",attachId.toString())
                 hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
                 hashMap["PurchasePartyId"] = purchasePartyId.toRequestBody()
              //   hashMap["TransportId"] = transportId.toRequestBody()
@@ -522,6 +550,7 @@ class AddOrderFragment
 
 
                 Log.e("hashmap",hashMap.toString())
+                    println("PLACING_ORDER 1 ${Gson().toJson(hashMap)}")
                viewModel.placeOrder(hashMap)
                 binding.placeOrder.isEnabled=false
             }
@@ -702,6 +731,27 @@ class AddOrderFragment
         binding.etDispatchType.setOnClickListener {
             if (!binding.etDispatchType.isPopupShowing) {
                 binding.etDispatchType.showDropDown()
+            }
+        }
+
+        binding.etDirectAttach.setOnFocusChangeListener { v, hasFocus ->
+            println("HAS_FOCUS $hasFocus")
+            if (!hasFocus) {
+
+                if (orderForAttachData?.any { it -> it.orderNo == binding.etDirectAttach.text.toString() } == false) {
+                    binding.etDirectAttach.text.clear()
+                }
+            }
+            if (!binding.etDirectAttach.isPopupShowing) {
+                binding.etDirectAttach.showDropDown()
+            }
+        }
+
+
+
+        binding.etDirectAttach.setOnClickListener {
+            if (!binding.etDirectAttach.isPopupShowing) {
+                binding.etDirectAttach.showDropDown()
             }
         }
 
@@ -1119,6 +1169,7 @@ class AddOrderFragment
 
                 binding.etSubParty.text.clear()
                 binding.etDispatchType.text.clear()
+                binding.etDirectAttach.text.clear()
                 binding.etAverageDays.text?.clear()
                 binding.etAvailableLimit.text?.clear()
                 binding.etCreditType.text?.clear()
@@ -1209,7 +1260,15 @@ class AddOrderFragment
                         hashMap["TransportId"] = transportId.toRequestBody()
                         hashMap["BstationId"] = bookingStationId.toRequestBody()
                     }
+                    if(attachId.isNotEmpty()){
+                        hashMap["AttachedOrderID"] = attachId.toRequestBody()
+                        hashMap["AttachedOrderNo"] = etDirectAttach.text.toString().toRequestBody()
+                    }else{
+                        hashMap["AttachedOrderID"] = "".toRequestBody()
+                        hashMap["AttachedOrderNo"] = "".toRequestBody()
+                    }
 
+                    Log.e("AttachedOrderID",attachId.toString())
 
                     //  hashMap["SubPartyId"] = subPartyId.toRequestBody()
                     hashMap["SubPartyasRemark"] = etSubPartyRemark.text.toString().toRequestBody()
@@ -1238,7 +1297,7 @@ class AddOrderFragment
                    viewModel.placeOrder(hashMap)
 
                 }
-                binding.placeOrder.isEnabled=false
+                binding.placeOrder.isEnabled=true
                 dialog.dismissWithAnimation()
             }
         }
@@ -1409,9 +1468,24 @@ class AddOrderFragment
                     binding.etDispatchType.showDropDown()
                     apiResponseDispatchType()
                     binding.etDispatchType.setText(it?.dispatchType )
-                    dispatchId = it?.dispatchTypeID.toString()!!
-                    //         job3 = async { viewModel.getStation(it.salePartyId!!, subPartyId) }
+                    dispatchId= it?.dispatchTypeID.toString()
 
+                    if (it?.dataCode.equals("DIR-ATTACH", ignoreCase = true)) {
+                        apiResponseOrderForAttach()
+                        binding.tilDirectAttach.visibility= View.VISIBLE
+                        binding.llDirectAttach.visibility= View.VISIBLE
+                        binding.etDirectAttach.isEnabled = true
+                        binding.etDirectAttach.showDropDown()
+                        apiResponseOrderForAttach()
+                        binding.etDirectAttach.setText(it?.attachedOrderNo )
+                        attachId= it?.attachedOrderID.toString()
+
+                    }else{
+                        binding.tilDirectAttach.visibility= View.GONE
+                        binding.llDirectAttach.visibility= View.GONE
+                        binding.etDirectAttach.text.clear()
+                        attachId=""
+                    }
 
 
 
@@ -2444,12 +2518,22 @@ class AddOrderFragment
             tilPVTMarka.setError("Please enter PVT Marka")
             return false
         }
-        else if (etDispatchType.text.isBlank()) {
+        else if (dispatchId.isEmpty()) {
             etDispatchType.requestFocus()
             tilDispatchType.isErrorEnabled = true
             tilDispatchType.setError("You need to select Dispatch Type")
             return false
         }
+        else if (
+            dataCode.equals("DIR-ATTACH", ignoreCase = true) &&
+            etDirectAttach.text.toString().trim().isEmpty()
+        ) {
+            etDirectAttach.requestFocus()
+            tilDirectAttach.isErrorEnabled = true
+            tilDirectAttach.error = "Please select Attach Order"
+            return false
+        }
+
 
         else if (tvDispatchFromDate.text.isBlank()) {
             tvDispatchFromDate.requestFocus()
@@ -2594,7 +2678,8 @@ class AddOrderFragment
     }
 
 
-    private fun apiResponseDispatchType(){
+    private fun apiResponseDispatchType() {
+
         viewModel.getDispatchTypeList.observe(viewLifecycleOwner) {
 
             val originalList = it.orEmpty()
@@ -2605,18 +2690,68 @@ class AddOrderFragment
                 originalList
             }
 
-            dispatchAdapter = DispatchAdapter(requireContext(), R.layout.item_saleparty, filteredList)
+            dispatchAdapter = DispatchAdapter(
+                requireContext(),
+                R.layout.item_saleparty,
+                filteredList
+            )
 
+            dispatchTypeData = filteredList
 
-            dispatchTypeData = it
             binding.etDispatchType.threshold = 1
             binding.etDispatchType.setAdapter(dispatchAdapter)
-            binding.etDispatchType.setOnItemClickListener { parent, _, position, _ ->
-                val schemeItem = dispatchAdapter.getItem(position)
-                dispatchId = schemeItem.id
+
+            binding.etDispatchType.setOnItemClickListener { _, _, position, _ ->
+
+                val selectedItem = dispatchAdapter.getItem(position)
+
+                dispatchId = selectedItem.id
 
                 binding.tilDispatchType.isErrorEnabled =
-                    !(schemeItem.id.isNotNullOrBlank() || binding.tilDispatchType.isErrorEnabled)
+                    !(selectedItem.id.isNotBlank() || binding.tilDispatchType.isErrorEnabled)
+
+                // Call API only for DIRECT-ATTACH
+                if (selectedItem.dataCode.equals("DIR-ATTACH", ignoreCase = true)) {
+                    binding.tilDirectAttach.visibility=View.VISIBLE
+                    binding.llDirectAttach.visibility=View.VISIBLE
+                    dataCode=selectedItem.dataCode
+                    apiResponseOrderForAttach()
+                }else{
+                    binding.etDirectAttach.text.clear()
+                    dataCode=""
+                    attachId=""
+                    binding.tilDirectAttach.visibility=View.GONE
+                    binding.llDirectAttach.visibility=View.GONE
+                }
+            }
+        }
+    }
+
+    private fun apiResponseOrderForAttach(){
+       viewModel.getAttachOrder()
+        viewModel.attachOrderResponse.observe(viewLifecycleOwner) {
+
+
+            val originalList = it.orEmpty()
+
+           /* val filteredList = if (!eInvoiceStatus) {
+                originalList.filter { item -> item.value != "BILL TO SHIP TO" }
+            } else {
+                originalList
+            }*/
+
+            attachAdapter = AttachAdapter(requireContext(), R.layout.item_saleparty, originalList)
+
+
+            orderForAttachData = it
+            binding.etDirectAttach.threshold = 1
+            binding.etDirectAttach.setAdapter(attachAdapter)
+            binding.etDirectAttach.setOnItemClickListener { parent, _, position, _ ->
+                val schemeItem = attachAdapter.getItem(position)
+                attachId = schemeItem.id
+
+                binding.tilDirectAttach.isErrorEnabled =
+                    !(schemeItem.id.isNotNullOrBlank() || binding.tilDirectAttach.isErrorEnabled)
             }
 
 

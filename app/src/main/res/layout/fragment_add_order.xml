@@ -874,6 +874,51 @@
                     android:textColor="@color/dark_gray"
                     android:textSize="14sp" />
             </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:id="@+id/llDirectAttach"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/tilDispatchType"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilDirectAttach"
+                    style="@style/Theme.Widget.TextInputLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/attach_order"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                        android:id="@+id/etDirectAttach"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:focusable="true"
+                        android:imeOptions="actionNext"
+                        android:inputType="textFilter"
+                        android:paddingHorizontal="12dp"
+                        android:textColor="@color/dark_gray"
+                        android:textSize="14sp" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/cbDirectAttach"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pack here"
+                    android:layout_marginStart="8dp"
+                  />
+
+            </LinearLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDiscription"
                 style="@style/Theme.Widget.TextInputLayout"
@@ -885,7 +930,7 @@
                 app:endIconMode="clear_text"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tilDispatchType">
+                app:layout_constraintTop_toBottomOf="@+id/llDirectAttach">
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/etDiscription"

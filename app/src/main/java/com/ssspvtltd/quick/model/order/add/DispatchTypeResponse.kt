@@ -12,5 +12,6 @@ data class DispatchTypeResponse(
 
 data class DispatchTypeList(
     @SerializedName("id") val id: String,
-    @SerializedName("value") val value: String
+    @SerializedName("value") val value: String,
+    @SerializedName("dataCode") val dataCode: String
 )

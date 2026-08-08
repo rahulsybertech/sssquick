@@ -17,6 +17,8 @@ import com.ssspvtltd.quick.model.TransportMasterData
 import com.ssspvtltd.quick.model.checkincheckout.CustomerData
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
+import com.ssspvtltd.quick.model.order.add.OrderForAttachData
+import com.ssspvtltd.quick.model.order.add.OrderForAttachResponse
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
 import com.ssspvtltd.quick.model.order.add.SchemeData
@@ -167,6 +169,9 @@ class AddOrderViewModel @Inject constructor(
         }
 
 
+
+
+
     fun initAllDataGr(pendingOrderId: String?) {
 
         if (pendingOrderId.isNullOrBlank()) {
@@ -252,6 +257,55 @@ class AddOrderViewModel @Inject constructor(
             _setEditOrderFields.postValue(true)
 
         }
+
+
+    private val _attachOrderResponse = MutableLiveData<List<OrderForAttachData>?>()
+    val attachOrderResponse: LiveData<List<OrderForAttachData>?> get() = _attachOrderResponse
+
+    fun getAttachOrder() = viewModelScope.launch {
+        showProgressBar(
+            ProgressConfig("Fetching Data\nPlease wait...")
+        )
+
+        try {
+            val response = getAtachOrdeSuspend()
+
+            val data = response
+
+            _attachOrderResponse.postValue(data)
+
+        } catch (e: Exception) {
+            // Handle error
+            e.printStackTrace()
+        } finally {
+            hideProgressBar()
+        }
+    }
+
+/*    private suspend fun getAtachOrdeSuspend(): List<OrderForAttachData> {
+        return withContext(Dispatchers.Default) {
+            return@withContext when (val response =
+                repository.attechOrderList()) {
+                is ResultWrapper.Success -> {
+                    response.value.data.data
+                }
+
+                is ResultWrapper.Failure -> {
+                    apiErrorData(response.error)
+                    listOf() // return empty list
+                }
+            }
+        }
+    }*/
+    private suspend fun getAtachOrdeSuspend(): List<OrderForAttachData> = withContext(Dispatchers.Default) {
+        return@withContext when (val response = repository.attechOrderList()) {
+            is ResultWrapper.Success -> response.value.data.orEmpty()
+            is ResultWrapper.Failure -> {
+                apiErrorData(response.error)
+                listOf() // return empty list
+            }
+        }
+    }
     private fun initializeEditOrderGr(schemeId: String?, type: Boolean) =
         viewModelScope.launch(Dispatchers.Default) {
             _setEditOrderFields.postValue(true)

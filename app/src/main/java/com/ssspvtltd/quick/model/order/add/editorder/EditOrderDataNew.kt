@@ -20,6 +20,18 @@ data class EditOrderDataNew(
     @SerializedName("deliveryDateTo")
     @Expose
     val deliveryDateTo: String?,
+    @SerializedName("dataCode")
+    @Expose
+    val dataCode: String?,
+
+    @SerializedName("attachedOrderID")
+    @Expose
+    val attachedOrderID: String?,
+
+    @SerializedName("attachedOrderNo")
+    @Expose
+    val attachedOrderNo: String?,
+
     @SerializedName("docsList")
     @Expose
     val docsList: List<DocListData?>?,

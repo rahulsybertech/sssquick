@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class GoodsReturnItem(
-    val amount: Int?,
+    val amount: Double?,
     val changedQty: Int?,
     val id: String,
     val itemName: String?,
