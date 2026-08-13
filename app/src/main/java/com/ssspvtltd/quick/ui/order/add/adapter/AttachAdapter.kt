@@ -45,7 +45,7 @@ class AttachAdapter (
         try {
             val scheme = getItem(position)
             val schemeAutoCompleteView = rowView.findViewById<View>(R.id.tvAccountNo) as TextView
-            schemeAutoCompleteView.text = scheme.orderNo
+            schemeAutoCompleteView.text = scheme.orderNo+" | "+scheme.date
         } catch (e: Exception) {
             e.printStackTrace()
         }

@@ -116,9 +116,9 @@ class AddOrderRepositry @Inject constructor(private val apiService: ApiService){
         }
     }
 
-    suspend fun attechOrderList(): ResultWrapper<ApiResponse<*>, ApiResponse<List<OrderForAttachData>>> {
+    suspend fun attechOrderList(salePartyId: String, pendingOrderID1: String?): ResultWrapper<ApiResponse<*>, ApiResponse<List<OrderForAttachData>>> {
         return safeApiCall(Dispatchers.IO, ApiRequestCode.PURCHASE_PARTY_WITH_NICKNAME.ordinal) {
-            apiService.attachOrderApi()
+            apiService.attachOrderApi(salePartyId,pendingOrderID1)
         }
     }
 

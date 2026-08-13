@@ -18,7 +18,6 @@ import com.ssspvtltd.quick.model.checkincheckout.CustomerData
 import com.ssspvtltd.quick.model.gr.GoodsReturnDataGr
 import com.ssspvtltd.quick.model.order.add.DispatchTypeList
 import com.ssspvtltd.quick.model.order.add.OrderForAttachData
-import com.ssspvtltd.quick.model.order.add.OrderForAttachResponse
 import com.ssspvtltd.quick.model.order.add.PurchasePartyData
 import com.ssspvtltd.quick.model.order.add.SalepartyData
 import com.ssspvtltd.quick.model.order.add.SchemeData
@@ -28,7 +27,6 @@ import com.ssspvtltd.quick.model.order.add.additem.PackType
 import com.ssspvtltd.quick.model.order.add.editorder.EditOrderDataNew
 import com.ssspvtltd.quick.model.order.add.salepartydetails.AllStation
 import com.ssspvtltd.quick.model.order.add.salepartydetails.Data
-import com.ssspvtltd.quick.model.order.goodsreturn.GoodsReturnData
 import com.ssspvtltd.quick.model.progress.ProgressConfig
 import com.ssspvtltd.quick.networking.ResultWrapper
 import com.ssspvtltd.quick.ui.order.add.repositry.AddOrderRepositry
@@ -262,13 +260,13 @@ class AddOrderViewModel @Inject constructor(
     private val _attachOrderResponse = MutableLiveData<List<OrderForAttachData>?>()
     val attachOrderResponse: LiveData<List<OrderForAttachData>?> get() = _attachOrderResponse
 
-    fun getAttachOrder() = viewModelScope.launch {
+    fun getAttachOrder(salePartyId: String, pendingOrderID1: String?) = viewModelScope.launch {
         showProgressBar(
             ProgressConfig("Fetching Data\nPlease wait...")
         )
 
         try {
-            val response = getAtachOrdeSuspend()
+            val response = getAtachOrdeSuspend(salePartyId,pendingOrderID1)
 
             val data = response
 
@@ -297,8 +295,8 @@ class AddOrderViewModel @Inject constructor(
             }
         }
     }*/
-    private suspend fun getAtachOrdeSuspend(): List<OrderForAttachData> = withContext(Dispatchers.Default) {
-        return@withContext when (val response = repository.attechOrderList()) {
+    private suspend fun getAtachOrdeSuspend(salePartyId: String, pendingOrderID1: String?): List<OrderForAttachData> = withContext(Dispatchers.Default) {
+        return@withContext when (val response = repository.attechOrderList(salePartyId,pendingOrderID1)) {
             is ResultWrapper.Success -> response.value.data.orEmpty()
             is ResultWrapper.Failure -> {
                 apiErrorData(response.error)

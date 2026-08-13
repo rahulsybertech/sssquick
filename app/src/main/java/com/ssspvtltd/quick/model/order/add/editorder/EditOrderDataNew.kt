@@ -106,6 +106,10 @@ data class EditOrderDataNew(
     @Expose
     val dispatchTypeID: String?,
 
+    @SerializedName("mainOrder")
+    @Expose
+    val mainOrder: Boolean?,
+
 
 
 

@@ -156,7 +156,7 @@ interface ApiService {
     ): ApiResponse<List<PurchasePartyData>>
 
     @POST("api/OrderBook/GetPendingOrderForAttached")
-    suspend fun attachOrderApi(
+    suspend fun attachOrderApi(@Query("SalePartyID") SalePartyID: String?,@Query("OrderID") OrderID: String?,
     ): ApiResponse<List<OrderForAttachData>>
 
     @POST("api/OrderBook/GetItemList")
