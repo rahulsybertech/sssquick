@@ -255,18 +255,18 @@ class AddOrderFragment
                 binding.etNicName.isEnabled = false
                 binding.radioSubparty.isEnabled = false
                 binding.radioSubpartyRemark.isEnabled = false
-                //  binding.etSubParty.isEnabled = false
+              //  binding.etSubParty.isEnabled = false
                 binding.etDispatchType.isEnabled = true
-                //    binding.etTransport.isEnabled = false
-                //    binding.etStation.isEnabled = false
+            //    binding.etTransport.isEnabled = false
+            //    binding.etStation.isEnabled = false
                 binding.etScheme.isEnabled = false
                 binding.radioByNickName.isEnabled = false
                 binding.radioBySupplierName.isEnabled = false
                 binding.tilPurchaseParty.isEnabled = false
-                // binding.etDiscription.isEnabled = false
+               // binding.etDiscription.isEnabled = false
                 binding.etpvtMarka.isEnabled = false
-                //  binding.tvDispatchFromDate.isEnabled = false
-                //    binding.tvDispatchToDate.isEnabled = false
+              //  binding.tvDispatchFromDate.isEnabled = false
+            //    binding.tvDispatchToDate.isEnabled = false
                 binding.tvItemImage.isEnabled = false
 
             } else {
@@ -371,7 +371,6 @@ class AddOrderFragment
             binding.etPurchaseParty.text?.clear()
             binding.ivCallPurchaseParty.visibility = View.GONE
         }
-
         binding.tilDispatchType.setEndIconOnClickListener {
             //Abhinav
 
@@ -396,9 +395,9 @@ class AddOrderFragment
         binding.etDispatchType.doAfterTextChanged {
             dispatchId = ""
         }
-        /* binding.etDirectAttach.doAfterTextChanged {
+         binding.etDirectAttach.doAfterTextChanged {
             attachId = ""
-        }*/
+        }
 
         binding.etPurchasePartyNew.doAfterTextChanged {
             purchasePartyId = ""
@@ -484,48 +483,49 @@ class AddOrderFragment
             if (validate())
 
                 binding.apply {
-                    //   binding.placeOrder.isEnabled = false
+                //   binding.placeOrder.isEnabled = false
 
-                    var totalQty = 0
-                    var totalAmount = 0.0
+                var totalQty = 0
+                var totalAmount = 0.0
 
-                    addItemViewModel.packTypeDataList.forEach {
-                        if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
-                            totalAmount += (it.amount ?: "0.0").toDouble()
-                            totalQty += (it.qty ?: "0.0").toInt()
-                        }
-
+                addItemViewModel.packTypeDataList.forEach {
+                    if (it.amount.isNotNullOrBlank() && it.qty.isNotNullOrBlank()) {
+                        totalAmount += (it.amount ?: "0.0").toDouble()
+                        totalQty += (it.qty ?: "0.0").toInt()
                     }
 
-                    val hashMap: HashMap<String, RequestBody?> = HashMap()
-                    println("PLACING_ORDER 3 ${Gson().toJson(hashMap)}")
-                    hashMap["SalePartyId"] = salePartyId.toRequestBody()
-                    println("PLACING_ORDER 2 ${Gson().toJson(salePartyId.toRequestBody())}")
-                    if (subPartyId == "00000000-0000-0000-0000-000000000000") {
+                }
+
+                val hashMap: HashMap<String, RequestBody?> = HashMap()
+                println("PLACING_ORDER 3 ${Gson().toJson(hashMap)}")
+                hashMap["SalePartyId"] = salePartyId.toRequestBody()
+                println("PLACING_ORDER 2 ${Gson().toJson(salePartyId.toRequestBody())}")
+                if (subPartyId == "00000000-0000-0000-0000-000000000000") {
+                    hashMap["SubPartyId"] = "".toRequestBody()
+                } else {
+
+                    if(subPartyId.equals("null")){
                         hashMap["SubPartyId"] = "".toRequestBody()
-                    } else {
-
-                        if (subPartyId.equals("null")) {
-                            hashMap["SubPartyId"] = "".toRequestBody()
-                        } else {
-                            hashMap["SubPartyId"] = subPartyId.toRequestBody()
-                        }
-
+                    }
+                    else{
+                        hashMap["SubPartyId"] = subPartyId.toRequestBody()
                     }
 
-                    if (isSubPartyRemark) {
+                }
+
+                    if(isSubPartyRemark){
                         hashMap["SubPartyId"] = "".toRequestBody()
                         hashMap["TransportId"] = transportId.toRequestBody()
                         hashMap["BstationId"] = bookingStationId.toRequestBody()
-                    } else {
+                    }else{
                         hashMap["TransportId"] = transportId.toRequestBody()
                         hashMap["BstationId"] = bookingStationId.toRequestBody()
                     }
 
-                    if (attachId.isNotEmpty()) {
+                    if(attachId.isNotEmpty()){
                         hashMap["AttachedOrderID"] = attachId.toRequestBody()
                         hashMap["AttachedOrderNo"] = etDirectAttach.text.toString().toRequestBody()
-                    } else {
+                    }else{
                         hashMap["AttachedOrderID"] = "".toRequestBody()
                         hashMap["AttachedOrderNo"] = "".toRequestBody()
                     }
@@ -545,42 +545,42 @@ class AddOrderFragment
                         hashMap["PvtMarka"] = etpvtMarka.text.toString().toRequestBody()
                     }
 
-                    hashMap["TotalQty"] = "0".toRequestBody()
-                    hashMap["TotalAmt"] = "0".toRequestBody()
-                    hashMap["OrderTypeName"] = "TRADING".toRequestBody()
-                    hashMap["OrderStatus"] = selectedStatus.toRequestBody()
-                    hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
+                hashMap["TotalQty"] = "0".toRequestBody()
+                hashMap["TotalAmt"] = "0".toRequestBody()
+                hashMap["OrderTypeName"] = "TRADING".toRequestBody()
+                hashMap["OrderStatus"] = selectedStatus.toRequestBody()
+                hashMap["TraceIdentifier"] = traceIdentifier?.toRequestBody()
 
-                    println("PLACING_ORDER 0 $selectedStatus)}")
-                    if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
-                        (editData?.id ?: "").toRequestBody()
+                println("PLACING_ORDER 0 $selectedStatus)}")
+                if (viewModel.pendingOrderID.isNotNullOrBlank()) hashMap["id"] =
+                    (editData?.id ?: "").toRequestBody()
 
 
-                    Log.e("hashmap", hashMap.toString())
+                Log.e("hashmap",hashMap.toString())
                     println("PLACING_ORDER 1 ${Gson().toJson(hashMap)}")
-                    viewModel.placeOrder(hashMap)
-                    binding.placeOrder.isEnabled = false
-                }
+               viewModel.placeOrder(hashMap)
+                binding.placeOrder.isEnabled=false
+            }
         }
         binding.tvAddItem.setOnClickListener {
-            if (isNichNameSelect == false) {
+            if(isNichNameSelect == false){
                 if (binding.etPurchaseParty.text.isNullOrBlank()) {
                     binding.etPurchaseParty.requestFocus()
                     binding.tilPurchaseParty.isErrorEnabled = true
                     binding.tilPurchaseParty.setError("You need to select purchase party")
-                } else {
+                }  else{
                     openAddBottomSheet()
                 }
-            } else {
+            }else{
                 if (binding.etPurchasePartyNew.text.isNullOrBlank()) {
                     binding.etPurchasePartyNew.requestFocus()
                     binding.tilPurchasePartyNew.isErrorEnabled = true
                     binding.tilPurchasePartyNew.setError("You need to select purchase party")
-                } else {
+                }else{
                     openAddBottomSheet()
                 }
             }
-            /*  if (binding.etPurchaseParty.text.isNullOrBlank()) {
+          /*  if (binding.etPurchaseParty.text.isNullOrBlank()) {
                 binding.etPurchaseParty.requestFocus()
                 binding.tilPurchaseParty.isErrorEnabled = true
                 binding.tilPurchaseParty.setError("You need to select purchase party")
@@ -597,16 +597,15 @@ class AddOrderFragment
         binding.rgStartype.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.star1 -> {
-                    binding.tilPVTMarka.visibility = View.GONE
+                    binding.tilPVTMarka.visibility=View.GONE
                     pvtMarka = "*"
-                    isPvtMarka = false
+                    isPvtMarka=false
 
                 }
-
                 R.id.star2 -> pvtMarka = "**"
-                R.id.star3 -> {
-                    isPvtMarka = true
-                    binding.tilPVTMarka.visibility = View.VISIBLE
+                R.id.star3 ->{
+                    isPvtMarka=true
+                    binding.tilPVTMarka.visibility=View.VISIBLE
                     pvtMarka = "***"
 
                 }
@@ -2812,6 +2811,7 @@ class AddOrderFragment
         )
 
         viewModel.attachOrderResponse.observe(viewLifecycleOwner) {
+
 
             val originalList = it.orEmpty()
 

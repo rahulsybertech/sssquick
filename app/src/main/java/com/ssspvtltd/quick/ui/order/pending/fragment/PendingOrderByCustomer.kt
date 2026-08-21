@@ -59,22 +59,11 @@ class PendingOrderByCustomer
     }
     private fun callPendingOrderApi() {
         lifecycleScope.launch {
-            // Launch both API calls in parallel
 
-          /*  val pendingOrderJob = launch {
-                val filterRequest = FilterRequest(null, null, null, null, true, "1", "100")
-                viewModel.fetchOrdersPage(1, mutableListOf())
-
-            }*/
 
             val customerJob = launch {
                 viewModel.getCustomer(true)
             }
-            //   launch {     viewModel.getCount() }
-
-        //    viewModel.fetchCountInBackground()
-            // Optional: wait for both
-         //   pendingOrderJob.join()
             customerJob.join()
         }
     }

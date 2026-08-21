@@ -22,6 +22,7 @@ data class PendingOrderItem(
     val subPartyName: String?,
     val supplierMob: String?,
     val supplierName: String?,
+    val schemeName: String?,
     val status: String?,
     val isAdjustedStatus: Boolean?,
     val remark: String?,

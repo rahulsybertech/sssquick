@@ -3,6 +3,7 @@ package com.ssspvtltd.quick.ui.order.pending.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.databinding.ImageListAdapterBinding
 import com.ssspvtltd.quick.model.order.pending.PendingOrderItem
 
@@ -24,7 +25,11 @@ class PendingOrderImageListAdapter(private val imgs: List<PendingOrderItem.Image
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val binding = holder.binding
-
+        if((imgs?.get(position)?.url ?: "").contains(".pdf")){
+            binding.image.setAnimation(R.raw.pdf_ani)
+        } else {
+            binding.image.setImageResource(R.drawable.ic_image1)
+        }
         binding.llImg.setOnClickListener {
             mCallBack( (imgs?.get(position)?.url ?: "").toString())
         }

@@ -1,5 +1,7 @@
 package com.ssspvtltd.quick.ui.order.hold.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.ssspvtltd.quick.base.recycler.data.BaseWidget
@@ -25,7 +27,14 @@ class HoldOrderViewModel @Inject constructor(
 
     private var holdOrderList = listOf<HoldOrderData>()
     var searchValue = ""
-    fun getHoldOrder() = viewModelScope.launch {
+
+    var totalAmount = 0.0
+        private set
+    private var isHoldOrderLoaded = false
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+    fun getHoldOrder1() = viewModelScope.launch {
         showProgressBar(ProgressConfig("Fetching Data\nPlease wait..."))
 
         val req = HoldOrderRequest(null,null,null,null, null)
@@ -38,29 +47,120 @@ class HoldOrderViewModel @Inject constructor(
             }
         }
     }
+    fun getHoldOrder(forceRefresh: Boolean = false) =
+        viewModelScope.launch {
 
-    fun prepareFilteredList() = viewModelScope.launch(Dispatchers.Default) {
-        val list = mutableListOf<BaseWidget>()
-        var count = 0
-        holdOrderList.forEach {
-            val orderItemList =
-                if (searchValue.isBlank()) it.orderItemList
-                else it.orderItemList?.filter {
-                    it.orderNo?.contains(searchValue, true) == true ||
-                            it.salePartyName?.contains(searchValue, true) == true ||
-                            it.supplierName?.contains(searchValue, true) == true
+            if (isHoldOrderLoaded && !forceRefresh) {
+                prepareFilteredList()
+                return@launch
+            }
+
+            _isLoading.value = true
+
+            try {
+
+                val req = HoldOrderRequest(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+                )
+
+                when (val response =
+                    repository.holdOrderList(req)) {
+
+                    is ResultWrapper.Failure -> {
+                        apiErrorData(response.error)
+                    }
+
+                    is ResultWrapper.Success -> {
+
+                        holdOrderList =
+                            response.value.data.orEmpty()
+
+                        isHoldOrderLoaded = true
+
+                        prepareFilteredList()
+                    }
                 }
-            if (orderItemList?.isNotEmpty() == true) {
-                list.add(TitleSubtitleWrapper(id = it.orderDate!!, title = it.orderDate))
-                list.addAll(orderItemList)
-                count += orderItemList.size
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+
+            } finally {
+
+                _isLoading.value = false
             }
         }
-        clearWidgetList()
-        addItemToWidgetList(list)
-        withContext(Dispatchers.Main) {
-            listDataChanged()
-            hideProgressBar()
+    var totalOrderCount: String = ""
+        private set
+    suspend fun prepareFilteredList() {
+
+        val result = withContext(Dispatchers.Default) {
+
+            val list = mutableListOf<BaseWidget>()
+
+            var total = 0.0
+            var orderCount = 0
+
+            holdOrderList.forEach { order ->
+
+                val orderItemList =
+                    if (searchValue.isBlank()) {
+                        order.orderItemList
+                    } else {
+                        order.orderItemList?.filter { item ->
+
+                            item.orderNo?.contains(
+                                searchValue,
+                                ignoreCase = true
+                            ) == true ||
+
+                                    item.salePartyName?.contains(
+                                        searchValue,
+                                        ignoreCase = true
+                                    ) == true ||
+
+                                    item.supplierName?.contains(
+                                        searchValue,
+                                        ignoreCase = true
+                                    ) == true
+                        }
+                    }
+
+                if (!orderItemList.isNullOrEmpty()) {
+
+                    // Actual order count
+                    orderCount += orderItemList.size
+
+                    // Total amount
+                    orderItemList.forEach { item ->
+                        total += item.amount ?: 0.0
+                    }
+
+                    // Date header
+                    list.add(
+                        TitleSubtitleWrapper(
+                            id = order.orderDate.orEmpty(),
+                            title = order.orderDate.orEmpty()
+                        )
+                    )
+
+                    // Orders
+                    list.addAll(orderItemList)
+                }
+            }
+
+            Triple(list, total, orderCount)
         }
+
+        totalAmount = result.second
+        totalOrderCount = "${result.third} records"
+
+        clearWidgetList()
+        addItemToWidgetList(result.first)
+
+        listDataChanged()
     }
 }

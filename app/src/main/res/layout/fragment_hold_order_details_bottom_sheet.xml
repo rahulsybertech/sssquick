@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Order No : "
+            android:text="Order No   : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
             app:layout_constraintTop_toBottomOf="@id/testll" />
@@ -145,7 +145,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Supplier     : "
+            android:text="Supplier    : "
             android:textSize="12sp"
              />
 
@@ -207,6 +207,30 @@
             app:layout_constraintTop_toBottomOf="@id/tvSubParty"
             tools:text="Pending" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/scheme"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:text="Scheme     : "
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintTop_toBottomOf="@+id/lvlStatus" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvScheme"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/noto_sans_light"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
+            app:layout_constraintTop_toBottomOf="@id/tvStatus"
+            tools:text="Pending" />
+
+
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlImage"
@@ -214,10 +238,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Docs         : "
+            android:text="Docs          : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@+id/lvlStatus" />
+            app:layout_constraintTop_toBottomOf="@+id/scheme" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/llImg"
@@ -227,12 +251,12 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvStatus">
+            app:layout_constraintTop_toBottomOf="@id/tvScheme">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvImg"
-                android:layout_width="24dp"
-                android:layout_height="24dp" />
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
 
             <!--3700B3-->
 

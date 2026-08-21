@@ -19,6 +19,7 @@ data class HoldOrderItem(
     val salePartyEmail: String?,
     val salePartyMob: String?,
     val salePartyName: String,
+    val schemeName: String,
     val subPartyName: String?,
     val supplierMob: String?,
     val supplierName: String?,

@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.order.pending.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -35,6 +36,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.github.chrisbanes.photoview.PhotoView
 import com.ssspvtltd.quick.BuildConfig
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseBottomDialog
@@ -49,6 +51,7 @@ import com.ssspvtltd.quick.ui.AddOrderActctivity
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderImageListAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderItemAdapter
 import com.ssspvtltd.quick.ui.order.pending.adapter.PendingOrderPDFListAdapter
+import com.ssspvtltd.quick.ui.tour.model.ImageItem
 import com.ssspvtltd.quick.utils.extension.getParcelableExt
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.isNotNullOrBlank
@@ -197,7 +200,79 @@ class PendingOrderCustomerDetailsBottomSheetFragment : BaseBottomDialog<Fragment
     }
 
     private fun imageCallBack(url: String) {
+       // showZoomDialog(context,mobile,type)
         showImagePreviewDialog(requireContext(), url)
+    }
+    private fun showZoomDialog(
+        context: Context,
+        imageUrl: ImageItem,
+        type: String
+    ) {
+
+        if (type=="image not found") {
+
+            Toast.makeText(
+                context,
+                "Image not available",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }else{
+
+            val dialog = Dialog(
+                context,
+                android.R.style.Theme_Black_NoTitleBar_Fullscreen
+            )
+
+            dialog.setContentView(com.ssspvtltd.quick.R.layout.dialog_image_zoom)
+
+            val photoView =
+                dialog.findViewById<PhotoView>(com.ssspvtltd.quick.R.id.photoView)
+
+            val btnClose =
+                dialog.findViewById<ImageView>(com.ssspvtltd.quick.R.id.btnClose)
+
+            try {
+
+                if (type == "url") {
+
+                    Glide.with(context)
+                        .load(imageUrl.imageUrl)
+                        .placeholder(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .error(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .into(photoView)
+
+                } else {
+
+
+
+                    Glide.with(context)
+                        .load(imageUrl.bitmap)
+                        .placeholder(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .error(com.ssspvtltd.quick.R.drawable.empty_photo)
+                        .into(photoView)
+                }
+
+            }
+            catch (e: Exception) {
+
+                e.printStackTrace()
+
+                Toast.makeText(
+                    context,
+                    "Failed to load image",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+            btnClose.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.show()
+        }
+
     }
 
     private fun showImagePreviewDialog(context: Context, imageUrl: String) {

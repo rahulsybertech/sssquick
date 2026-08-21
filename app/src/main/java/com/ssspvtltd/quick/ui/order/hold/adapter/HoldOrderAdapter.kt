@@ -10,6 +10,7 @@ import com.ssspvtltd.quick.base.recycler.data.TitleSubtitleWrapper
 import com.ssspvtltd.quick.databinding.ItemHoldOrderBinding
 import com.ssspvtltd.quick.databinding.ItemHoldOrderHeaderBinding
 import com.ssspvtltd.quick.model.order.hold.HoldOrderItem
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.DateTimeFormat
 import com.ssspvtltd.quick.utils.DateTimeUtils
 
@@ -61,9 +62,11 @@ class HoldOrderHeaderViewHolder(private val binding: ItemHoldOrderHeaderBinding)
     BaseViewHolder(binding) {
     fun bind(item: TitleSubtitleWrapper) = with(binding) {
         tvOrderDate.text = DateTimeUtils.formatDate(
-            item.title, DateTimeFormat.DATE_TIME_FORMAT1,
+            item.title,
+            DateTimeFormat.DATE_TIME_FORMAT1,
             DateTimeFormat.DATE_TIME_FORMAT3
         )
+
     }
 }
 
@@ -76,6 +79,6 @@ class HoldOrderViewHolder(private val binding: ItemHoldOrderBinding) :
         tvSubParty.text = "Qty: " + (item.qty ?: "").toString()
         tvItemName.text = item.type ?: "--"
         tvOrderStatus.text = item.status ?: "--"
-        tvOrderAmount.text = getString(R.string.amount_format,item.amount)
+        tvOrderAmount.text = getString(R.string.amount_format,CommaSparateAmount.formatIndianAmount(item.amount.toString()))
     }
 }

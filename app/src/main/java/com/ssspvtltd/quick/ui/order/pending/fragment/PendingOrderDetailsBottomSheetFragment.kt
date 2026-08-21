@@ -2,6 +2,7 @@ package com.ssspvtltd.quick.ui.order.pending.fragment
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -12,8 +13,6 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.os.StrictMode
-import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +34,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.ssspvtltd.quick.BuildConfig
+import com.github.chrisbanes.photoview.PhotoView
 import com.ssspvtltd.quick.R
 import com.ssspvtltd.quick.base.BaseBottomDialog
 import com.ssspvtltd.quick.base.BaseViewModel
@@ -140,6 +139,20 @@ class PendingOrderDetailsBottomSheetFragment :
         tvStatus.text = pendingOrderItem?.status ?: "--"
         tvRemark.text = pendingOrderItem?.remark ?: "--"
         tvSaleNo.text = pendingOrderItem?.orderNo ?: ""
+        val schemeName = pendingOrderItem?.schemeName
+
+        if (schemeName.isNullOrBlank()) {
+
+            tvScheme.visibility = View.GONE
+            scheme.visibility = View.GONE
+
+        } else {
+
+            tvScheme.visibility = View.VISIBLE
+            scheme.visibility = View.VISIBLE
+
+            tvScheme.text = schemeName
+        }
         lifecycleScope.launch {
             tvManufactureData.text = viewModel.prefHelper.getUserName() ?: ""
         }
@@ -195,7 +208,13 @@ class PendingOrderDetailsBottomSheetFragment :
     }
 
     private fun imageCallBack(url: String) {
-        showImagePreviewDialog(requireContext(), url)
+
+        showZoomDialog(
+            requireContext(),
+            url,
+            "image"
+        )
+      //  showImagePreviewDialog(requireContext(), url)
     }
 
     private fun showImagePreviewDialog(
@@ -414,6 +433,99 @@ class PendingOrderDetailsBottomSheetFragment :
         }
     }
 
+
+    private fun showZoomDialog(
+        context: Context,
+        imageUrl: String,
+        type: String
+    ) {
+
+        val url = imageUrl.trim()
+
+        if (type.equals("image not found", ignoreCase = true) ||
+            url.isBlank()
+        ) {
+            Toast.makeText(
+                context,
+                "Image not available",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            return
+        }
+
+        Log.d("IMAGE_DEBUG", "URL=[$url]")
+
+        val dialog = Dialog(
+            context,
+            android.R.style.Theme_Black_NoTitleBar_Fullscreen
+        )
+
+        dialog.setContentView(
+            R.layout.dialog_image_zoom
+        )
+
+        val photoView =
+            dialog.findViewById<PhotoView>(R.id.photoView)
+
+        val btnClose =
+            dialog.findViewById<ImageView>(R.id.btnClose)
+
+        btnClose.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        Glide.with(context)
+            .load(url)
+            .placeholder(R.drawable.empty_photo)
+            .error(R.drawable.empty_photo)
+            .listener(object : RequestListener<Drawable> {
+
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    Log.e(
+                        "IMAGE_DEBUG",
+                        "IMAGE LOAD FAILED"
+                    )
+
+                    Log.e(
+                        "IMAGE_DEBUG",
+                        "URL=[$url]"
+                    )
+
+                    Log.e(
+                        "IMAGE_DEBUG",
+                        "ERROR=${e?.rootCauses}"
+                    )
+
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable,
+                    model: Any,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    Log.d(
+                        "IMAGE_DEBUG",
+                        "IMAGE LOAD SUCCESS"
+                    )
+
+                    return false
+                }
+            })
+            .into(photoView)
+
+        dialog.show()
+    }
 
     // @RequiresApi(Build.VERSION_CODES.R)
     // override fun onRequestPermissionsResult(

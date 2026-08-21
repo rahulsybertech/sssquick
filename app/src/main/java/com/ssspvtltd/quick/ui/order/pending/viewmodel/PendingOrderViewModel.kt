@@ -136,6 +136,7 @@ class PendingOrderViewModel @Inject constructor(
 
 
 
+
     private val _totalAmountLiveData = MutableLiveData<Double>()
     val totalAmountLiveData: LiveData<Double> get() = _totalAmountLiveData
 
@@ -401,13 +402,21 @@ class PendingOrderViewModel @Inject constructor(
         totalCount: Int,
         accumulatedList: MutableList<PendingOrderData>
     ) {
+
         val fullPages = totalCount / itemsPerCall
         val remainder = totalCount % itemsPerCall
         val maxPage = if (remainder == 0) fullPages else fullPages + 1
 
         for (page in startPage..maxPage) {
+
             val isLastPage = page == maxPage
-            val pageSize = if (isLastPage && remainder != 0) remainder else itemsPerCall
+
+            val pageSize =
+                if (isLastPage && remainder != 0) {
+                    remainder
+                } else {
+                    itemsPerCall
+                }
 
             val request = FilterRequest(
                 buyerIDs = null,
@@ -420,22 +429,41 @@ class PendingOrderViewModel @Inject constructor(
             )
 
             when (val response = repository.pendingOrderList(request)) {
+
                 is ResultWrapper.Failure -> {
                     apiErrorData(response.error)
                     return
                 }
 
                 is ResultWrapper.Success -> {
-                    accumulatedList.addAll(response.value.data.orEmpty())
+
+                    val newData = response.value.data.orEmpty()
+
+                    // 🔥 Add current page data
+                    accumulatedList.addAll(newData)
+
+                    // 🔥 Update list immediately
+                    pendingOrderList = accumulatedList.toList()
+
+                    Log.d(
+                        "PENDING_ORDER",
+                        "Page $page added ${newData.size} items, total = ${pendingOrderList.size}"
+                    )
+
+                    // 🔥 Refresh UI after every page
+                    prepareFilteredList()
                 }
             }
         }
 
-        // 🔥 AFTER ALL PAGES FINISHED
-        pendingOrderList = accumulatedList
+        // All pages completed
         isAllPagesFetched = true
-        prepareFilteredList() // ✅ called ONCE
         _isAmountLoading.postValue(false)
+
+        Log.d(
+            "PENDING_ORDER",
+            "ALL PAGES COMPLETED = ${pendingOrderList.size}"
+        )
     }
 
     fun prepareFilteredList() = viewModelScope.launch(Dispatchers.Default) {

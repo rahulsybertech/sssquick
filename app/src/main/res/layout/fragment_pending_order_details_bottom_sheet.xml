@@ -86,7 +86,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Order No : "
+            android:text="Order No   : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
             app:layout_constraintTop_toBottomOf="@id/testll"  />
@@ -145,7 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/noto_sans_light"
-                android:text="Supplier     : "
+                android:text="Supplier    : "
                 android:textSize="12sp" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -205,68 +205,90 @@
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvSubParty"
             tools:text="Pending" />
-
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/lvlDoc"
+            android:id="@+id/scheme"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Doc         : "
+            android:text="Scheme     : "
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
             app:layout_constraintTop_toBottomOf="@+id/lvlStatus" />
 
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/llDoc"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
-            app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/tvStatus">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPdfDoc"
-                android:layout_width="25dp"
-                android:layout_height="25dp"/>
-
-            <ImageView
-                android:id="@+id/regeneratedPdf"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="6dp"
-                android:src="@drawable/hold_pending_pdf_refresh"
-                app:tint="@color/black" />
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/lvlImage"
+            android:id="@+id/tvScheme"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            android:text="Images        : "
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@+id/lvlDoc" />
-
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:id="@+id/llImg"
-            android:layout_width="0dp"
-            android:layout_height="20dp"
-            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
-            app:layout_constraintTop_toBottomOf="@id/llDoc">
+            app:layout_constraintTop_toBottomOf="@id/tvStatus"
+            tools:text="Pending" />
 
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/llDocumentsImages"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="@id/guidelineStart"
+            app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
+            app:layout_constraintTop_toBottomOf="@id/scheme">
+
+            <!-- Doc Label -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/lvlDoc"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/noto_sans_light"
+                android:text="Doc :"
+                android:textSize="12sp" />
+
+            <!-- PDF RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvPdfDoc"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:overScrollMode="never" />
+
+            <!-- Refresh -->
+            <ImageView
+                android:id="@+id/regeneratedPdf"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="7dp"
+                android:layout_marginStart="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/hold_pending_pdf_refresh"
+                app:tint="@color/black" />
+
+            <!-- Space -->
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent" />
+
+            <!-- Images Label -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/lvlImage"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/noto_sans_light"
+                android:text="Images :"
+                android:textSize="12sp" />
+
+            <!-- Images RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvImg"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
+                android:layout_width="0dp"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:overScrollMode="never" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -289,7 +311,7 @@
             app:cardElevation="1dp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toStartOf="@id/guidelineStart"
-            app:layout_constraintTop_toBottomOf="@id/lvlImage">
+            app:layout_constraintTop_toBottomOf="@id/llDocumentsImages">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"

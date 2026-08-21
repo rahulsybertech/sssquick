@@ -11,6 +11,7 @@ import com.ssspvtltd.quick.databinding.FragmentHoldOrderBinding
 import com.ssspvtltd.quick.ui.order.hold.holdinterface.VisibilityListener
 import com.ssspvtltd.quick.ui.order.hold.adapter.HoldOrderAdapter
 import com.ssspvtltd.quick.ui.order.hold.viewmodel.HoldOrderViewModel
+import com.ssspvtltd.quick.utils.CommaSparateAmount
 import com.ssspvtltd.quick.utils.extension.getViewModel
 import com.ssspvtltd.quick.utils.extension.textChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,39 +34,95 @@ class HoldOrderFragment : BaseFragment<FragmentHoldOrderBinding, HoldOrderViewMo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.getHoldOrder()
-        registerObserver()
+    /*    viewModel.getHoldOrder()
+        registerObserver()*/
 
     }
 
     override fun onResume() {
         super.onResume()
-        viewModel.getHoldOrder()
+      //  viewModel.getHoldOrder()
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(
+        view: View,
+        savedInstanceState: Bundle?
+    ) {
         super.onViewCreated(view, savedInstanceState)
-        binding.toolbar.apply {
-            setTitle("Hold Order")
-            setNavigationClickListener { activity?.onBackPressedDispatcher?.onBackPressed() }
-        }
 
 
+        // 1. Setup RecyclerView
         initViews()
+
+        // 2. Setup observers
+        registerObserver()
+
+        // 3. Setup listeners
         registerListener()
+
+        // 4. API only once after View is ready
+        viewModel.getHoldOrder(
+            forceRefresh = true
+        )
     }
+
 
     private fun registerObserver() {
-        viewModel.isListAvailable.observe(this) {
-            if (viewModel.widgetList.isEmpty()){
-                binding.noData.visibility = View.VISIBLE
-                binding.recyclerView.visibility=View.GONE
-            }else{
-                binding.noData.visibility = View.GONE
-                binding.recyclerView.visibility=View.VISIBLE
-            }
-            mAdapter.submitList(viewModel.widgetList)
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+
+            binding.customProgressLayout.visibility =
+                if (loading) View.VISIBLE else View.GONE
         }
+
+
+        // List
+        viewModel.isListAvailable.observe(
+            viewLifecycleOwner
+        ) {
+
+            val list =
+                viewModel.widgetList.toList()
+
+            if (list.isEmpty()) {
+
+                binding.noData.visibility = View.VISIBLE
+                binding.recyclerView.visibility = View.GONE
+                binding.searchContainer.visibility = View.GONE
+                binding.tvTotalAmount.visibility = View.GONE
+
+                binding.tvCount.text = "0"
+
+            } else {
+
+                binding.tvCount.text =
+                    viewModel.totalOrderCount.toString()
+
+                binding.noData.visibility = View.GONE
+                binding.recyclerView.visibility = View.VISIBLE
+                binding.searchContainer.visibility = View.VISIBLE
+                binding.tvTotalAmount.visibility = View.VISIBLE
+            }
+
+
+            mAdapter.submitList(list)
+
+
+            // Total Amount
+            binding.tvTotalAmount.text =
+                "Total Amt  ₹ ${
+                    CommaSparateAmount.formatIndianAmount(
+                        viewModel.totalAmount
+                    )
+                }"
+        }
+    }
+    private fun showCustomProgress() {
+        binding.customProgressLayout.visibility = View.VISIBLE
+    }
+
+    private fun hideCustomProgress() {
+        binding.customProgressLayout.visibility = View.GONE
     }
 
     private fun initViews() = with(binding) {
@@ -87,7 +144,7 @@ class HoldOrderFragment : BaseFragment<FragmentHoldOrderBinding, HoldOrderViewMo
 //            holdOrderDetailsBottomSheetFragment.newInstance(it)
             holdOrderDetailsBottomSheetFragment!!.show(childFragmentManager, HoldOrderDetailsBottomSheetFragment::class.simpleName)
         }
-        swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
+     //   swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.deep_orange_800))
         swipeRefreshLayout.setOnRefreshListener {
             viewModel.getHoldOrder()
 
@@ -96,6 +153,7 @@ class HoldOrderFragment : BaseFragment<FragmentHoldOrderBinding, HoldOrderViewMo
         }
 
     }
+
 
     override fun onVisibilityChanged(isVisible: Boolean) {
         println("ParentFragment_BottomSheet_is_visible: $isVisible")
