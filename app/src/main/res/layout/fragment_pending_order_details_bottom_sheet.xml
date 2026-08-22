@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="OMM HOSIERY : MUZAFFARPUR"
+            tools:text=""
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
-            tools:text="OMM HOSIERY : MUZAFFARPUR"
+            tools:text=""
             android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -156,7 +156,7 @@
                 android:textColor="@color/black"
                 android:layout_marginStart="10dp"
                 android:textSize="12sp"
-                tools:text="OMM HOSIERY : MUZAFFARPUR" />
+                tools:text="" />
 
         </LinearLayout>
 
@@ -178,10 +178,11 @@
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
             android:textSize="12sp"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/llSupplier"
-            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+            tools:text="" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlStatus"
@@ -200,11 +201,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvSubParty"
-            tools:text="Pending" />
+            tools:text="" />
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/scheme"
             android:layout_width="0dp"
@@ -222,11 +224,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvStatus"
-            tools:text="Pending" />
+            tools:text="" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:id="@+id/llDocumentsImages"

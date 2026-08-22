@@ -122,10 +122,9 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
             dismissAllowingStateLoss()
         }
         tvSaleParty.text = holdOrderItem.salePartyName
-        if (holdOrderItem.schemeName.isBlank()) {
+        if (holdOrderItem.schemeName.isNullOrBlank()) {
             tvScheme.visibility = View.GONE
             scheme.visibility = View.GONE
-
         } else {
             tvScheme.visibility = View.VISIBLE
             scheme.visibility = View.VISIBLE
@@ -562,7 +561,7 @@ class HoldOrderDetailsBottomSheetFragment(private var holdOrderItem: HoldOrderIt
             // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
+          //  Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
             return
         }
         println("PDF_FILE_PATH $pdfFile")

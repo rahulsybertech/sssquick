@@ -100,11 +100,14 @@ class AddOrderFragment
     private var pvtMarka: String = "*"
     private var isPvtMarka: Boolean = false
     private var isRgSubparty: Boolean = true
+    var isAttachSelected = false
+
     private var bookingStationId: String = ""
     private var transportId: String = ""
     private var dataCode: String = ""
     private var dispatchId: String = ""
     private var attachId: String = ""
+
     private var transportIdNew: String = ""
     private var schemeId: String = ""
     private var selectedStatus: String = "PENDING"
@@ -392,13 +395,20 @@ class AddOrderFragment
         binding.etTransport.doAfterTextChanged {
             transportId = ""
         }
-        binding.etDispatchType.doAfterTextChanged {
-            dispatchId = ""
-        }
-         binding.etDirectAttach.doAfterTextChanged {
-            attachId = ""
-        }
 
+        binding.etDirectAttach.doAfterTextChanged {
+
+            if (isAttachSelected) {
+                // This text change came from selecting dropdown item
+                isAttachSelected = false
+                return@doAfterTextChanged
+            }
+
+            // User is typing/searching
+            attachId = ""
+
+            Log.d("DIRECT_ATTACH", "TYPING → attachId cleared")
+        }
         binding.etPurchasePartyNew.doAfterTextChanged {
             purchasePartyId = ""
         }
@@ -1363,7 +1373,7 @@ class AddOrderFragment
                    viewModel.placeOrder(hashMap)
 
                 }
-                binding.placeOrder.isEnabled=true
+                binding.placeOrder.isEnabled=false
                 dialog.dismissWithAnimation()
             }
         }
@@ -1535,9 +1545,11 @@ class AddOrderFragment
                     apiResponseDispatchType()
                     binding.etDispatchType.setText(it?.dispatchType )
                     dispatchId= it?.dispatchTypeID.toString()
+                    println("DAta code ${it?.dataCode}")
 
                     if (it?.dataCode.equals("DIR-ATTACH", ignoreCase = true)) {
                         apiResponseOrderForAttach()
+                        dataCode= it?.dataCode.toString()
                         binding.tilDirectAttach.visibility= View.VISIBLE
                         binding.llDirectAttach.visibility= View.VISIBLE
                         binding.etDirectAttach.isEnabled = true
@@ -2596,7 +2608,7 @@ class AddOrderFragment
         }
         else if (
             dataCode.equals("DIR-ATTACH", ignoreCase = true) &&
-            etDirectAttach.text.toString().trim().isEmpty()
+            attachId.isEmpty()
         ) {
             etDirectAttach.requestFocus()
             tilDirectAttach.isErrorEnabled = true
@@ -2788,6 +2800,7 @@ class AddOrderFragment
                     apiResponseOrderForAttach()
                 }else{
                     binding.etDirectAttach.text.clear()
+                    showToast("datacode")
                     dataCode=""
                     attachId=""
                     binding.tilDirectAttach.visibility=View.GONE
@@ -2846,7 +2859,7 @@ class AddOrderFragment
                 }
 
                 setOnItemClickListener { _, _, position, _ ->
-
+                    isAttachSelected = true
                     val schemeItem = attachAdapter.getItem(position)
 
                     attachId = schemeItem.id.orEmpty()

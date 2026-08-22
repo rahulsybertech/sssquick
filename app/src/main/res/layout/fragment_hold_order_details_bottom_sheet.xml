@@ -102,7 +102,7 @@
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/testll"
-            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+            tools:text="" />
 
 
         <com.google.android.material.textview.MaterialTextView
@@ -127,7 +127,7 @@
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvSaleNo"
-            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+            tools:text="" />
 
         <LinearLayout
             android:id="@+id/llSuplier"
@@ -158,7 +158,7 @@
             android:fontFamily="@font/noto_sans_light"
             android:textColor="@color/black"
             android:textSize="12sp"
-            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+            tools:text="" />
         </LinearLayout>
 
         <com.google.android.material.textview.MaterialTextView
@@ -178,11 +178,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
+            android:textColor="@color/black"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/llSuplier"
-            tools:text="OMM HOSIERY : MUZAFFARPUR" />
+            tools:text="" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/lvlStatus"
@@ -199,13 +200,14 @@
             android:id="@+id/tvStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:textColor="@color/black"
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvSubParty"
-            tools:text="Pending" />
+            tools:text="" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/scheme"
@@ -225,10 +227,11 @@
             android:layout_marginTop="5dp"
             android:fontFamily="@font/noto_sans_light"
             android:textSize="12sp"
+            android:textColor="@color/black"
             app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
             app:layout_constraintStart_toEndOf="@+id/lvlBarrier"
             app:layout_constraintTop_toBottomOf="@id/tvStatus"
-            tools:text="Pending" />
+            tools:text="" />
 
 
 
@@ -263,8 +266,9 @@
             <ImageView
                 android:id="@+id/regeneratedPdf"
                 android:layout_width="25dp"
+                android:layout_gravity="center_vertical"
                 android:layout_height="25dp"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="10dp"
                 android:src="@drawable/hold_pending_pdf_refresh"
                 app:tint="@color/black" />
 

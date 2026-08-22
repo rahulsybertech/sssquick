@@ -19,8 +19,8 @@ android {
         applicationId "com.ssspvtltd.quick"
         minSdk 26
         targetSdk 36
-        versionCode = 95
-        versionName = "3.1.51"
+        versionCode = 97
+        versionName = "3.1.53"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -42,7 +42,7 @@ android {
             storeFile file('debug.keystore')
             storePassword 'android'
             keyAlias 'androiddebugkey'
-        /*    keyAlias 'key0'*/
+            /*    keyAlias 'key0'*/
             keyPassword 'android'
         }
         release {

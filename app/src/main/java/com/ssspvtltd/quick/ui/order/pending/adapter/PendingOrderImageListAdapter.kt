@@ -28,7 +28,7 @@ class PendingOrderImageListAdapter(private val imgs: List<PendingOrderItem.Image
         if((imgs?.get(position)?.url ?: "").contains(".pdf")){
             binding.image.setAnimation(R.raw.pdf_ani)
         } else {
-            binding.image.setImageResource(R.drawable.ic_image1)
+            binding.image.setImageResource(R.drawable.apple)
         }
         binding.llImg.setOnClickListener {
             mCallBack( (imgs?.get(position)?.url ?: "").toString())

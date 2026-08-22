@@ -521,7 +521,7 @@ class PendingOrderCustomerDetailsBottomSheetFragment : BaseBottomDialog<Fragment
             // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
+       //     Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
             return
         }
         println("PDF_FILE_PATH $pdfFile")

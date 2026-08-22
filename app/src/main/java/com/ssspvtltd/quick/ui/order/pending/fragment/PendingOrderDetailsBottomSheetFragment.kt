@@ -88,8 +88,8 @@ class PendingOrderDetailsBottomSheetFragment :
             pendingOrderItem?.pdfPathList, ::showPdfPreviewDialog
         )
 
-        if (pendingOrderItem?.pdfPathList != null) {
-            pdfUrl = pendingOrderItem?.pdfPathList?.get(0)?.pdfUrl.toString()
+        if (!pendingOrderItem?.pdfPathList.isNullOrEmpty()) {
+            pdfUrl = pendingOrderItem?.pdfPathList?.get(0)?.pdfUrl.orEmpty()
             println("GET_MY_PDF 2 $pdfUrl")
         }
         mAdapter.submitList(pendingOrderItem?.itemDetail)

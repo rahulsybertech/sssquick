@@ -390,7 +390,7 @@ class StockInOfficeBottomSheetFragment :
             // Toast.makeText(context, "PDF downloaded to ${pdfFile.absolutePath}", Toast.LENGTH_LONG).show()
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
+          //  Toast.makeText(context, "Failed to download PDF", Toast.LENGTH_SHORT).show()
             return
         }
         println("PDF_FILE_PATH $pdfFile")
@@ -480,7 +480,7 @@ class StockInOfficeBottomSheetFragment :
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(context, "Failed to download PDF from $pdfUrl", Toast.LENGTH_SHORT).show()
+           //     Toast.makeText(context, "Failed to download PDF from $pdfUrl", Toast.LENGTH_SHORT).show()
                 return
             }
             println("PDF_FILE_PATH $pdfFile")
